@@ -1,6 +1,4 @@
-// See LICENSE.md
-
-#include "mbed.h"
+#include <mbed.h>
 
 DigitalOut led(LED1);
 
