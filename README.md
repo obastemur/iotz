@@ -21,7 +21,7 @@ iotc --help
 ##### How containers are managed
 
 `iotc` creates a sub container that is tailored for your project and depend on
-either `azureiot/iotc_arduino` or `azureiot/iotc_mbed` containers.
+`azureiot/iotc` container.
 
 In order to benefit from docker caching, name approach below is used.
 
