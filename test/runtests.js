@@ -32,14 +32,25 @@ var lastTestStart = Date.now();
 var testFinished = false;
 var currentTest;
 
+function applyChanges(txt) {
+    var pathsep = path.sep;
+    txt = txt.replace(/\$\{UTILS_RUN\.JS\}/g, `..${pathsep}utils${pathsep}run.js`);
+
+    return txt;
+}
+
 function runTest(test) {
   var batchFile = path.join(test.path, 'run.batch');
 
   if (!fs.existsSync(batchFile)) {
+    runNextTest();
     return; // this folder is not a test folder;
   }
 
-  var subProcess = exec(`cd ${test.path} && ${batchFile}`);
+  var txt = (fs.readFileSync(batchFile) + "");
+  txt = applyChanges(txt)
+
+  var subProcess = exec(`cd ${test.path} && ${txt}`);
 
   var dataLine = "";
   var stdoutput = function(data) {
