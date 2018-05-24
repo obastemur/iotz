@@ -83,6 +83,7 @@ function runNextTest() {
     } else {
         testFinished = true;
     }
+    lastTestStart = Date.now();
 }
 
 console.log(' -', 'this will take a while...\n');

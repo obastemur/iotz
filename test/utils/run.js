@@ -2,6 +2,7 @@
 
 const { execSync } = require('child_process');
 const path = require('path');
+const fs = require('fs');
 
 // run.js <expects_fail 0/1> "<command to run>"
 var expectsFail = process.argv[2] == '1';
@@ -14,6 +15,20 @@ try {
         console.error(e.message);
         process.exit(1);
     }
+}
+
+var home = process.cwd();
+if (fs.existsSync(path.join(home, 'Dockerfile'))) {
+    console.error(' - error: garbage left behind. (Dockerfile)');
+    process.exit(1);
+}
+
+var isWin = process.platform === "win32";
+var batchFile = path.join(home, '_iotc__batch_' + (isWin ? '.cmd' : '.sh'));
+
+if (fs.existsSync(batchFile)) {
+    console.error(' - error: garbage left behind. (' + batchFile + ')');
+    process.exit(1);
 }
 
 console.log('pass');
