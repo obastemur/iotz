@@ -87,7 +87,7 @@ i.e. `aiot_iotc_az3166_stm32f4_mxchip_az3166_7396162`
 
 Try pruning! -> https://docs.docker.com/config/pruning/
 
-## Contributing
+#### Contributing
 
 Please run the tests under the `test` folder and see if your changes are okay!
 
@@ -107,7 +107,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-## Reporting Security Issues
+#### Reporting Security Issues
 
 Security issues and bugs should be reported privately, via email, to the Microsoft Security
 Response Center (MSRC) at [secure@microsoft.com](mailto:secure@microsoft.com). You should
