@@ -1,18 +1,16 @@
-### Azure IOT - ARM mbed and Arduino builds are easy
+### iotc - iot compiler tooling for arduino && arm mbed
 
 #### Requirement
 
 Install Docker for your system.
 
-#### How To
-
-##### Install
+#### Install
 
 ```
 npm install -g @azure-iot/iotc
 ```
 
-##### Use
+#### Use
 
 ```
 usage: iotc <path> [options]
@@ -30,7 +28,7 @@ usage: iotc <path> [options]
            iotc ./app.ino -c=a -t=AZ3166:stm32f4:MXCHIP_AZ3166
 ```
 
-##### Target Board Names
+#### Target Board Names
 
 `ARM mbed` target names are available from `https://os.mbed.com/`. Simply find
 your board there and on the same page you will find the `TARGET NAME` for that board.
@@ -38,7 +36,6 @@ your board there and on the same page you will find the `TARGET NAME` for that b
 `Arduino` target names might be a bit more tricky to find but the list below should help
 for starters;
 
-AVR / SAM
 ```
 arduino:avr:uno
 arduino:avr:yun
@@ -70,8 +67,7 @@ AZ3166:stm32f4:MXCHIP_AZ3166
 ```
 
 
-
-##### How containers are managed
+#### How containers are managed
 
 `iotc` creates a sub container that is tailored for your project and depend on
 `azureiot/iotc` container.
@@ -82,6 +78,6 @@ In order to benefit from docker caching, name approach below is used.
 
 i.e. `aiot_iotc_az3166_stm32f4_mxchip_az3166_7396162`
 
-##### LICENSE
+#### LICENSE
 
 MIT
