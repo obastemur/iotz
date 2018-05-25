@@ -14,13 +14,14 @@ const rimraf = require('rimraf');
 var args = {};
 var printHelp = function printHelp() {
   var params = [
-    {option: "--help", text: "display available options"},
-    {option: "-v", text: "show version"},
+    {option: "-h, --help", text: "display available options"},
+    {option: "-v, --version", text: "show version"},
     {option: "", text: ""}, // placeholder
     {option: "-c, --compile=[target platform]", text: "a=arduino m=ARMmbed"},
     {option: "    --update", text: "update base container to latest"},
     {option: "-t, --target=[target name]", text: "ARM mbed target board name"}
   ];
+
   console.log(' ', "usage:", colors.magenta('iotc'), '<path>', '[options]\n\n',
               colors.bold(' options:\n'));
 
@@ -32,12 +33,13 @@ var printHelp = function printHelp() {
     console.log(' ', param.option, space + ": ", param.text);
   }
   console.log('\n ', colors.green('example:'), 'iotc . -c=m -t=DISCO_L475VG_IOT01A');
-  console.log(' ',   colors.green('        '), 'iotc ./app.ino -c=a -t=AZ3166:stm32f4:MXCHIP_AZ3166\n');
-  console.log(' ',   colors.yellow('   CAUTION: target names are case sensitive '));
+  console.log(' ',   colors.green('        '), 'iotc ./app.ino -c=a -t=AZ3166:stm32f4:MXCHIP_AZ3166');
+  console.log(' ',   colors.yellow('CAUTION: target names are case sensitive '));
+  console.log(' ',   colors.blue(  'link:\t  '), 'https://github.com/Azure/iotc/\n');
 };
 
 console.log("\n [ IOTC - a wrapper for ARMmbed && Arduino toolchains ]");
-console.log(colors.yellow('\t\t\t by Azure-IOT\n'));
+console.log(colors.yellow('\t\t\t\t\t by Azure-IOT\n'));
 
 for (var i = 2; i < process.argv.length; i++) {
   var arg = process.argv[i];
@@ -45,7 +47,7 @@ for (var i = 2; i < process.argv.length; i++) {
   args[arg[0].replace(/"/g, "")] = arg.length > 1 ? arg[1] : 1;
 }
 
-if (args['-v']) {
+if (args.hasOwnProperty('--version') || args.hasOwnProperty('-v')) {
   try {
     var version = JSON.parse(fs.readFileSync(__dirname + '/package.json') + "").version;
     console.log("  version ", colors.green(version));
@@ -253,7 +255,15 @@ RUN rm -rf BUILD && mbed deploy && mbed compile
     var install_board = "";
     var patch_step = "";
     if (target_board != "AZ3166:stm32f4:MXCHIP_AZ3166") {
-      install_board = "RUN arduino --install-boards " + target_board;
+      // crop the first two segments (i.e. arduino:avr:xxxx -> arduino:avr)
+      var names = target_board.split(':');
+      if (names.length < 3) {
+        console.error(' -', colors.red('error'), 'invalid target board name for arduino. try --help ?');
+        process.exit(1);
+      }
+      var brandName = names[0] + ":" + names[1];
+
+      install_board = "RUN arduino --install-boards " + brandName;
     } else {
       // install always the latest
       install_board = `
