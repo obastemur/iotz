@@ -1,5 +1,18 @@
 ### iotc - iot compiler tooling for arduino && arm mbed
 
+**motto** : IOT compiler toolchains have many moving parts / configurations hence
+setting up your system / keeping it up to date (without breaking) can be painful.
+
+**iotc** : no rocket science. Prepare the required environment under a container
+and make it usable from hosting OS command line.
+
+**status** : we got decent amount of Arduino and ARM mbed samples compile but
+we know user projects will require more from such a tooling.
+
+#### See it in action ?
+
+![ARM mbed demo](contents/demo.gif)
+
 #### Requirement
 
 Install [Docker](https://docs.docker.com/install/) for your system.
