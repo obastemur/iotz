@@ -35,7 +35,7 @@ var printHelp = function printHelp() {
   console.log('\n ', colors.green('example:'), 'iotc . -c=m -t=DISCO_L475VG_IOT01A');
   console.log(' ',   colors.green('        '), 'iotc ./app.ino -c=a -t=AZ3166:stm32f4:MXCHIP_AZ3166');
   console.log(' ',   colors.yellow('CAUTION: target names are case sensitive '));
-  console.log(' ',   colors.blue(  'link:\t  '), 'https://github.com/Azure/iotc/\n');
+  console.log(' ',   colors.blue(  'link:\t  '), 'https://aka.ms/iotc-boards\n');
 };
 
 console.log("\n [ IOTC - a wrapper for ARMmbed && Arduino toolchains ]");
