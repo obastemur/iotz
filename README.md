@@ -81,9 +81,13 @@ AZ3166:stm32f4:MXCHIP_AZ3166
 
 #### How your project folder structure should look like?
 
-However your structure was for ARMmbed or Arduino.. Keep it same! If you are just
-starting and don't have a particular structure, please visit their websites and see
-the sample projects.
+However your structure was for ARMmbed or Arduino.. Keep it `almost` the same!
+If you are just starting and don't have a particular structure, please visit
+their websites and see the sample projects.
+
+**!!!** Only difference is management of the dependencies. If the project has
+any `.lib`, `.a` etc. dependency files, you are expected to keep them under `lib/`
+folder.
 
 #### How containers are managed ?
 
