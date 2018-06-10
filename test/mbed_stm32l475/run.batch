@@ -1,1 +1,1 @@
-iotc . -t=DISCO_L475VG_IOT01A -c=m
+iotc . -t=DISCO_L475VG_IOT01A -c=m -r

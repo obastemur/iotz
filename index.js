@@ -18,6 +18,7 @@ var printHelp = function printHelp() {
     {option: "-v, --version", text: "show version"},
     {option: "", text: ""}, // placeholder
     {option: "-c, --compile=[target platform]", text: "a=arduino m=ARMmbed"},
+    {option: "-r, --reset", text: "clean build"},
     {option: "    --update", text: "update base container to latest"},
     {option: "-t, --target=[target name]", text: "ARM mbed target board name"}
   ];
@@ -166,19 +167,31 @@ function builder() {
       rimraf.sync(path.join(compile_path, 'out/'));
     }
 
+    var libs = `RUN mbed new . && mbed target ${target_board} && mbed toolchain GCC_ARM`;
+    if (fs.existsSync(path.join(compile_path, 'lib'))) {
+      libs = `
+        COPY lib /src/program
+        RUN mbed new . && mbed target ${target_board} && mbed toolchain GCC_ARM
+        RUN mbed deploy
+      `;
+    }
+
     fs.mkdirSync(path.join(compile_path, 'out/'));
+
+    var clean_build = "";
+    if (args.hasOwnProperty('--reset') || args.hasOwnProperty('-r')) {
+      clean_build = "-c";
+    }
 
     var dockerfile = `
 FROM azureiot/iotc:latest
 
 WORKDIR /src/program
 
+${libs}
+
 COPY . /src/program/
-
-RUN mbed new . && mbed target ${target_board} && mbed toolchain GCC_ARM
-
-# always do a clean build to prevent missing header files :/
-RUN rm -rf BUILD && mbed deploy && mbed compile
+RUN mbed compile ${clean_build}
 `;
 
     var ino = fs.statSync(compile_path).ino;
