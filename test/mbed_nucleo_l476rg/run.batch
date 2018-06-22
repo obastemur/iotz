@@ -1,1 +1,1 @@
-iotc . -c=m -t=nucleo_l476rg -r
+iotc init . && iotc compile .
