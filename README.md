@@ -1,13 +1,15 @@
 ### iotc - iot compiler tooling for arduino && arm mbed
 
-**motto** : IOT compiler toolchains have many moving parts / configurations hence
+**reason** : IOT compiler toolchains have many moving parts / configurations hence
 setting up your system / keeping it up to date (without breaking) can be painful.
 
-**iotc** : no rocket science. Prepare the required environment under a container
-and make it usable from hosting OS command line.
+**motto** : no rocket science. Prepare the required environment under a container
+and make it usable from hosting OS command line. Add other nice features to make
+developer life easier.
 
 **status** : we got decent amount of Arduino and ARM mbed samples compile but
-we know user projects will require more from such a tooling.
+we know user projects will require more from such a tooling. Your feedbacks are
+welcome.
 
 #### See it in action ?
 
@@ -68,11 +70,13 @@ usage: iotc <cmd> [options]
             CAUTION: target / toolchain names are case sensitive
             more at:	   https://aka.ms/iotc-boards
 
+    OTHER examples
+
     run:
-            iotc run ls -l
+            iotc run make
 
     mbed:
-            iotc mbed new .
+            iotc mbed target -S
 
     arduino:
             iotc arduino --install-boards AZ3166:stm32f4
