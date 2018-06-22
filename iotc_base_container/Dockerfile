@@ -14,7 +14,10 @@ RUN    apt update \
     && apt install -y build-essential python-pip mercurial python-setuptools \
     && apt install -y gcc-avr avr-libc avrdude curl unzip \
     && apt-get clean \
-    && pip install mbed-cli
+    && pip install mbed-cli \
+    && mkdir XXX && cd XXX && echo "#include <mbed.h>\nint main(){return 0;}" > main.cpp \
+    && mbed new . && mbed compile -t GCC_ARM -m NUCLEO_L476RG \
+    && cd .. && rm -rf XXX
 
 WORKDIR /tools
 COPY arduino15.base arduino.tar.xz boot_patch.py /tools/

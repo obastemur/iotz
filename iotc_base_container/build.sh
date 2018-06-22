@@ -4,7 +4,7 @@
 # Licensed under the MIT license.
 #-------------------------------------------------------------------------------
 
-VERSION="0.0.5"
+VERSION="0.1.0"
 CONTAINER_NAME="azureiot/iotc:${VERSION}"
 ARDUINO_VERSION="1.8.5"
 
