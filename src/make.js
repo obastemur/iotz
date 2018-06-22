@@ -120,6 +120,9 @@ exports.build = function makeBuild(args, compile_path) {
       case "compile":
       case "clean":
       {
+        if (command == 'init' && process.platform === "win32") {
+          console.log(colors.yellow('Have you shared the current drive on Docker for Windows?'));
+        }
         var proj_path = path.join(compile_path, "iotc.json");
         try {
           if (!config) config = JSON.parse(fs.readFileSync(proj_path) + "");
