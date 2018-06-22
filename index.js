@@ -103,7 +103,7 @@ args.get = function(command) {
   return str;
 }
 
-if (args.command == 'version' || args.command == '-v') {
+if (args.getCommand() == 'version' || args.getCommand() == '-v') {
   try {
     var version = JSON.parse(fs.readFileSync(__dirname + '/package.json') + "").version;
     console.log("  version ", colors.green(version));
@@ -129,7 +129,7 @@ cmd.get(
 );
 
 function builder() {
-  if (args['update']) {
+  if (args.getCommand() == 'update') {
     cmd.get('docker pull azureiot/iotc:latest',
       function(err, data, stderr) {
         if (err) {
@@ -144,7 +144,7 @@ function builder() {
     return;
   }
 
-  if (args.command == 'help' || args.command == '-h') {
+  if (args.getCommand() == 'help' || args.getCommand() == '-h') {
     printHelp();
     process.exit(0);
     return;
@@ -152,7 +152,7 @@ function builder() {
 
   var compile_path = process.cwd();
 
-  if (args.command == 'compile') {
+  if (args.getCommand() == 'compile') {
     if (process.argv.length > 3) {
       compile_path = process.argv[3];
     }

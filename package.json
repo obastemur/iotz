@@ -1,6 +1,6 @@
 {
   "name": "@azure-iot/iotc",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "ARM mbed / Arduino / GCC ARM compiler toolchain wrapper",
   "keywords": [
     "arm",
