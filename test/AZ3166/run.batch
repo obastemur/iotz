@@ -1,1 +1,1 @@
-iotc iotCentral.ino -t=AZ3166:stm32f4:MXCHIP_AZ3166 -c=a
+iotc init && iotc compile

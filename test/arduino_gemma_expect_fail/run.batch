@@ -1,1 +1,1 @@
-${UTILS_RUN.JS} 1 "iotc test.ino -t=arduino:avr:gemma -c=a 2>&1"
+${UTILS_RUN.JS} 1 "iotc init && iotc compile 2>&1"

@@ -1,1 +1,1 @@
-${UTILS_RUN.JS} 1 "iotc . -t=DISCO_L475VG_IOT01A -c=m -r 2>&1"
+${UTILS_RUN.JS} 1 "iotc init && iotc compile 2>&1"

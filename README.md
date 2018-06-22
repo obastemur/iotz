@@ -26,19 +26,56 @@ npm install -g @azure-iot/iotc
 #### Use
 
 ```
-usage: iotc <path> [options]
+usage: iotc <cmd> [options]
 
-  options:
+  commands:
 
-  -h, --help                               :  display available options
-  -v, --version                            :  show version
+  help                                     :  display available options
+  version                                  :  show version
+  update                                   :  update base container to latest
                                            :
-  -c, --compile=[target platform]          :  a=arduino m=ARMmbed
-      --update                             :  update base container to latest
-  -t, --target=[target name]               :  ARM mbed target board name
+  init <path>                              :  initialize target toolchain on given path (needs iotc.json)
+  compile <path>                           :  compile given path (needs iotc.json)
+  clean <path>                             :  clean given path (needs iotc.json)
+  run <cmd>                                :  run command on the target system
+  mbed <args>                              :  run mbed cli with given args
+  arduino <args>                           :  run arduino cli with given args
 
-  example: iotc . -c=m -t=DISCO_L475VG_IOT01A
-           iotc ./app.ino -c=a -t=AZ3166:stm32f4:MXCHIP_AZ3166
+  example:
+
+    init && compile:
+            iotc init && iotc compile
+
+            iotc.json --> { "toolchain": "arduino",
+                            "target": "AZ3166:stm32f4:MXCHIP_AZ3166",
+                            "filename": "sample.ino"
+                            }
+
+            iotc.json --> { "toolchain": "mbed",
+                            "target": "nucleo_l476rg",
+                            "lib":
+                              [
+                                {
+                                  "name": "NDefLib",
+                                  "target" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
+                                }
+                              ]
+                          }
+
+            lib ?? -> if project has any dependency (.lib file) so toolchain
+            will call 'mbed deploy' during the init.
+
+            CAUTION: target / toolchain names are case sensitive
+            more at:	   https://aka.ms/iotc-boards
+
+    run:
+            iotc run ls -l
+
+    mbed:
+            iotc mbed new .
+
+    arduino:
+            iotc arduino --install-boards AZ3166:stm32f4
 ```
 
 #### Target Board Names
@@ -81,13 +118,9 @@ AZ3166:stm32f4:MXCHIP_AZ3166
 
 #### How your project folder structure should look like?
 
-However your structure was for ARMmbed or Arduino.. Keep it `almost` the same!
+However your structure was for ARMmbed or Arduino.. Keep it the same!
 If you are just starting and don't have a particular structure, please visit
 their websites and see the sample projects.
-
-**!!!** Only difference is management of the dependencies. If the project has
-any `.lib`, `.a` etc. dependency files, you are expected to keep them under `lib/`
-folder.
 
 #### How containers are managed ?
 
@@ -96,9 +129,9 @@ folder.
 
 In order to benefit from docker caching, name approach below is used.
 
-`aiot_iotc_` `target_board` `folder_ino`
+`aiot_iotc_` `folder_ino`
 
-i.e. `aiot_iotc_az3166_stm32f4_mxchip_az3166_7396162`
+i.e. `aiot_iotc_7396162`
 
 #### How should I clean up the containers ?
 

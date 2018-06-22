@@ -1,0 +1,5 @@
+{
+  "toolchain": "mbed",
+  "target": "nucleo_l476rg",
+  "has_libs": false
+}

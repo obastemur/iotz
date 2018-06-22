@@ -1,0 +1,4 @@
+{
+  "toolchain": "mbed",
+  "target": "NUCLEO_L496ZG_P"
+}

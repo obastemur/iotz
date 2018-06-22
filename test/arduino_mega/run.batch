@@ -1,1 +1,1 @@
-iotc test.ino -t=arduino:avr:megaADK -c=a
+iotc init && iotc compile

@@ -1,0 +1,8 @@
+{
+  "name": "arduino gemma test",
+  "version": "0.0.0",
+  "toolchain": "arduino",
+  "target": "arduino:avr:gemma",
+  "filename": "test.ino",
+  "has_libs": false
+}
