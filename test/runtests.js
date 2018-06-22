@@ -51,18 +51,7 @@ function runTest(test) {
   txt = applyChanges(txt)
 
   var subProcess = exec(`cd ${test.path} && ${txt}`);
-
-  var dataLine = "";
-  var stdoutput = function(data) {
-    dataLine += data;
-    if (dataLine[dataLine.length - 1] == '\n') {
-      console.log(dataLine);
-      dataLine = "";
-    }
-  };
-
-//   subProcess.stdout.on('data', stdoutput);
-  subProcess.stderr.on('data', stdoutput);
+  subProcess.stderr.pipe(process.stderr);
 
   subProcess.on('exit', function(errorCode) {
     if (errorCode) {
