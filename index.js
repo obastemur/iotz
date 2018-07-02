@@ -14,8 +14,9 @@ const arduino = require('./src/arduino');
 
 var args = {};
 var printHelp = function printHelp() {
-  console.log("\n [ iotc - a wrapper for ARMmbed && Arduino toolchains ]");
-  console.log(colors.yellow('\t\t\t\t\t by Azure-IOT\n'));
+  console.log("\n  " + colors.cyan("iotc")
+    + " - containerized compiler tooling for Arduino, ARM, and ARM mbed");
+  console.log(colors.yellow('\t\t\t\t\t\t\t   by Azure-IOT\n'));
 
 var params = [
     {option: "help", text: "display available options"},
@@ -30,7 +31,7 @@ var params = [
     {option: "arduino <args>", text:"run arduino cli with given args"}
   ];
 
-  console.log(' ', "usage:", colors.magenta('iotc'), '<cmd>', '[options]\n\n',
+  console.log(' ', "usage:", colors.cyan('iotc'), '<cmd>', '[options]\n\n',
               colors.bold(' commands:\n'));
 
   for (var i in params) {
@@ -38,10 +39,10 @@ var params = [
     if (param.hidden) continue;
     var space = new Buffer(40 - param.option.length);
     space.fill(" ");
-    console.log(' ', param.option, space + ": ", param.text);
+    console.log(' ', param.option, space + colors.bold(": "), param.text);
   }
   console.log(`
-  init && compile:
+  ${colors.bold("init && compile:")}
   iotc init && iotc compile
 
   iotc.json --> {
@@ -62,20 +63,14 @@ var params = [
                     ]
                 }
 
-  has_libs ?? -> if project has any dependency (.lib file) so toolchain
-  will call 'mbed deploy' during the init.
+  ${colors.bold("CAUTION:")} 'target' and 'toolchain' names are case sensitive
+  more at: https://aka.ms/iotc-boards
 
-  CAUTION: target / toolchain names are case sensitive
-  more at:	   https://aka.ms/iotc-boards
-
-  OTHER examples
-
+  ${colors.bold("OTHER examples")}
   run:
     iotc run make
-
   mbed:
     iotc mbed target -S
-
   arduino:
     iotc arduino --install-boards AZ3166:stm32f4
   `);
@@ -144,7 +139,10 @@ function builder() {
     return;
   }
 
-  if (args.getCommand() == 'help' || args.getCommand() == '-h') {
+  if (args.getCommand() == 'help' ||
+      args.getCommand() == '-h' ||
+      args.getCommand() == '--help') {
+
     printHelp();
     process.exit(0);
     return;
