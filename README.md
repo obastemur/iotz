@@ -1,15 +1,13 @@
 ### iotc - iot compiler tooling for arduino && arm mbed
 
-**reason** : IOT compiler toolchains have many moving parts / configurations hence
-setting up your system / keeping it up to date (without breaking) can be painful.
+**reason** : IOT compiler toolchains have many moving parts and configurations.
+Cross compiling tools are `mostly` platform specific.
 
-**motto** : no rocket science. Prepare the required environment under a container
-and make it usable from hosting OS command line. Add other nice features to make
-developer life easier.
+**motto** : Improve developer productivity by providing all the cross compile
+capabilities on user's favorite OS. Make installation and usage process painless.
 
-**status** : we got decent amount of Arduino and ARM mbed samples compile but
-we know user projects will require more from such a tooling. Your feedbacks are
-welcome.
+**status** : It works but needs more work (see issues). If it doesn't work for
+you, create an issue please. (seriously!)
 
 #### See it in action ?
 
@@ -17,9 +15,9 @@ welcome.
 
 #### Requirement
 
-Install [Docker](https://docs.docker.com/install/) for your system.
+Install [Docker](https://docs.docker.com/install/) for your OS.
 
-#### Install
+#### How to install
 
 ```
 npm install -g @azure-iot/iotc
@@ -64,20 +62,14 @@ usage: iotc <cmd> [options]
                               ]
                           }
 
-            lib ?? -> if project has any dependency (.lib file) so toolchain
-            will call 'mbed deploy' during the init.
-
             CAUTION: target / toolchain names are case sensitive
             more at:	   https://aka.ms/iotc-boards
 
-    OTHER examples
-
+  OTHER examples
     run:
             iotc run make
-
     mbed:
             iotc mbed target -S
-
     arduino:
             iotc arduino --install-boards AZ3166:stm32f4
 ```
@@ -87,8 +79,8 @@ usage: iotc <cmd> [options]
 `ARM mbed` target names are available from `https://os.mbed.com/`. Simply find
 your board there and on the same page you will find the `TARGET NAME` for that board.
 
-`Arduino` target names might be a bit more tricky to find but the list below should help
-for starters;
+`Arduino` target names might be a bit more tricky to find but the list below
+should help for starters;
 
 ```
 arduino:avr:uno
@@ -149,13 +141,15 @@ Please run the tests under the `test` folder and see if your changes are okay!
 cd test && node runtests.js
 ```
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
+This project welcomes contributions and suggestions.  Most contributions require
+you to agree to a Contributor License Agreement (CLA) declaring that you have the
+right to, and actually do, grant us the rights to use your contribution. For details,
+visit https://cla.microsoft.com.
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+When you submit a pull request, a CLA-bot will automatically determine whether
+you need to provide a CLA and decorate the PR appropriately (e.g., label, comment).
+Simply follow the instructions provided by the bot. You will only need to do this
+once across all repos using our CLA.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
@@ -163,12 +157,12 @@ contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additio
 
 #### Reporting Security Issues
 
-Security issues and bugs should be reported privately, via email, to the Microsoft Security
-Response Center (MSRC) at [secure@microsoft.com](mailto:secure@microsoft.com). You should
-receive a response within 24 hours. If for some reason you do not, please follow up via
-email to ensure we received your original message. Further information, including the
-[MSRC PGP](https://technet.microsoft.com/en-us/security/dn606155) key, can be found in
-the [Security TechCenter](https://technet.microsoft.com/en-us/security/default).
+Security issues and bugs should be reported privately, via email, to the Microsoft
+Security Response Center (MSRC) at [secure@microsoft.com](mailto:secure@microsoft.com).
+You should receive a response within 24 hours. If for some reason you do not,
+please follow up via email to ensure we received your original message. Further
+information, including the [MSRC PGP](https://technet.microsoft.com/en-us/security/dn606155)
+key, can be found in the [Security TechCenter](https://technet.microsoft.com/en-us/security/default).
 
 #### LICENSE
 
