@@ -26,9 +26,10 @@ var params = [
     {option: "init <path>", text:"initialize target toolchain on given path (needs iotc.json)"},
     {option: "compile <path>", text:"compile given path (needs iotc.json)"},
     {option: "clean <path>", text:"clean given path (needs iotc.json)"},
-    {option: "run <cmd>", text: "run command on the target system"},
+    {option: "arduino <args>", text:"run arduino cli with given args"},
     {option: "mbed <args>", text:"run mbed cli with given args"},
-    {option: "arduino <args>", text:"run arduino cli with given args"}
+    {option: "run <cmd>", text: "run command on the target system"},
+    {option: "export", text: "exports a Makefile"}
   ];
 
   console.log(' ', "usage:", colors.cyan('iotc'), '<cmd>', '[options]\n\n',
@@ -54,11 +55,11 @@ var params = [
   iotc.json --> {
                   "toolchain": "mbed",
                   "target": "nucleo_l476rg",
-                  "lib":
+                  "deps":
                     [
                       {
                         "name": "NDefLib",
-                        "target" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
+                        "url" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
                       }
                     ]
                 }
