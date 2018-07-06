@@ -164,7 +164,7 @@ exports.build = function makeBuild(args, compile_path) {
         process.exit(1);
     };
 
-    if (ret && ret.run) {
+    if (ret && typeof ret.run === 'string') {
       runCmd = ret.run;
     }
 
