@@ -72,7 +72,7 @@ exports.build = function mbedBuild(config, runCmd, command) {
     }
 
     // if project seeks a specific version of MBED, import and use it instead
-    libs = `mbed new . ${importMbed} && mbed target ${target_board} && mbed toolchain GCC_ARM` + libs;
+    libs = `mbed new . ${importMbed} --depth 1 && mbed target ${target_board} && mbed toolchain GCC_ARM` + libs;
     runString = exports.build(config, runCmd, 'clean').run + " && " + libs;
   } else if (command == "clean") {
     runString = "rm -rf iotc-mbed-deps/ BUILD/ .mbed mbed/ mbed-os.lib mbed-os/ mbed_settings.py*"
