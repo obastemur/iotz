@@ -3,6 +3,5 @@
   "version": "0.0.0",
   "toolchain": "arduino",
   "target": "arduino:avr:micro",
-  "filename": "test.ino",
-  "has_libs": false
+  "filename": "test.ino"
 }

@@ -1,1 +1,1 @@
-iotc init && iotc compile
+iotc init && iotc export && iotc run make -j3
