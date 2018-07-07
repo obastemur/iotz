@@ -1,5 +1,4 @@
 {
   "toolchain": "mbed",
-  "target": "DISCO_L475VG_IOT01A",
-  "has_libs": false
+  "target": "DISCO_L475VG_IOT01A"
 }

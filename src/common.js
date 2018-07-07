@@ -26,13 +26,14 @@ function createImage(args, compile_path, config, callback) {
       config = JSON.parse(fs.readFileSync(proj_path) + "");
     } catch(e) { }
 
+    var ret;
     if (config) {
       switch (config.toolchain) {
         case "arduino":
         case "mbed":
-          runCmd = require('./' + config.toolchain).build(config, runCmd, 'container_init', compile_path);
-          if (runCmd.length) {
-            runCmd = "&& " + runCmd;
+          ret = require('./' + config.toolchain).build(config, runCmd, 'container_init', compile_path);
+          if (ret && ret.run.length) {
+            runCmd = "&& " + ret.run;
           }
           break;
         default:
@@ -52,11 +53,14 @@ function createImage(args, compile_path, config, callback) {
     var batchString = `docker build . --force-rm -t ${container_name}`;
     var subProcess = cmd.get(`cd ${compile_path} && ` + batchString);
 
-    // subProcess.stdout.pipe(process.stdout);
     subProcess.stderr.pipe(process.stderr);
+    subProcess.stdin.pipe(process.stdin);
 
     subProcess.on('exit', function(errorCode) {
       rimraf.sync(path.join(compile_path, 'Dockerfile'));
+      if (ret && ret.callback) {
+        ret.callback(config);
+      }
       callback(errorCode);
     });
   } else {
@@ -82,6 +86,7 @@ ${compile_path}:/src/program:rw,cached ${container_name} /bin/bash -c "${CMD}"\
   var subProcess = cmd.get(`cd ${compile_path} && ${batchString}`);
   subProcess.stdout.pipe(process.stdout);
   subProcess.stderr.pipe(process.stderr);
+  subProcess.stdin.pipe(process.stdin);
 
   subProcess.on('exit', function(errorCode) {
     callback(errorCode);
@@ -119,10 +124,12 @@ exports.build = function makeBuild(args, compile_path) {
       case "init":
       case "compile":
       case "clean":
+      case "export":
       {
         if (command == 'init' && process.platform === "win32") {
           console.log(colors.yellow('Have you shared the current drive on Docker for Windows?'));
         }
+        var ret;
         var proj_path = path.join(compile_path, "iotc.json");
         try {
           if (!config) config = JSON.parse(fs.readFileSync(proj_path) + "");
@@ -133,7 +140,7 @@ exports.build = function makeBuild(args, compile_path) {
           switch (config.toolchain) {
             case "arduino":
             case "mbed":
-              runCmd = require('./' + config.toolchain).build(config, runCmd, command, compile_path);
+              ret = require('./' + config.toolchain).build(config, runCmd, command, compile_path);
               break;
             default:
               console.error(' - error:', colors.red('unsupported toolchain'), config.target);
@@ -153,10 +160,17 @@ exports.build = function makeBuild(args, compile_path) {
           runCmd = command + " " + runCmd;
         }
       break;
+      case "make":
+        runCmd = command + " " + (runCmd != -1 ? runCmd : "");
+        break;
       default:
         console.error(" - error:", colors.red('unknown command'), command, compile_path);
         process.exit(1);
     };
+
+    if (ret && typeof ret.run === 'string') {
+      runCmd = ret.run;
+    }
 
     if (runCmd === -1) {
       console.error(` - error: you should provide a command to run after "${command}".`);
@@ -172,6 +186,9 @@ exports.build = function makeBuild(args, compile_path) {
       if (errorCode) {
         process.exit(errorCode);
         return;
+      }
+      if (ret && ret.callback) {
+        ret.callback(config);
       }
     })
   });

@@ -9,8 +9,11 @@ const path   = require('path');
 
 exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
   var target_board = config.target;
+  var callback = null;
+  var runString = "";
+
   if (command == 'init') {
-    return "";
+    // noop
   } else if (command == 'container_init') {
     var install_board = "";
     if ( target_board != "AZ3166:stm32f4:MXCHIP_AZ3166") {
@@ -35,10 +38,10 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
     mv /src/program/.iotc.mxchip.tweak ~/.arduino15/packages/AZ3166/hardware/stm32f4/1.3.7/platform.txt`;
     }
 
-    return install_board;
+    runString = install_board;
   } else if (command == 'clean') {
-    return "rm -rf BUILD/ .arduino15/";
-  } else { // build
+    runString = "rm -rf BUILD/ .arduino15/";
+  } else if (command == 'compile') { // build
     var patch_step = "";
     switch (config.target.toLowerCase()) {
       case "az3166:stm32f4:mxchip_az3166":
@@ -50,6 +53,19 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
       break;
       default:
     };
-    return `arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/program/BUILD ${patch_step}`;
+    runString = `arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/program/BUILD ${patch_step}`;
+  } else if (command == 'export') {
+    console.error(" - ", console.red("error :"),
+              "export from arduino projects is not yet supported");
+    process.exit(1);
+  } else {
+    console.error(" - ", console.red("error :"),
+              "Unknown command", command);
+    process.exit(1);
   }
+
+  return {
+    run: runString,
+    callback: callback
+  };
 }

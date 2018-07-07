@@ -28,7 +28,7 @@ rm -rf exported.tar && \
     docker image prune -f && \
     docker load --input exported.tar && \
     docker tag $IMAGE_ID $CONTAINER_NAME && \
-    docker tag $IMAGE_ID azureiot/iotc:latest # && \
+    docker tag $IMAGE_ID azureiot/iotc:latest
     docker push $CONTAINER_NAME && \
     docker push azureiot/iotc:latest && \
     rm -rf exported.tar && \

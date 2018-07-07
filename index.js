@@ -9,8 +9,7 @@ const colors  = require('colors/safe');
 const fs      = require('fs');
 const path    = require('path');
 const cmd     = require('node-cmd');
-const make    = require('./src/make');
-const arduino = require('./src/arduino');
+const make    = require('./src/common');
 
 var args = {};
 var printHelp = function printHelp() {
@@ -26,9 +25,10 @@ var params = [
     {option: "init <path>", text:"initialize target toolchain on given path (needs iotc.json)"},
     {option: "compile <path>", text:"compile given path (needs iotc.json)"},
     {option: "clean <path>", text:"clean given path (needs iotc.json)"},
-    {option: "run <cmd>", text: "run command on the target system"},
+    {option: "arduino <args>", text:"run arduino cli with given args"},
     {option: "mbed <args>", text:"run mbed cli with given args"},
-    {option: "arduino <args>", text:"run arduino cli with given args"}
+    {option: "run <cmd>", text: "run command on the target system"},
+    {option: "export", text: "exports a Makefile"}
   ];
 
   console.log(' ', "usage:", colors.cyan('iotc'), '<cmd>', '[options]\n\n',
@@ -54,11 +54,11 @@ var params = [
   iotc.json --> {
                   "toolchain": "mbed",
                   "target": "nucleo_l476rg",
-                  "lib":
+                  "deps":
                     [
                       {
                         "name": "NDefLib",
-                        "target" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
+                        "url" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
                       }
                     ]
                 }
@@ -68,7 +68,9 @@ var params = [
 
   ${colors.bold("OTHER examples")}
   run:
-    iotc run make
+    iotc run ls -l
+  make:
+    iotc make
   mbed:
     iotc mbed target -S
   arduino:
