@@ -9,8 +9,7 @@ const colors  = require('colors/safe');
 const fs      = require('fs');
 const path    = require('path');
 const cmd     = require('node-cmd');
-const make    = require('./src/make');
-const arduino = require('./src/arduino');
+const make    = require('./src/common');
 
 var args = {};
 var printHelp = function printHelp() {
@@ -69,7 +68,9 @@ var params = [
 
   ${colors.bold("OTHER examples")}
   run:
-    iotc run make
+    iotc run ls -l
+  make:
+    iotc make
   mbed:
     iotc mbed target -S
   arduino:

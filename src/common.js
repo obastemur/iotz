@@ -53,8 +53,8 @@ function createImage(args, compile_path, config, callback) {
     var batchString = `docker build . --force-rm -t ${container_name}`;
     var subProcess = cmd.get(`cd ${compile_path} && ` + batchString);
 
-    // subProcess.stdout.pipe(process.stdout);
     subProcess.stderr.pipe(process.stderr);
+    subProcess.stdin.pipe(process.stdin);
 
     subProcess.on('exit', function(errorCode) {
       rimraf.sync(path.join(compile_path, 'Dockerfile'));
@@ -86,6 +86,7 @@ ${compile_path}:/src/program:rw,cached ${container_name} /bin/bash -c "${CMD}"\
   var subProcess = cmd.get(`cd ${compile_path} && ${batchString}`);
   subProcess.stdout.pipe(process.stdout);
   subProcess.stderr.pipe(process.stderr);
+  subProcess.stdin.pipe(process.stdin);
 
   subProcess.on('exit', function(errorCode) {
     callback(errorCode);
@@ -159,6 +160,9 @@ exports.build = function makeBuild(args, compile_path) {
           runCmd = command + " " + runCmd;
         }
       break;
+      case "make":
+        runCmd = command + " " + (runCmd != -1 ? runCmd : "");
+        break;
       default:
         console.error(" - error:", colors.red('unknown command'), command, compile_path);
         process.exit(1);

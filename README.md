@@ -66,12 +66,14 @@ usage: iotc <cmd> [options]
             more at:	   https://aka.ms/iotc-boards
 
   OTHER examples
-    run:
-            iotc run make
-    mbed:
-            iotc mbed target -S
-    arduino:
-            iotc arduino --install-boards AZ3166:stm32f4
+  run:
+    iotc run ls -l
+  make:
+    iotc make
+  mbed:
+    iotc mbed target -S
+  arduino:
+    iotc arduino --install-boards AZ3166:stm32f4
 ```
 
 #### Target Board Names
