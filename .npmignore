@@ -10,3 +10,5 @@ mbed-os/
 mbed/
 .arduino15/
 test/
+iotc_base_container/
+contents/
