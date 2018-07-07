@@ -1,4 +1,4 @@
-### iotc - iot compiler tooling for arduino && arm mbed
+### iotc - cross compiler tooling for arduino, arm mbed and raspberry pi and ... more
 
 **reason** : IOT compiler toolchains have many moving parts and configurations.
 Cross compiling tools are `mostly` platform specific.
