@@ -96,7 +96,7 @@ exports.build = function mbedBuild(config, runCmd, command) {
       fs.writeFileSync(mpath, source);
 
       console.log(colors.green("Makefile"), "is ready.\nTry ",
-        colors.magenta('iotc run make -j2'));
+        colors.magenta('iotc make -j2'));
     }
   } else {
     console.error(" - ", console.red("error :"),
