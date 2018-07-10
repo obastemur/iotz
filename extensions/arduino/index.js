@@ -78,7 +78,7 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
       var container_name = "aiot_iotz_" + ino;
       try {
         // clean up the previously stopped instance
-        execSync(`docker image rm -f "/${container_name}" 2>&1`);
+        execSync(`docker image rm -f ${container_name} 2>&1`);
       } catch(e) { }
     };
   } else if (command == 'compile') { // build
