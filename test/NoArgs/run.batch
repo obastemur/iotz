@@ -1,1 +1,1 @@
-${UTILS_RUN.JS} 1 "iotc 2>&1"
+${UTILS_RUN.JS} 1 "iotz 2>&1"

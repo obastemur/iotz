@@ -4,23 +4,17 @@
 # Licensed under the MIT license.
 #-------------------------------------------------------------------------------
 
-VERSION="0.1.0"
-CONTAINER_NAME="azureiot/iotc:${VERSION}"
-ARDUINO_VERSION="1.8.5"
+VERSION="0.2.0"
+CONTAINER_NAME="azureiot/iotz:${VERSION}"
 
 echo -e "- building container. this will take a while.."
-
-if [[ ! -f arduino.tar.xz ]]; then
-    curl "https://downloads.arduino.cc/arduino-${ARDUINO_VERSION}-linux64.tar.xz" -o arduino.tar.xz
-    if [[ $? != 0 ]]; then echo -e $IMAGE_ID && exit; fi
-fi
 
 # Second call is to get imageId. Assuming nothing has changed between two
 # calls, we should be able to get it instantly
 IMAGE_ID=$(docker build . --quiet -t $CONTAINER_NAME --build-arg ARG_VERSION=${VERSION})
 if [[ $? != 0 ]]; then echo -e $IMAGE_ID && exit; fi
 
-$(docker image rm -f azureiot/iotc:latest)
+$(docker image rm -f azureiot/iotz:latest)
 
 rm -rf exported.tar && \
     docker save $IMAGE_ID -o exported.tar && \
@@ -28,9 +22,9 @@ rm -rf exported.tar && \
     docker image prune -f && \
     docker load --input exported.tar && \
     docker tag $IMAGE_ID $CONTAINER_NAME && \
-    docker tag $IMAGE_ID azureiot/iotc:latest
+    docker tag $IMAGE_ID azureiot/iotz:latest && \
     docker push $CONTAINER_NAME && \
-    docker push azureiot/iotc:latest && \
+    docker push azureiot/iotz:latest && \
     rm -rf exported.tar && \
     echo -e "Done!"
 

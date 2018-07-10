@@ -1,32 +1,34 @@
-### iotc - cross compiler tooling for arduino, arm mbed and raspberry pi and ... more
+### iotz - iot easy
+
+#### a containerized and extendible cross compiler tool manager for arduino, arm mbed, raspberry pi and ... more
 
 **reason** : IOT compiler toolchains have many moving parts and configurations.
-Cross compiling tools are `mostly` platform specific.
+Cross compiler tools are `mostly` platform specific.
 
-**motto** : Improve developer productivity by providing all the cross compile
-capabilities on user's favorite OS. Make installation and usage process painless.
+**motto** : Improve developer productivity by providing all the cross compiler
+capabilities on user's favorite OS. Make installation and usage painless.
 
-**status** : It works but needs more work (see issues). If it doesn't work for
-you, create an issue please. (seriously!)
+**status** : It works generally but need more work to cover more platforms :)
+If it doesn't work for you, create an issue please. (seriously!)
 
-#### See it in action ?
+### See it in action ?
 
 ![ARM mbed demo](contents/demo.gif)
 
-#### Requirement
+### Requirement
 
 Install [Docker](https://docs.docker.com/install/) for your OS.
 
-#### How to install
+### How to install
 
 ```
-npm install -g @azure-iot/iotc
+npm install -g iotz
 ```
 
-#### Use
+### Use
 
 ```
-usage: iotc <cmd> [options]
+usage: iotz <cmd> [options]
 
   commands:
 
@@ -34,9 +36,9 @@ usage: iotc <cmd> [options]
   version                                  :  show version
   update                                   :  update base container to latest
                                            :
-  init <path>                              :  initialize target toolchain on given path (needs iotc.json)
-  compile <path>                           :  compile given path (needs iotc.json)
-  clean <path>                             :  clean given path (needs iotc.json)
+  init <path>                              :  initialize target toolchain on given path (needs iotz.json)
+  compile <path>                           :  compile given path (needs iotz.json)
+  clean <path>                             :  clean given path (needs iotz.json)
   run <cmd>                                :  run command on the target system
   mbed <args>                              :  run mbed cli with given args
   arduino <args>                           :  run arduino cli with given args
@@ -44,14 +46,14 @@ usage: iotc <cmd> [options]
   example:
 
     init && compile:
-            iotc init && iotc compile
+            iotz init && iotz compile
 
-            iotc.json --> { "toolchain": "arduino",
+            iotz.json --> { "toolchain": "arduino",
                             "target": "AZ3166:stm32f4:MXCHIP_AZ3166",
                             "filename": "sample.ino"
                             }
 
-            iotc.json --> { "toolchain": "mbed",
+            iotz.json --> { "toolchain": "mbed",
                             "target": "nucleo_l476rg",
                             "deps":
                               [
@@ -63,20 +65,19 @@ usage: iotc <cmd> [options]
                           }
 
             CAUTION: library, target and toolchain names are case sensitive
-            more at:	   https://aka.ms/iotc-boards
 
   OTHER examples
   run:
-    iotc run ls -l
+    iotz run ls -l
   make:
-    iotc make
+    iotz make
   mbed:
-    iotc mbed target -S
+    iotz mbed target -S
   arduino:
-    iotc arduino --install-boards AZ3166:stm32f4
+    iotz arduino --install-boards AZ3166:stm32f4
 ```
 
-#### Target Board Names
+### Target Board Names
 
 `ARM mbed` target names are available from `https://os.mbed.com/`. Simply find
 your board there and on the same page you will find the `TARGET NAME` for that board.
@@ -114,28 +115,40 @@ MXCHIP AZ3166
 AZ3166:stm32f4:MXCHIP_AZ3166
 ```
 
+#### F.A.Q
+
 #### How your project folder structure should look like?
 
 However your structure was for ARMmbed or Arduino.. Keep it the same!
 If you are just starting and don't have a particular structure, please visit
 their websites and see the sample projects.
 
+You might also visit `test/` folder and see what we did. Also, check `run.batch`
+for the commands we do run.
+
 #### How containers are managed ?
 
-`iotc` creates a sub container that is tailored for your project and depend on
-`azureiot/iotc` container.
+`iotz` creates a sub container that is tailored for your project and depend on
+`azureiot/iotz` container.
 
 In order to benefit from docker caching, name approach below is used.
 
-`aiot_iotc_` `folder_ino`
+`aiot_iotz_` `folder_ino`
 
-i.e. `aiot_iotc_7396162`
+i.e. `aiot_iotz_7396162`
 
 #### How should I clean up the containers ?
 
 Try pruning! -> https://docs.docker.com/config/pruning/
 
-#### Contributing
+#### Unable to find `mbed` or `arduino` or `arm-linux-gnueabihf-g++` ....
+
+Probably you did trigger the base container update on another folder and you just
+need to update on the project folder to reset things up.
+
+Try `iotz update` or.. if you have `iotz.json` file, `iotz clean`
+
+### Contributing
 
 Please run the tests under the `test` folder and see if your changes are okay!
 

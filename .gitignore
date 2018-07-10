@@ -7,12 +7,13 @@ BUILD/
 .mbed
 mbed-os.lib
 mbed-os/
-mbed/
 .arduino15/
 NDefLib/
 X_NUCLEO_NFC02A1/
 ST_INTERFACES/
 GettingStarted.html
-iotc_base_container/exported.tar
+iotz_base_container/exported.tar
 Makefile
 mbed_config.h
+extensions/Dockerfile
+.iotz.mxchip.tweak
