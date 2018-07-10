@@ -24,7 +24,7 @@ if (fs.existsSync(path.join(home, 'Dockerfile'))) {
 }
 
 var isWin = process.platform === "win32";
-var batchFile = path.join(home, '_iotc__batch_' + (isWin ? '.cmd' : '.sh'));
+var batchFile = path.join(home, '_iotz__batch_' + (isWin ? '.cmd' : '.sh'));
 
 if (fs.existsSync(batchFile)) {
     console.error(' - error: garbage left behind. (' + batchFile + ')');

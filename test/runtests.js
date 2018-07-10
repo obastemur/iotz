@@ -76,7 +76,7 @@ function runNextTest() {
 }
 
 console.log(' -', 'this will take a while...\n');
-execSync('docker pull azureiot/iotc', function(error) {
+execSync('docker pull azureiot/iotz', function(error) {
     if (error) {
         console.error(color.red('do you have Docker installed?'));
         process.exit(1);

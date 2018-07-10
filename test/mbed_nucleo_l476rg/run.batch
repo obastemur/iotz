@@ -1,1 +1,1 @@
-iotc init && iotc export && iotc run make -j3
+iotz init && iotz export && iotz run make -j3

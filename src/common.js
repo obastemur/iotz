@@ -9,41 +9,60 @@ const path   = require('path');
 const cmd    = require('node-cmd');
 const rimraf = require('rimraf');
 const execSync = require('child_process').execSync;
+const extensions = require('../extensions/index.js');
+
+function getProjectConfig(compile_path) {
+  var proj_path = path.join(compile_path, "iotz.json");
+  var config = null;
+  try {
+    config = JSON.parse(fs.readFileSync(proj_path) + "");
+  } catch(e) { }
+
+  if (!config) {
+    config = extensions.autoDetectToolchain(compile_path);
+  } else if (!config.toolchain) {
+    var config_detected = extensions.autoDetectToolchain(compile_path);
+    if (config_detected && config_detected.toolchain) {
+      config.toolchain = config_detected.toolchain;
+    }
+  }
+
+  return config;
+}
 
 function createImage(args, compile_path, config, callback) {
   var images = execSync('docker images -a');
   var ino = fs.statSync(compile_path).ino;
-  var container_name = "aiot_iotc_" + ino;
+  var container_name = "aiot_iotz_" + ino;
 
+  // do we have the local container?
+  if (images.indexOf("azureiot/iotz_local") == -1) {
+    require('../extensions/index.js').createLocalContainer();
+  }
+
+  // do we have the project container
   if (images.indexOf(container_name) == -1) {
-    console.log(" - ", colors.yellow('creating the container for the first use..'));
-
-    var proj_path = path.join(compile_path, "iotc.json");
-    var config = null;
-    var runCmd = "";
-
-    try {
-      config = JSON.parse(fs.readFileSync(proj_path) + "");
-    } catch(e) { }
+    console.log(" -", colors.yellow('creating the container for the first use..'));
 
     var ret;
+    var runCmd = "";
+    var config = getProjectConfig(compile_path);
+
     if (config) {
-      switch (config.toolchain) {
-        case "arduino":
-        case "mbed":
-          ret = require('./' + config.toolchain).build(config, runCmd, 'container_init', compile_path);
-          if (ret && ret.run.length) {
-            runCmd = "&& " + ret.run;
-          }
-          break;
-        default:
-          console.error(' - error:', colors.red('unsupported toolchain'), config.target);
-          process.exit(1);
-      };
+      if (!config.toolchain) {
+        console.error(" -", colors.red('warning:'), "no 'toolchain' is defined under iotz.json.");
+      } else {
+        ret = require('../extensions/' + extensions.getToolchain(config.toolchain) + '/index.js')
+          .build(config, runCmd, 'container_init', compile_path);
+
+        if (ret && ret.run.length) {
+          runCmd = "&& " + ret.run;
+        }
+      }
     }
 
     var libs = `
-    FROM azureiot/iotc:latest
+    FROM azureiot/iotz_local
 
     WORKDIR /src/program
 
@@ -71,7 +90,7 @@ function createImage(args, compile_path, config, callback) {
 var active_instance = null;
 function runCommand(args, compile_path, CMD, callback) {
   var ino = fs.statSync(compile_path).ino;
-  var container_name = "aiot_iotc_" + ino;
+  var container_name = "aiot_iotz_" + ino;
   active_instance = container_name + "_";
   try {
     // clean up the previously stopped instance
@@ -104,18 +123,8 @@ process.on('SIGINT', function() {
 });
 
 exports.build = function makeBuild(args, compile_path) {
-  var proj_path = path.join(compile_path, "iotc.json");
   var command = args.getCommand();
-  var config;
-  try {
-    config = JSON.parse(fs.readFileSync(proj_path) + "");
-  } catch(e) {
-    if (command == 'init') {
-      console.error(" - ", colors.red('error :'), "iotc.json file is needed. try 'iotc help'");
-      process.exit(1);
-    }
-    config = null;
-  }
+  var config = getProjectConfig(compile_path)
 
   createImage(args, compile_path, config, function(errorCode) {
     var runCmd = args.get(command);
@@ -127,25 +136,24 @@ exports.build = function makeBuild(args, compile_path) {
       case "export":
       {
         if (command == 'init' && process.platform === "win32") {
+          // TODO: detect this and behave accordingly?
           console.log(colors.yellow('Have you shared the current drive on Docker for Windows?'));
         }
+
+        if (!config) {
+          console.error(" -", colors.red('error :'), "iotz.json file is needed. try 'iotz help'");
+          process.exit(1);
+        }
+
+        if (!config.hasOwnProperty('toolchain')) {
+          console.error(' - error:', colors.red('no toolchain is defined. i.e. "toolchain":"arduino" or "toolchain":"mbed" etc..'));
+          process.exit(1);
+        }
+
         var ret;
-        var proj_path = path.join(compile_path, "iotc.json");
         try {
-          if (!config) config = JSON.parse(fs.readFileSync(proj_path) + "");
-          if (!config.hasOwnProperty('toolchain')) {
-            console.error(' - error:', colors.red('no toolchain is defined. set "toolchain":"arduino" or "toolchain":"mbed"'));
-            process.exit(1);
-          }
-          switch (config.toolchain) {
-            case "arduino":
-            case "mbed":
-              ret = require('./' + config.toolchain).build(config, runCmd, command, compile_path);
-              break;
-            default:
-              console.error(' - error:', colors.red('unsupported toolchain'), config.target);
-              process.exit(1);
-          };
+          ret = require('../extensions/' + extensions.getToolchain(config.toolchain) + '/index.js')
+            .build(config, runCmd, command, compile_path);
         } catch(e) {
           console.error(' - error:', "something bad happened..\n", colors.red(e));
           process.exit(1);
@@ -154,18 +162,17 @@ exports.build = function makeBuild(args, compile_path) {
       break;
       case "run": // do nothing
       break;
-      case "mbed":
-      case "arduino":
-        if (runCmd !== -1) {
-          runCmd = command + " " + runCmd;
-        }
-      break;
       case "make":
         runCmd = command + " " + (runCmd != -1 ? runCmd : "");
         break;
       default:
-        console.error(" - error:", colors.red('unknown command'), command, compile_path);
-        process.exit(1);
+        if (extensions.getToolchain(command, 1) == command) {
+          runCmd = require('../extensions/' + extensions.getToolchain(command) + '/index.js')
+            .directCall(config, runCmd, command, compile_path);
+        } else {
+          console.error(" - error:", colors.red('unknown command'), command, compile_path);
+          process.exit(1);
+        }
     };
 
     if (ret && typeof ret.run === 'string') {

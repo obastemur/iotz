@@ -7,8 +7,9 @@ BUILD/
 .mbed
 mbed-os.lib
 mbed-os/
-mbed/
 .arduino15/
 test/
-iotc_base_container/
+iotz_base_container/
 contents/
+extensions/Dockerfile
+test/

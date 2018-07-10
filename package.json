@@ -1,6 +1,6 @@
 {
-  "name": "@azure-iot/iotc",
-  "version": "0.5.6",
+  "name": "iotz",
+  "version": "0.1.0",
   "description": "ARM mbed / Arduino / GCC ARM compiler toolchain wrapper",
   "keywords": [
     "arm",
@@ -14,10 +14,10 @@
   "author": "Oguz Bastemur <oguz.bastemur@microsoft.com>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Azure/iotc"
+    "url": "https://github.com/Azure/iotz"
   },
   "bin": {
-    "iotc": "./index.js"
+    "iotz": "./index.js"
   },
   "main": "index.js",
   "dependencies": {

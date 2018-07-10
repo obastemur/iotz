@@ -13,8 +13,8 @@ const make    = require('./src/common');
 
 var args = {};
 var printHelp = function printHelp() {
-  console.log("\n  " + colors.cyan("iotc")
-    + " - containerized compiler tooling for Arduino, ARM, and ARM mbed");
+  console.log("\n  " + colors.cyan("iotz")
+    + " - containerized compiler tooling for Arduino, ARM, and ARM mbed, and ...");
   console.log(colors.yellow('\t\t\t\t\t\t\t   by Azure-IOT\n'));
 
 var params = [
@@ -22,16 +22,16 @@ var params = [
     {option: "version", text: "show version"},
     {option: "update", text: "update base container to latest"},
     {option: "", text: ""}, // placeholder
-    {option: "init <path>", text:"initialize target toolchain on given path (needs iotc.json)"},
-    {option: "compile <path>", text:"compile given path (needs iotc.json)"},
-    {option: "clean <path>", text:"clean given path (needs iotc.json)"},
+    {option: "init <path>", text:"initialize target toolchain on given path (needs iotz.json)"},
+    {option: "compile <path>", text:"compile given path (needs iotz.json)"},
+    {option: "clean <path>", text:"clean given path (needs iotz.json)"},
     {option: "arduino <args>", text:"run arduino cli with given args"},
     {option: "mbed <args>", text:"run mbed cli with given args"},
     {option: "run <cmd>", text: "run command on the target system"},
     {option: "export", text: "exports a Makefile"}
   ];
 
-  console.log(' ', "usage:", colors.cyan('iotc'), '<cmd>', '[options]\n\n',
+  console.log(' ', "usage:", colors.cyan('iotz'), '<cmd>', '[options]\n\n',
               colors.bold(' commands:\n'));
 
   for (var i in params) {
@@ -43,15 +43,15 @@ var params = [
   }
   console.log(`
   ${colors.bold("init && compile:")}
-  iotc init && iotc compile
+  iotz init && iotz compile
 
-  iotc.json --> {
+  iotz.json --> {
                   "toolchain": "arduino",
                   "target": "AZ3166:stm32f4:MXCHIP_AZ3166",
                   "filename": "sample.ino"
                 }
 
-  iotc.json --> {
+  iotz.json --> {
                   "toolchain": "mbed",
                   "target": "nucleo_l476rg",
                   "deps":
@@ -68,13 +68,13 @@ var params = [
 
   ${colors.bold("OTHER examples")}
   run:
-    iotc run ls -l
+    iotz run ls -l
   make:
-    iotc make
+    iotz make
   mbed:
-    iotc mbed target -S
+    iotz mbed target -S
   arduino:
-    iotc arduino --install-boards AZ3166:stm32f4
+    iotz arduino --install-boards AZ3166:stm32f4
   `);
 };
 
@@ -126,18 +126,20 @@ cmd.get(
 );
 
 function builder() {
+  var compile_path = process.cwd();
   if (args.getCommand() == 'update') {
-    cmd.get('docker pull azureiot/iotc:latest',
-      function(err, data, stderr) {
-        if (err) {
-          console.log(stderr.replace(/\\n/g, '\n'), '\n', data);
-          console.error(colors.red(' - error: update has failed. See the output above.'))
-          process.exit(1);
-        } else {
-          console.log(data.replace(/\\n/g, '\n'));
-          console.log(colors.green(' - update was succesfull'));
-        }
-      });
+    cmd.get('docker pull azureiot/iotz:latest', function(err, data, stderr) {
+      if (err) {
+        console.log(stderr.replace(/\\n/g, '\n'), '\n', data);
+        console.error(colors.red(' - error: update has failed. See the output above.'))
+        process.exit(1);
+      } else {
+        console.log(data.replace(/\\n/g, '\n'));
+        console.log(colors.green(' - base container update was succesfull'));
+        // update extensions
+        require('./extensions/index.js').updateExtensions(compile_path);
+      }
+    });
     return;
   }
 
@@ -150,16 +152,14 @@ function builder() {
     return;
   }
 
-  var compile_path = process.cwd();
-
   if (args.getCommand() == 'compile') {
     if (process.argv.length > 3) {
       compile_path = process.argv[3];
     }
 
-    var proj_path = path.join(compile_path, "iotc.json");
+    var proj_path = path.join(compile_path, "iotz.json");
     if (!fs.existsSync(proj_path)) {
-      console.error(' - error:', colors.red('iotc.json file is not found under'), compile_path);
+      console.error(' - error:', colors.red('iotz.json file is not found under'), compile_path);
       process.exit(0);
     }
   }
