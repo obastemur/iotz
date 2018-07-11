@@ -13,3 +13,4 @@ iotz_base_container/
 contents/
 extensions/Dockerfile
 test/
+package-lock.json

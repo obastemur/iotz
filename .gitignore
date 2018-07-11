@@ -1,7 +1,10 @@
-out/
-node_modules/
+# environment
 .DS_Store
 .vscode/
+
+# node / build
+out/
+node_modules/
 mbed_settings.*
 BUILD/
 .mbed
@@ -12,8 +15,8 @@ NDefLib/
 X_NUCLEO_NFC02A1/
 ST_INTERFACES/
 GettingStarted.html
-iotz_base_container/exported.tar
 Makefile
 mbed_config.h
 extensions/Dockerfile
 .iotz.mxchip.tweak
+package-lock.json
