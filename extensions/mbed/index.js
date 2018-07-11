@@ -66,7 +66,7 @@ exports.build = function mbedBuild(config, runCmd, command) {
   } else if (command == "init") {
     var libs = " && find . -name '*.lib' -exec cat {} \\; | while read line; do mbed add \\$line 2>/dev/null || true && true ; done";
     if (config.deps) {
-      config.deps.forEach(function(lib) {
+      for (let lib of config.deps) {
         if (lib) {
           if (!lib.url) {
             console.error(" -", console.red("error :"),
@@ -84,7 +84,7 @@ exports.build = function mbedBuild(config, runCmd, command) {
             }
           }
         }
-      });
+      };
     }
 
     var importMbed = "";

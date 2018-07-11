@@ -1,0 +1,1 @@
+iotz init yun && iotz compile && iotz run rm iotz.json
