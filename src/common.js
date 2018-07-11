@@ -45,7 +45,8 @@ function createImage(args, compile_path, config, callback) {
     console.log(" -", colors.yellow('creating the container for the first use..'));
 
     var ret;
-    var runCmd = "";
+    var command = args.getCommand();
+    var runCmd = args.get(command);
     var config = getProjectConfig(compile_path);
 
     if (config) {

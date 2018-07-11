@@ -129,14 +129,21 @@ exports.createLocalContainer = function(config) {
 };
 
 exports.autoDetectToolchain = function autoDetectToolchain(compile_path) {
-  var config = exports.readConfig();
-  if (!config.hasOwnProperty('extensions')) {
-    return null;
-  }
+  var exts = {};
 
-  for (var name in config.extensions) {
-    if (!config.extensions.hasOwnProperty(name)) continue;
-    if (require(`./${name}/index.js`).detectProject(compile_path)) {
+  // search extensions path
+  var files = fs.readdirSync(__dirname);
+  for (let file of files) {
+    var p = path.join(__dirname, file);
+    var pstat = fs.statSync(p);
+    if (pstat.isDirectory()) {
+      exts[file] = {};
+    }
+  };
+
+  for (var name in exts) {
+    if (!exts.hasOwnProperty(name)) continue;
+    if (require(`./${name}`).detectProject(compile_path)) {
       var pc = {
         "toolchain" : name
       };

@@ -1,6 +1,6 @@
 ### iotz - iot easy
 
-#### a containerized and extendible cross compiler tool manager for arduino, arm mbed, raspberry pi and ... more
+#### a containerized and extendible cross compiler box for arduino, arm mbed, raspberry pi and ... more
 
 **reason** : IOT compiler toolchains have many moving parts and configurations.
 Cross compiler tools are `mostly` platform specific.
@@ -36,12 +36,16 @@ usage: iotz <cmd> [options]
   version                                  :  show version
   update                                   :  update base container to latest
                                            :
-  init <path>                              :  initialize target toolchain on given path (needs iotz.json)
+  init <path>                              :  initialize a specialized sandbox for current path (needs iotz.json)
   compile <path>                           :  compile given path (needs iotz.json)
   clean <path>                             :  clean given path (needs iotz.json)
-  run <cmd>                                :  run command on the target system
-  mbed <args>                              :  run mbed cli with given args
+
   arduino <args>                           :  run arduino cli with given args
+  make <args>                              :  run make command
+  mbed <args>                              :  run mbed cli with given args
+  raspberry                                :  shows make, cmake, and gcc gnuhf versions
+  run <cmd> <args>                         :  run command on the target system
+  export                                   :  export a makefile
 
   example:
 

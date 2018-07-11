@@ -14,7 +14,7 @@ const make    = require('./src/common');
 var args = {};
 var printHelp = function printHelp() {
   console.log("\n  " + colors.cyan("iotz")
-    + " - containerized compiler tooling for Arduino, ARM, and ARM mbed, and ...");
+    + " - a containerized and extendible cross compiler box for\n\t\t\tarduino, arm mbed, raspberry pi and ... more");
   console.log(colors.yellow('\t\t\t\t\t\t\t   by Azure-IOT\n'));
 
 var params = [
@@ -22,13 +22,15 @@ var params = [
     {option: "version", text: "show version"},
     {option: "update", text: "update base container to latest"},
     {option: "", text: ""}, // placeholder
-    {option: "init <path>", text:"initialize target toolchain on given path (needs iotz.json)"},
+    {option: "init <optional target>", text:"initialize a specialized sandbox for current path (needs iotz.json)"},
     {option: "compile <path>", text:"compile given path (needs iotz.json)"},
     {option: "clean <path>", text:"clean given path (needs iotz.json)"},
     {option: "arduino <args>", text:"run arduino cli with given args"},
+    {option: "export", text: "exports a Makefile"},
+    {option: "make", text:"run make command"},
     {option: "mbed <args>", text:"run mbed cli with given args"},
-    {option: "run <cmd>", text: "run command on the target system"},
-    {option: "export", text: "exports a Makefile"}
+    {option: "raspberry", text: "shows make, cmake, and gcc gnuhf versions"},
+    {option: "run <cmd>", text: "run command on the target system"}
   ];
 
   console.log(' ', "usage:", colors.cyan('iotz'), '<cmd>', '[options]\n\n',
@@ -73,8 +75,21 @@ var params = [
     iotz make
   mbed:
     iotz mbed target -S
+
+    iotz init <optional target name>
   arduino:
     iotz arduino --install-boards AZ3166:stm32f4
+
+    iotz init <optional target name>
+    - if you haven't configured an iotz.json file.
+    use the list below to initialize the environment
+      uno - yun - diecimila - nano - mega
+      megaadk - leonardo - micro - esplora - mini
+      ethernet - fio - bt - lilypad - lilypadusb
+      pro - atmegang - robotMotor - arduino_due_x_dbg - arduino_due_x
+      tinyg - az3166 - mxchip
+    i.e.
+    iotz init uno
   `);
 };
 
@@ -84,7 +99,7 @@ if (process.argv.length < 3) {
 }
 
 args.command = process.argv[2].toLowerCase();
-args.getCommand = function() { return args.command; }
+args.getCommand = function() { return args.command.trim(); }
 
 args.get = function(command) {
   var index = 2;
@@ -97,15 +112,15 @@ args.get = function(command) {
     str += process.argv[i] + " ";
   }
 
-  return str;
+  return str.trim();
 }
 
 if (args.getCommand() == 'version' || args.getCommand() == '-v') {
   try {
     var version = JSON.parse(fs.readFileSync(__dirname + '/package.json') + "").version;
-    console.log("  version ", colors.green(version));
+    console.log("version ", colors.green(version));
   } catch(e) {
-    console.log("  - error : " + e.message);
+    console.log(" -", colors.red("error:"), e.message);
   }
   process.exit(0);
 }
@@ -114,8 +129,8 @@ cmd.get(
   'docker -v', function(err, data, stderr){
     if (err) {
       console.error(
-          ' - ' + colors.red('error') + ' : '
-          + colors.red('docker'), 'is required and not found.\n',
+          ' -', colors.red('error:'),
+          colors.yellow('docker'), 'is required and not found.\n',
           '          visit', colors.green('https://docs.docker.com/install/'),
           '\n');
       process.exit(1);
@@ -131,7 +146,7 @@ function builder() {
     cmd.get('docker pull azureiot/iotz:latest', function(err, data, stderr) {
       if (err) {
         console.log(stderr.replace(/\\n/g, '\n'), '\n', data);
-        console.error(colors.red(' - error: update has failed. See the output above.'))
+        console.error(' -', colors.red('error:'), 'update has failed. See the output above.');
         process.exit(1);
       } else {
         console.log(data.replace(/\\n/g, '\n'));
@@ -159,7 +174,7 @@ function builder() {
 
     var proj_path = path.join(compile_path, "iotz.json");
     if (!fs.existsSync(proj_path)) {
-      console.error(' - error:', colors.red('iotz.json file is not found under'), compile_path);
+      console.error(' -', colors.red('error:'), 'iotz.json file is not found on', compile_path);
       process.exit(0);
     }
   }
