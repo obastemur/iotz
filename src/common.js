@@ -40,13 +40,14 @@ function createImage(args, compile_path, config, callback) {
     require('../extensions/index.js').createLocalContainer();
   }
 
+  var command = args.getCommand();
+  var runCmd = args.get(command);
+
   // do we have the project container
-  if (images.indexOf(container_name) == -1) {
-    console.log(" -", colors.yellow('creating the container for the first use..'));
+  if (images.indexOf(container_name) == -1 || command == 'init') {
+    console.log(" -", colors.yellow('initializing the project container..'));
 
     var ret;
-    var command = args.getCommand();
-    var runCmd = args.get(command);
     var config = getProjectConfig(compile_path);
 
     if (config) {
