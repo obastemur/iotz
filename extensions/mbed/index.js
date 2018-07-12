@@ -64,6 +64,23 @@ exports.build = function mbedBuild(config, runCmd, command) {
   if (command == "container_init") {
     // noop
   } else if (command == "init") {
+    if (typeof runCmd === 'string' && runCmd.length) {
+      // don't let setting target board from multiple places
+      if (target_board) {
+        console.error(" -", colors.magenta('warning:'), 'updating the target board definition on iotz.json file.');
+      }
+
+      config.target = runCmd;
+      target_board = config.target;
+      try {
+        fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
+        console.log(' -', 'successfully updated target on iotz.json file');
+      } catch (e) {
+        console.error(' -', color.red('error:'), "couldn't update iotz.json with the target board.");
+        console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
+      }
+    }
+
     var libs = " && find . -name '*.lib' -exec cat {} \\; | while read line; do mbed add \\$line 2>/dev/null || true && true ; done";
     if (config.deps) {
       for (let lib of config.deps) {

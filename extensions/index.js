@@ -43,7 +43,7 @@ exports.updateConfig = function updateConfig(config) {
 exports.getToolchain = function(name, silent) {
   var config = exports.readConfig();
   if (!config.hasOwnProperty('extensions')) {
-    config.extensions = {}; // fake it. we need to create local container anyways
+    config.extensions = {}; // fake it. we need to create a local container anyways
   }
 
   if (config.extensions.hasOwnProperty(name)) {
@@ -59,6 +59,7 @@ exports.installToolchain = function(name, silent) {
     console.error(" -", colors.red('error:'), name, "is not available under the iotz extensions. update iotz?");
     process.exit(1);
   }
+
   var config = exports.readConfig();
   if (!config.hasOwnProperty('extensions')) {
     config.extensions = {}; // fake it. we need to create local container anyways
