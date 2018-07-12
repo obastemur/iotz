@@ -33,21 +33,23 @@ usage: iotz <command> [options]
 
 i.e. `iotz help`
 
-#### Commands
+### Commands
 
-##### help
+#### help
 Display available options
 
-##### version
+#### version
 Show version (semver)
 
-##### update
+#### update
 Update base container to latest and re-install extensions on top of it.
 If there is a container associated with the current folder, delete that.
 
 You may re-install `iotz` via `npm install -g iotz` to get latest changes.
 
-##### init `<optional target board name>`
+#### init
+`init <optional target board name>`
+
 Initialize a specialized sandbox for current path.
 
 In order to make things lite and performant, `iotz` initialize a specialized
@@ -58,7 +60,7 @@ accordingly.
 Beware. If you have previously initialized `iotz` for a project (path), once you
 call it again, it will clean up the previous initialization.
 
-##### compile
+#### compile
 Compile the project on given path (may need an `iotz.json` on path)
 
 `compile` triggers a set of platform specific commands to build the project on the path.
@@ -69,19 +71,21 @@ A successful `init` phase (see above) will ensure that you have `iotz.json` file
 ! Some platforms (extensions) do not require a particular target hence you won't see
 issue by not having an `iotz.json` file in place.
 
-##### clean
+#### clean
 (may require an iotz.json on path)
 Cleans up the current path by deleting most init / compile phase generated files and folders.
 
-##### run `<cmd>` `<args>`
-Runs the `<cmd>` on containers' bash.
+#### run
+`run <cmd> <args>`
+
+Runs the `<cmd>` on container's bash.
 
 i.e. `iotz run ls -l`
 
-##### export
+#### export
 Exports a makefile (depends to extension)
 
-#### predefined extensions
+### predefined extensions
 ```
   arduino <args>                           :  run arduino cli with given args
   make <args>                              :  run make command
@@ -89,7 +93,7 @@ Exports a makefile (depends to extension)
   raspberry                                :  shows make, cmake, and gcc gnuhf versions
 ```
 
-#### other examples
+### other examples
 ```
     init && compile:
             iotz init && iotz compile
@@ -122,7 +126,16 @@ Exports a makefile (depends to extension)
     iotz arduino --install-boards AZ3166:stm32f4
 ```
 
-### Target Board Names
+### Thanks
+`iotz` works on top of other compiler toolchains. We appreciate the
+amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC cross compiler,
+Raspberry Pi tools, and many other tools, frameworks and libraries.
+
+### F.A.Q
+
+#### Where can I find the target Board Names
+
+We can't help you will all :) but we may show you the ones we know!
 
 `ARM mbed` target names are available from `https://os.mbed.com/`. Simply find
 your board there and on the same page you will find the `TARGET NAME` for that board.
@@ -160,11 +173,9 @@ MXCHIP AZ3166
 AZ3166:stm32f4:MXCHIP_AZ3166
 ```
 
-#### F.A.Q
-
 #### How your project folder structure should look like?
 
-However your structure was for ARMmbed or Arduino.. Keep it the same!
+However the folder structure was for ARMmbed or Arduino.. Keep it the same!
 If you are just starting and don't have a particular structure, please visit
 their websites and see the sample projects.
 
@@ -215,7 +226,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-#### Reporting Security Issues
+### Reporting Security Issues
 
 Security issues and bugs should be reported privately, via email, to the Microsoft
 Security Response Center (MSRC) at [secure@microsoft.com](mailto:secure@microsoft.com).
@@ -224,6 +235,6 @@ please follow up via email to ensure we received your original message. Further
 information, including the [MSRC PGP](https://technet.microsoft.com/en-us/security/dn606155)
 key, can be found in the [Security TechCenter](https://technet.microsoft.com/en-us/security/default).
 
-#### LICENSE
+### LICENSE
 
 MIT
