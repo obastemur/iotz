@@ -35,13 +35,18 @@ function createImage(args, compile_path, config, callback) {
   var ino = fs.statSync(compile_path).ino;
   var container_name = "aiot_iotz_" + ino;
 
+  var command = args.getCommand();
+  var runCmd = args.get(command);
+
+  if (command == 'clean' && !config) {
+    callback(0);
+    return;
+  }
+
   // do we have the local container?
   if (images.indexOf("azureiot/iotz_local") == -1) {
     require('../extensions/index.js').createLocalContainer();
   }
-
-  var command = args.getCommand();
-  var runCmd = args.get(command);
 
   // do we have the project container
   if (images.indexOf(container_name) == -1 || command == 'init') {
@@ -124,6 +129,16 @@ process.on('SIGINT', function() {
   process.exit();
 });
 
+exports.cleanCommon = function(compile_path) {
+  var ino = fs.statSync(compile_path).ino;
+  var container_name = "aiot_iotz_" + ino;
+  try {
+    // clean up the previously stopped instance
+    execSync(`docker image rm -f ${container_name} 2>&1`);
+  } catch(e) { }
+  console.log(' -', colors.green('container is deleted'));
+};
+
 exports.build = function makeBuild(args, compile_path) {
   var command = args.getCommand();
   var config = getProjectConfig(compile_path)
@@ -143,18 +158,26 @@ exports.build = function makeBuild(args, compile_path) {
         }
 
         if (!config) {
+          if (command == 'clean') {
+            exports.cleanCommon(compile_path);
+            return;
+          }
           console.error(" -", colors.red('error :'), "iotz.json file is needed. try 'iotz help'");
           process.exit(1);
         }
 
         if (!config.hasOwnProperty('toolchain')) {
+          if (command == 'clean') {
+            exports.cleanCommon(compile_path);
+            return;
+          }
           console.error(' - error:', colors.red('no toolchain is defined. i.e. "toolchain":"arduino" or "toolchain":"mbed" etc..'));
           process.exit(1);
         }
 
         var ret;
         try {
-          ret = require('../extensions/' + extensions.getToolchain(config.toolchain) + '/index.js')
+          ret = require('../extensions/' + extensions.getToolchain(config.toolchain))
             .build(config, runCmd, command, compile_path);
         } catch(e) {
           console.error(' - error:', "something bad happened..\n", colors.red(e));
@@ -198,6 +221,9 @@ exports.build = function makeBuild(args, compile_path) {
       }
       if (ret && ret.callback) {
         ret.callback(config);
+      }
+      if (command == 'clean') {
+        exports.cleanCommon(compile_path);
       }
     })
   });

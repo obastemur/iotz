@@ -23,8 +23,8 @@ var params = [
     {option: "update", text: "update base container to latest"},
     {option: "", text: ""}, // placeholder
     {option: "init <optional target>", text:"initialize a specialized sandbox for current path (needs iotz.json)"},
-    {option: "compile <path>", text:"compile given path (needs iotz.json)"},
-    {option: "clean <path>", text:"clean given path (needs iotz.json)"},
+    {option: "compile", text:"compile the project on current path (needs iotz.json)"},
+    {option: "clean", text:"clean up the local container and generated files"},
     {option: "arduino <args>", text:"run arduino cli with given args"},
     {option: "export", text: "exports a Makefile"},
     {option: "make", text:"run make command"},

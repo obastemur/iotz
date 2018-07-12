@@ -114,14 +114,6 @@ Please update ${colors.magenta('iotz.json')} with "target".'
     }
   } else if (command == "clean") {
     runString = "rm -rf iotz-mbed-deps/ BUILD/ .mbed mbed/ mbed-os.lib mbed-os/ mbed_settings.py*"
-    callback = function(config) {
-      var ino = fs.statSync(compile_path).ino;
-      var container_name = "aiot_iotz_" + ino;
-      try {
-        // clean up the previously stopped instance
-        execSync(`docker image rm -f ${container_name} 2>&1`);
-      } catch(e) { }
-    };
   } else if (command == 'compile') {
     var source = checkSource(config);
     runString = `mbed compile ${source}`;

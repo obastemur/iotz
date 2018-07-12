@@ -191,14 +191,6 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
     runString = install_board;
   } else if (command == 'clean') {
     runString = "rm -rf BUILD/ .arduino15/";
-    callback = function(config) {
-      var ino = fs.statSync(compile_path).ino;
-      var container_name = "aiot_iotz_" + ino;
-      try {
-        // clean up the previously stopped instance
-        execSync(`docker image rm -f ${container_name} 2>&1`);
-      } catch(e) { }
-    };
   } else if (command == 'compile') { // build
     var patch_step = "";
     switch (config.target.toLowerCase()) {

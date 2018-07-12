@@ -72,8 +72,7 @@ A successful `init` phase (see above) will ensure that you have `iotz.json` file
 issue by not having an `iotz.json` file in place.
 
 #### clean
-(may require an iotz.json on path)
-Cleans up the current path by deleting most init / compile phase generated files and folders.
+Deletes the local container for the current path. Also, cleans up the auto generated files and folders.
 
 #### run
 `run <cmd> <args>`

@@ -31,14 +31,6 @@ exports.build = function raspberryBuild(config, runCmd, command, compile_path) {
     // noop
   } else if (command == 'clean') {
     runString = "rm -rf BUILD/";
-    callback = function(config) {
-      var ino = fs.statSync(compile_path).ino;
-      var container_name = "aiot_iotz_" + ino;
-      try {
-        // clean up the previously stopped instance
-        execSync(`docker image rm -f ${container_name} 2>&1`);
-      } catch(e) { }
-    };
   } else if (command == 'compile') { // build
     console.log(colors.green('arm-linux-gnueabihf-g++'), 'is on the path.')
     runString = "make --version && cmake --version && arm-linux-gnueabihf-g++ -v";

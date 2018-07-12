@@ -1,1 +1,1 @@
-iotz mbed --help && iotz run cat iotz.json && iotz run rm iotz.json
+iotz mbed --help && iotz clean
