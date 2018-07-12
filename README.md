@@ -28,27 +28,69 @@ npm install -g iotz
 ### Use
 
 ```
-usage: iotz <cmd> [options]
+usage: iotz <command> [options]
+```
 
-  commands:
+i.e. `iotz help`
 
-  help                                     :  display available options
-  version                                  :  show version
-  update                                   :  update base container to latest
-                                           :
-  init <path>                              :  initialize a specialized sandbox for current path (needs iotz.json)
-  compile <path>                           :  compile given path (needs iotz.json)
-  clean <path>                             :  clean given path (needs iotz.json)
+#### Commands
 
+##### help
+Display available options
+
+##### version
+Show version (semver)
+
+##### update
+Update base container to latest and re-install extensions on top of it.
+If there is a container associated with the current folder, delete that.
+
+You may re-install `iotz` via `npm install -g iotz` to get latest changes.
+
+##### init `<optional target board name>`
+Initialize a specialized sandbox for current path.
+
+In order to make things lite and performant, `iotz` initialize a specialized
+container per project. `init` phase is required for specialization. Also, iotz
+detects the extension required for the project during this phase and installs
+accordingly.
+
+Beware. If you have previously initialized `iotz` for a project (path), once you
+call it again, it will clean up the previous initialization.
+
+##### compile
+Compile the project on given path (may need an `iotz.json` on path)
+
+`compile` triggers a set of platform specific commands to build the project on the path.
+Thus, it requires `target` and `toolchain` are defined under `iotz.json` file.
+
+A successful `init` phase (see above) will ensure that you have `iotz.json` file in place.
+
+! Some platforms (extensions) do not require a particular target hence you won't see
+issue by not having an `iotz.json` file in place.
+
+##### clean
+(may require an iotz.json on path)
+Cleans up the current path by deleting most init / compile phase generated files and folders.
+
+##### run `<cmd>` `<args>`
+Runs the `<cmd>` on containers' bash.
+
+i.e. `iotz run ls -l`
+
+##### export
+Exports a makefile (depends to extension)
+
+#### predefined extensions
+```
   arduino <args>                           :  run arduino cli with given args
   make <args>                              :  run make command
   mbed <args>                              :  run mbed cli with given args
   raspberry                                :  shows make, cmake, and gcc gnuhf versions
-  run <cmd> <args>                         :  run command on the target system
-  export                                   :  export a makefile
+```
 
-  example:
-
+#### other examples
+```
     init && compile:
             iotz init && iotz compile
 
@@ -70,7 +112,6 @@ usage: iotz <cmd> [options]
 
             CAUTION: library, target and toolchain names are case sensitive
 
-  OTHER examples
   run:
     iotz run ls -l
   make:
