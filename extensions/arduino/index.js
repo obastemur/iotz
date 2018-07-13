@@ -78,6 +78,21 @@ exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
   var callback = null;
   var runString = "";
 
+  if (config && !config.filename) {
+    if (command == "init" || command == "compile" || command == "export") {
+      var files = fs.readdirSync(compile_path);
+      for (let file of files) {
+        if (path.extname(file).toLowerCase() == '.ino') {
+          console.log(" -", colors.yellow("warning"));
+          console.log(" -", "picked", colors.magenta(file), " automatically as a project file");
+          console.log(" -", "you can define it from 'iotz.json' 'filename'");
+          config.filename = file;
+          break;
+        }
+      }
+    }
+  }
+
   if (command == 'init') {
     // noop
   } else if (command == 'container_init') {
@@ -166,7 +181,7 @@ exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
       }
     }
 
-    if ( target_board != "AZ3166:stm32f4:MXCHIP_AZ3166") {
+    if (target_board != "AZ3166:stm32f4:MXCHIP_AZ3166") {
       // crop the first two segments (i.e. arduino:avr:xxxx -> arduino:avr)
       var names = target_board.split(':');
       if (names.length < 3) {
