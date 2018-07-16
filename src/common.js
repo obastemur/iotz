@@ -6,9 +6,9 @@
 const colors = require('colors/safe');
 const fs     = require('fs');
 const path   = require('path');
-const cmd    = require('node-cmd');
 const rimraf = require('rimraf');
-const execSync = require('child_process').execSync;
+const exec        = require('child_process').exec;
+const execSync   = require('child_process').execSync;
 const extensions = require('../extensions/index.js');
 
 function getProjectConfig(compile_path) {
@@ -83,7 +83,7 @@ function createImage(args, compile_path, config, callback) {
     fs.writeFileSync(path.join(compile_path, 'Dockerfile'), libs);
 
     var batchString = `docker build . --force-rm -t ${container_name}`;
-    var subProcess = cmd.get(`cd ${compile_path} && ` + batchString);
+    var subProcess = exec(`cd ${compile_path} && ` + batchString);
 
     subProcess.stderr.pipe(process.stderr);
     subProcess.stdin.pipe(process.stdin);
@@ -115,7 +115,7 @@ docker run --rm --name ${active_instance} -t --volume \
 ${compile_path}:/src/program:rw,cached ${container_name} /bin/bash -c "${CMD}"\
 `;
 
-  var subProcess = cmd.get(`cd ${compile_path} && ${batchString}`);
+  var subProcess = exec(`cd ${compile_path} && ${batchString}`);
   subProcess.stdout.pipe(process.stdout);
   subProcess.stderr.pipe(process.stderr);
   subProcess.stdin.pipe(process.stdin);
