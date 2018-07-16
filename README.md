@@ -72,7 +72,8 @@ A successful `init` phase (see above) will ensure that you have `iotz.json` file
 issue by not having an `iotz.json` file in place.
 
 #### clean
-Deletes the local container for the current path. Also, cleans up the auto generated files and folders.
+Deletes the local container for the current path. Also, cleans up the auto
+generated files and folders.
 
 #### run
 `run <cmd> <args>`
@@ -94,27 +95,6 @@ Exports a makefile (depends to extension)
 
 ### other examples
 ```
-    init && compile:
-            iotz init && iotz compile
-
-            iotz.json --> { "toolchain": "arduino",
-                            "target": "AZ3166:stm32f4:MXCHIP_AZ3166",
-                            "filename": "sample.ino"
-                            }
-
-            iotz.json --> { "toolchain": "mbed",
-                            "target": "nucleo_l476rg",
-                            "deps":
-                              [
-                                {
-                                  "name": "NDefLib",
-                                  "url" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
-                                }
-                              ]
-                          }
-
-            CAUTION: library, target and toolchain names are case sensitive
-
   run:
     iotz run ls -l
   make:
@@ -129,10 +109,51 @@ Exports a makefile (depends to extension)
 
 How to develop an `iotz` extension and some other details are given [here](extensions/README.md)
 
+### iotz.json file
+
+Although introducing a yet another project file is not desirable, it helps to do things
+easier for some folks and might help to create a better centralized experience.
+
+A basic `iotz.json` file for mxchip AZ3166
+```
+{
+  "toolchain": "arduino",
+  "target": "mxchip",
+  "filename": "sample.ino"
+}
+```
+
+mbed nucleo l476rg with a lib
+```
+{
+  "toolchain": "mbed",
+  "target": "nucleo_l476rg",
+  "deps":
+  [
+    {
+      "name": "NDefLib",
+      "url" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
+    }
+  ]
+}
+```
+
+*WARNING:* `deps` names are case sensitive
+
+`toolchain`: name of the extension. i.e. `arduino` or `mbed` or anything else!
+
+`target`: target device name. see [board names](#where-can-i-find-the-target-board-names)
+
+`deps`: array of `{name, url}` pairs to defined dependencies
+
+`filename`: main source code filename.
+
+*Depending to extension, you might have other required definitions.*
+
 ### Thanks
 `iotz` works on top of other compiler toolchains. We appreciate the
-amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC cross compiler,
-Raspberry Pi tools, and many other tools, frameworks and libraries.
+amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC cross
+compiler, Raspberry Pi tools, and many other tools, frameworks and libraries.
 
 ### F.A.Q
 

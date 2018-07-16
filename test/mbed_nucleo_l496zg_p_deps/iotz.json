@@ -1,0 +1,18 @@
+{
+  "toolchain": "mbed",
+  "target": "NUCLEO_L496ZG_P",
+  "deps": [
+    {
+      "name": "NDefLib",
+      "url": "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
+    },
+    {
+      "name": "ST_INTERFACES",
+      "url": "https://developer.mbed.org/teams/ST/code/ST_INTERFACES/#d3c9b33b992c"
+    },
+    {
+      "name": "X_NUCLEO_NFC02A1",
+      "url": "http://developer.mbed.org/teams/ST/code/X_NUCLEO_NFC02A1/#7c4cf671960b"
+    }
+  ]
+}

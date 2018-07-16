@@ -1,0 +1,1 @@
+iotz init && iotz export && iotz make -j4
