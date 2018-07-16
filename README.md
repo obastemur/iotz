@@ -125,6 +125,10 @@ Exports a makefile (depends to extension)
     iotz arduino --install-boards AZ3166:stm32f4
 ```
 
+### Extensions
+
+How to develop an `iotz` extension and some other details are given [here](extensions/README.md)
+
 ### Thanks
 `iotz` works on top of other compiler toolchains. We appreciate the
 amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC cross compiler,
