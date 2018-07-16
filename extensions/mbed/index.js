@@ -81,7 +81,8 @@ exports.build = function mbedBuild(config, runCmd, command) {
       }
     }
 
-    var libs = " && find . -name '*.lib' -exec cat {} \\; | while read line; do mbed add \\$line 2>/dev/null || true && true ; done";
+    var libs = " && find . -name '*.lib' -exec cat {} \\; | while read line; do cd iotz-mbed-deps && mbed add \\$line 2>/dev/null || (cd ..) && (cd ..) ; done";
+    libs += " && if [ -d iotz-mbed-deps/mbed-os ]; then rm -rf mbed-os && mv iotz-mbed-deps/mbed-os .; fi"
     if (config.deps) {
       for (let lib of config.deps) {
         if (lib) {
