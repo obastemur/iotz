@@ -20,3 +20,4 @@ mbed_config.h
 extensions/Dockerfile
 .iotz.mxchip.tweak
 package-lock.json
+iotz-mbed-deps/
