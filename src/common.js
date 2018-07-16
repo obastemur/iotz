@@ -50,6 +50,12 @@ function createImage(args, compile_path, config, callback) {
 
   // do we have the project container
   if (images.indexOf(container_name) == -1 || command == 'init') {
+    if (command == 'connect') {
+      console.error(" -", colors.red('error:'), "there wasn't any project 'initialized' on this path.");
+      console.error('  ', "try 'iotz init' ?");
+      process.exit(1);
+    }
+
     console.log(" -", colors.yellow('initializing the project container..'));
 
     var ret;
@@ -186,6 +192,19 @@ exports.build = function makeBuild(args, compile_path) {
       }
       break;
       case "run": // do nothing
+      break;
+      case "connect":
+        {
+          try {
+            var ino = fs.statSync(compile_path).ino;
+            var container_name = "aiot_iotz_" + ino;
+            execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
+          } catch(e) {
+            console.error(" -", colors.red('error:'), "something went wrong");
+            console.error("  ", e);
+            process.exit(1);
+          }
+        }
       break;
       case "make":
         runCmd = command + " " + (runCmd != -1 ? runCmd : "");

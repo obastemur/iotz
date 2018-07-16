@@ -25,8 +25,10 @@ var params = [
     {option: "init <optional target>", text:"initialize a specialized sandbox for current path (needs iotz.json)"},
     {option: "compile", text:"compile the project on current path (needs iotz.json)"},
     {option: "clean", text:"clean up the local container and generated files"},
-    {option: "arduino <args>", text:"run arduino cli with given args"},
     {option: "export", text: "exports a Makefile"},
+    {option: "connect", text: "mount the container on current path and sync tty"},
+    {option: "", text: ""}, // placeholder
+    {option: "arduino <args>", text:"run arduino cli with given args"},
     {option: "make", text:"run make command"},
     {option: "mbed <args>", text:"run mbed cli with given args"},
     {option: "raspberry", text: "shows make, cmake, and gcc gnuhf versions"},
