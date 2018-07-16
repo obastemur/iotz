@@ -65,7 +65,7 @@ function createImage(args, compile_path, config, callback) {
       if (!config.toolchain) {
         console.error(" -", colors.red('warning:'), "no 'toolchain' is defined under iotz.json.");
       } else {
-        ret = require('../extensions/' + extensions.getToolchain(config.toolchain) + '/index.js')
+        ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
           .build(config, runCmd, 'container_init', compile_path);
 
         if (ret && ret.run.length) {
@@ -183,8 +183,8 @@ exports.build = function makeBuild(args, compile_path) {
 
         var ret;
         try {
-          ret = require('../extensions/' + extensions.getToolchain(config.toolchain))
-            .build(config, runCmd, command, compile_path);
+          ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
+                .build(config, runCmd, command, compile_path);
         } catch(e) {
           console.error(' - error:', "something bad happened..\n", colors.red(e));
           process.exit(1);
@@ -211,8 +211,8 @@ exports.build = function makeBuild(args, compile_path) {
         break;
       default:
         if (extensions.getToolchain(command, 1) == command) {
-          runCmd = require('../extensions/' + extensions.getToolchain(command) + '/index.js')
-            .directCall(config, runCmd, command, compile_path);
+          runCmd = extensions.requireExtension(extensions.getToolchain(command))
+                   .directCall(config, runCmd, command, compile_path);
         } else {
           console.error(" - error:", colors.red('unknown command'), command, compile_path);
           process.exit(1);

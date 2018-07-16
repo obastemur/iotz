@@ -5,9 +5,24 @@
 
 const fs = require('fs');
 const path = require('path');
-const rimraf = require('rimraf');
 const execSync = require('child_process').execSync;
 const colors = require('colors/safe');
+
+exports.requireExtension = function (name) {
+  try {
+    // try local
+    return require(`./${name}`);
+  } catch (_) {
+    // TODO: log this ? (that's why the separation)
+    try {
+      // search global
+      return require(name)
+    } catch (__) {
+      console.error(" - error:", colors.red('extension'), name, "not found");
+      process.exit(1);
+    }
+  }
+}
 
 function getConfigPath() {
   var home = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
@@ -103,13 +118,7 @@ exports.createLocalContainer = function(config) {
   var extensions = [];
   for (var name in config.extensions) {
     if (!config.extensions.hasOwnProperty(name)) continue;
-    var rext;
-    try {
-      rext = require(`./${name}/index.js`);
-    } catch(e) {
-      console.error(" -", colors.red("error:"), `couldn't find a command '${name}'. Try with`, colors.yellow(`iotz run ${name}`), 'instead?');
-      process.exit(1);
-    }
+    var rext = exports.requireExtension(name);
     extensions.push(rext.createExtensions());
   }
 
@@ -130,7 +139,8 @@ exports.createLocalContainer = function(config) {
 };
 
 exports.autoDetectToolchain = function autoDetectToolchain(compile_path) {
-  var exts = {};
+  var config = exports.readConfig();
+  var exts = config && config.extensions ? config.extensions : {};
 
   // search extensions path
   var files = fs.readdirSync(__dirname);
@@ -144,7 +154,7 @@ exports.autoDetectToolchain = function autoDetectToolchain(compile_path) {
 
   for (var name in exts) {
     if (!exts.hasOwnProperty(name)) continue;
-    if (require(`./${name}`).detectProject(compile_path)) {
+    if (exports.requireExtension(name).detectProject(compile_path)) {
       var pc = {
         "toolchain" : name
       };
