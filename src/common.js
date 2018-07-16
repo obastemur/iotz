@@ -112,17 +112,11 @@ function runCommand(args, compile_path, CMD, callback) {
 
   var batchString = `\
 docker run --rm --name ${active_instance} -t --volume \
-${compile_path}:/src/program:rw,cached ${container_name} /bin/bash -c "${CMD}"\
+"${compile_path}":/src/program:rw,cached ${container_name} /bin/bash -c "${CMD}"\
 `;
 
-  var subProcess = exec(`cd ${compile_path} && ${batchString}`);
-  subProcess.stdout.pipe(process.stdout);
-  subProcess.stderr.pipe(process.stderr);
-  subProcess.stdin.pipe(process.stdin);
-
-  subProcess.on('exit', function(errorCode) {
-    callback(errorCode);
-  });
+  execSync(`cd ${compile_path} && ${batchString}`, {stdio:[0,1,2]});
+  callback(0);
 }
 
 process.on('SIGINT', function() {
