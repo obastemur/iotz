@@ -210,7 +210,11 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
     var patch_step = "";
     switch (config.target.toLowerCase()) {
       case "az3166:stm32f4:mxchip_az3166":
-        patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd \\`ls | awk '{print \\$1}'\\`"
+        if (process.platform === "win32") {
+          patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd `ls | awk '{print $1}'`"
+        } else {
+          patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd \\`ls | awk '{print \\$1}'\\`"
+        }
         patch_step += " && cp bootloader/boot.bin /tools"
         patch_step += ` && python /tools/boot_patch.py /src/program/BUILD/${config.filename}.bin /src/program/BUILD/${config.filename}o.bin`
         patch_step += ` && rm /src/program/BUILD/${config.filename}.bin`
