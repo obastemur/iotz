@@ -6,9 +6,9 @@
 const colors = require('colors/safe');
 const fs     = require('fs');
 const path   = require('path');
-const cmd    = require('node-cmd');
 const rimraf = require('rimraf');
-const execSync = require('child_process').execSync;
+const exec        = require('child_process').exec;
+const execSync   = require('child_process').execSync;
 const extensions = require('../extensions/index.js');
 
 function getProjectConfig(compile_path) {
@@ -65,7 +65,7 @@ function createImage(args, compile_path, config, callback) {
       if (!config.toolchain) {
         console.error(" -", colors.red('warning:'), "no 'toolchain' is defined under iotz.json.");
       } else {
-        ret = require('../extensions/' + extensions.getToolchain(config.toolchain) + '/index.js')
+        ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
           .build(config, runCmd, 'container_init', compile_path);
 
         if (ret && ret.run.length) {
@@ -83,7 +83,7 @@ function createImage(args, compile_path, config, callback) {
     fs.writeFileSync(path.join(compile_path, 'Dockerfile'), libs);
 
     var batchString = `docker build . --force-rm -t ${container_name}`;
-    var subProcess = cmd.get(`cd ${compile_path} && ` + batchString);
+    var subProcess = exec(`cd ${compile_path} && ` + batchString);
 
     subProcess.stderr.pipe(process.stderr);
     subProcess.stdin.pipe(process.stdin);
@@ -115,7 +115,7 @@ docker run --rm --name ${active_instance} -t --volume \
 ${compile_path}:/src/program:rw,cached ${container_name} /bin/bash -c "${CMD}"\
 `;
 
-  var subProcess = cmd.get(`cd ${compile_path} && ${batchString}`);
+  var subProcess = exec(`cd ${compile_path} && ${batchString}`);
   subProcess.stdout.pipe(process.stdout);
   subProcess.stderr.pipe(process.stderr);
   subProcess.stdin.pipe(process.stdin);
@@ -183,8 +183,8 @@ exports.build = function makeBuild(args, compile_path) {
 
         var ret;
         try {
-          ret = require('../extensions/' + extensions.getToolchain(config.toolchain))
-            .build(config, runCmd, command, compile_path);
+          ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
+                .build(config, runCmd, command, compile_path);
         } catch(e) {
           console.error(' - error:', "something bad happened..\n", colors.red(e));
           process.exit(1);
@@ -211,8 +211,8 @@ exports.build = function makeBuild(args, compile_path) {
         break;
       default:
         if (extensions.getToolchain(command, 1) == command) {
-          runCmd = require('../extensions/' + extensions.getToolchain(command) + '/index.js')
-            .directCall(config, runCmd, command, compile_path);
+          runCmd = extensions.requireExtension(extensions.getToolchain(command))
+                   .directCall(config, runCmd, command, compile_path);
         } else {
           console.error(" - error:", colors.red('unknown command'), command, compile_path);
           process.exit(1);

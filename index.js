@@ -8,7 +8,7 @@
 const colors  = require('colors/safe');
 const fs      = require('fs');
 const path    = require('path');
-const cmd     = require('node-cmd');
+const exec    = require('child_process').exec;
 const make    = require('./src/common');
 
 var args = {};
@@ -127,7 +127,7 @@ if (args.getCommand() == 'version' || args.getCommand() == '-v') {
   process.exit(0);
 }
 
-cmd.get(
+exec(
   'docker -v', function(err, data, stderr){
     if (err) {
       console.error(
@@ -145,7 +145,7 @@ cmd.get(
 function builder() {
   var compile_path = process.cwd();
   if (args.getCommand() == 'update') {
-    cmd.get('docker pull azureiot/iotz:latest', function(err, data, stderr) {
+    exec('docker pull azureiot/iotz:latest', function(err, data, stderr) {
       if (err) {
         console.log(stderr.replace(/\\n/g, '\n'), '\n', data);
         console.error(' -', colors.red('error:'), 'update has failed. See the output above.');
