@@ -11,20 +11,30 @@ const exec        = require('child_process').exec;
 const execSync   = require('child_process').execSync;
 const extensions = require('../extensions/index.js');
 
-function getProjectConfig(compile_path) {
+function getProjectConfig(args, compile_path) {
   var proj_path = path.join(compile_path, "iotz.json");
   var config = null;
   try {
     config = JSON.parse(fs.readFileSync(proj_path) + "");
   } catch(e) { }
 
+  var command = args.getCommand();
+  var runCmd = args.get(command);
+  var config_detected = extensions.autoDetectToolchain(compile_path, runCmd, command);
+  var updateConfig = false;
+
   if (!config) {
-    config = extensions.autoDetectToolchain(compile_path);
+    config = config_detected;
+    updateConfig = true;
   } else if (!config.toolchain) {
-    var config_detected = extensions.autoDetectToolchain(compile_path);
     if (config_detected && config_detected.toolchain) {
       config.toolchain = config_detected.toolchain;
+      updateConfig = true;
     }
+  }
+
+  if (updateConfig && config) {
+    fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config));
   }
 
   return config;
@@ -59,7 +69,7 @@ function createImage(args, compile_path, config, callback) {
     console.log(" -", colors.yellow('initializing the project container..'));
 
     var ret;
-    var config = getProjectConfig(compile_path);
+    var config = getProjectConfig(args, compile_path);
 
     if (config) {
       if (!config.toolchain) {
@@ -101,7 +111,12 @@ function createImage(args, compile_path, config, callback) {
 }
 
 var active_instance = null;
-function runCommand(args, compile_path, CMD, callback) {
+function runCommand(args, compile_path, runCmd, callback) {
+  if (!runCmd || runCmd.length == 0) {
+    callback(0);
+    return;
+  }
+
   var ino = fs.statSync(compile_path).ino;
   var container_name = "aiot_iotz_" + ino;
   active_instance = container_name + "_";
@@ -111,12 +126,16 @@ function runCommand(args, compile_path, CMD, callback) {
   } catch(e) { }
 
   var batchString = `\
+cd ${compile_path} && \
 docker run --rm --name ${active_instance} -t --volume \
-"${compile_path}":/src/program:rw,cached ${container_name} /bin/bash -c "${CMD}"\
+"${compile_path}":/src/program:rw,cached ${container_name} /bin/bash -c "${runCmd}"\
 `;
 
-  execSync(`cd ${compile_path} && ${batchString}`, {stdio:[0,1,2]});
-  callback(0);
+  var prc = exec(batchString, {stdio:'inherit', maxBuffer: 1024 * 8192}, function(err) {
+    callback(err);
+  });
+  prc.stdout.pipe(process.stdout);
+  prc.stderr.pipe(process.stderr);
 }
 
 process.on('SIGINT', function() {
@@ -141,7 +160,7 @@ exports.cleanCommon = function(compile_path) {
 
 exports.build = function makeBuild(args, compile_path) {
   var command = args.getCommand();
-  var config = getProjectConfig(compile_path)
+  var config = getProjectConfig(args, compile_path)
 
   createImage(args, compile_path, config, function(errorCode) {
     var runCmd = args.get(command);
@@ -162,6 +181,7 @@ exports.build = function makeBuild(args, compile_path) {
             exports.cleanCommon(compile_path);
             return;
           }
+
           console.error(" -", colors.red('error :'), "iotz.json file is needed. try 'iotz help'");
           process.exit(1);
         }
@@ -193,6 +213,7 @@ exports.build = function makeBuild(args, compile_path) {
             var ino = fs.statSync(compile_path).ino;
             var container_name = "aiot_iotz_" + ino;
             execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
+            process.exit(0);
           } catch(e) {
             console.error(" -", colors.red('error:'), "something went wrong");
             console.error("  ", e);
@@ -227,9 +248,12 @@ exports.build = function makeBuild(args, compile_path) {
       return;
     }
 
-    runCommand(args, compile_path, runCmd, function(errorCode) {
-      if (errorCode) {
-        process.exit(errorCode);
+    runCommand(args, compile_path, runCmd, function(err) {
+      if (err) {
+        if (err.message) {
+          console.error(" -", colors.magenta('message'), err.message);
+        }
+        process.exit(1);
         return;
       }
       if (ret && ret.callback) {

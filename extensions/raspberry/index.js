@@ -5,8 +5,16 @@
 
 const colors = require('colors/safe');
 
-exports.detectProject = function(compile_path) {
-  return false;
+exports.detectProject = function(compile_path, runCmd, command) {
+  var detected = null;
+
+  if (!detected && command == "raspberry") {
+    detected = {
+      "toolchain": "raspberry"
+    };
+  }
+
+  return detected;
 }
 
 exports.directCall = function(config, runCmd, command, compile_path) {

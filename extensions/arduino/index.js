@@ -9,15 +9,37 @@ const path   = require('path');
 
 const ARDUINO_VERSION = "1.8.5";
 
-exports.detectProject = function(compile_path) {
+exports.detectProject = function(compile_path, runCmd, command) {
+  // try to detect by .ino
+  var detected = null;
   var files = fs.readdirSync(compile_path);
   for (let file of files) {
     if (path.extname(file).toLowerCase() == '.ino') {
-      return true;
+      detected = {
+        "toolchain": "arduino",
+        "filename": file
+      };
+      break;
     }
   };
 
-  return false;
+  // try to detect by board name
+  if (typeof runCmd === "string" && runCmd.length >= 2)
+  {
+    var src = runCmd.toLowerCase();
+
+    for (let boardName in boardNames) {
+      if (!boardNames.hasOwnProperty(boardName)) continue;
+      var lbname = boardNames[boardName].toLowerCase();
+      if (src == boardName || (src.length > 3 && lbname.indexOf(src) >= 0)) {
+        if (!detected) detected = {"toolchain":"arduino"};
+        detected.target = boardNames[boardName];
+        break;
+       }
+    }
+  }
+
+  return detected;
 }
 
 exports.directCall = function(config, runCmd, command, compile_path) {
@@ -79,7 +101,7 @@ exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
   var runString = "";
 
   if (config && !config.filename) {
-    if (command == "init" || command == "compile" || command == "export") {
+    if (command == "compile" || command == "export") {
       var files = fs.readdirSync(compile_path);
       for (let file of files) {
         if (path.extname(file).toLowerCase() == '.ino') {
@@ -100,39 +122,37 @@ exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
     var boardFound = false;
 
     // search for the board from command args
-    if (typeof runCmd === 'string' && runCmd.length) {
+    if (typeof runCmd === 'string' && runCmd.length && target_board != runCmd) {
       // don't let setting target board from multiple places
       if (target_board) {
-        console.error(" -", colors.red('error:'), 'iotz.json file has target board defined.');
-        console.error(" -", "in order to set manually, you should remove that.");
-        process.exit(1);
-      }
+        console.error(" -", colors.yellow('warning:'), 'iotz.json file has target board defined already.');
+      } else {
+        var src = runCmd.toLowerCase();
+        var srclen = src.length;
 
-      var src = runCmd.toLowerCase();
-      var srclen = src.length;
-
-      for (let boardName in boardNames) {
-        if (!boardNames.hasOwnProperty(boardName)) continue;
-        if (src == boardName) {
-          target_board = boardNames[boardName];
-          console.log(" -", colors.green(boardNames[boardName]), "is selected");
-          boardFound = true;
-          break;
-        }
-      }
-
-      // no fullname match. try sub search
-      if (!boardFound && srclen > 2) {
         for (let boardName in boardNames) {
           if (!boardNames.hasOwnProperty(boardName)) continue;
-          if (boardName.indexOf(src) == 0) {
+          if (src == boardName) {
             target_board = boardNames[boardName];
             console.log(" -", colors.green(boardNames[boardName]), "is selected");
             boardFound = true;
             break;
           }
         }
-      }
+
+        // no fullname match. try sub search
+        if (!boardFound && srclen > 2) {
+          for (let boardName in boardNames) {
+            if (!boardNames.hasOwnProperty(boardName)) continue;
+            if (boardName.indexOf(src) == 0) {
+              target_board = boardNames[boardName];
+              console.log(" -", colors.green(boardNames[boardName]), "is selected");
+              boardFound = true;
+              break;
+            }
+          }
+        }
+      } // target_board
     }
 
     if (!target_board) {
@@ -176,7 +196,7 @@ exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
         fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
         console.log(' -', 'successfully updated target on iotz.json file');
       } catch (e) {
-        console.error(' -', color.red('error:'), "couldn't update iotz.json with the target board.");
+        console.error(' -', colors.red('error:'), "couldn't update iotz.json with the target board.");
         console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
       }
     }

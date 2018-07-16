@@ -1,1 +1,1 @@
-iotz init mxchip && iotz compile && iotz run rm iotz.json && iotz clean
+iotz init mxchip && iotz compile && iotz clean

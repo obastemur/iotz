@@ -28,9 +28,6 @@ Third party libraries used:
 
 ***/
 
-#include "inc/application.h"
-
-
 void setup()
 {
 

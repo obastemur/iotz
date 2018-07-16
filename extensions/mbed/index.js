@@ -7,14 +7,22 @@ const colors = require('colors/safe');
 const fs = require('fs');
 const path = require('path');
 
-exports.detectProject = function(compile_path) {
-    // iotz.json is not on the path. lets see if we can auto generate it
+exports.detectProject = function(compile_path, runCmd, command) {
+  var detected = null;
   if (fs.existsSync(path.join(compile_path, '.mbed')) || fs.existsSync(path.join(compile_path, 'mbed_app.json')) ||
     fs.existsSync(path.join(compile_path, 'mbed-os.lib'))) {
-    return true;
+    detected = {
+      "toolchain": "mbed"
+    };
   }
 
-  return false;
+  if (!detected && command == "mbed") {
+    detected = {
+      "toolchain": "mbed"
+    };
+  }
+
+  return detected;
 }
 
 exports.directCall = function(config, runCmd, command, compile_path) {
@@ -76,12 +84,12 @@ exports.build = function mbedBuild(config, runCmd, command) {
         fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
         console.log(' -', 'successfully updated target on iotz.json file');
       } catch (e) {
-        console.error(' -', color.red('error:'), "couldn't update iotz.json with the target board.");
+        console.error(' -', colors.red('error:'), "couldn't update iotz.json with the target board.");
         console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
       }
     }
 
-    var libs = " && find . -name '*.lib' -exec cat {} \\; | while read line; do cd iotz-mbed-deps && mbed add \\$line 2>/dev/null || (cd ..) && (cd ..) ; done";
+    var libs = " && mkdir -p iotz-mbed-deps && find . -name '*.lib' -exec cat {} \\; | while read line; do cd iotz-mbed-deps && mbed add \\$line 2>/dev/null || cd .. && cd .. ; done";
     libs += " && if [ -d iotz-mbed-deps/mbed-os ]; then rm -rf mbed-os && mv iotz-mbed-deps/mbed-os .; fi"
     if (config.deps) {
       for (let lib of config.deps) {

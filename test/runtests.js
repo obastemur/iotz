@@ -9,9 +9,16 @@ const fs = require('fs')
 const path = require('path')
 const { exec, execSync } = require('child_process');
 const colors = require('colors/safe');
+const rimraf = require('rimraf');
 
 const isFolder = dir => fs.lstatSync(dir).isDirectory();
 const getTests = function (srcPath) {
+  if (process.argv.length > 2) {
+    return [{
+      path: path.join(__dirname, process.argv[2]),
+      name: process.argv[2]
+    }];
+  }
   var getFolders = dir => fs.readdirSync(dir)
     .map(name => path.join(path.resolve(dir), name)).filter(isFolder);
   var tests = getFolders(srcPath);
@@ -24,19 +31,18 @@ const getTests = function (srcPath) {
 };
 
 var totals = {
-    fail: 0,
-    success: 0
+  fail: 0,
+  success: 0
 };
 var tests = getTests(process.cwd());
-var lastTestStart = Date.now();
 var testFinished = false;
 var currentTest;
 
 function applyChanges(txt) {
-    var pathsep = path.sep;
-    txt = txt.replace(/\$\{UTILS_RUN\.JS\}/g, `node ..${pathsep}utils${pathsep}run.js`);
+  var pathsep = path.sep;
+  txt = txt.replace(/\$\{UTILS_RUN\.JS\}/g, `node ..${pathsep}utils${pathsep}run.js`);
 
-    return txt;
+  return txt;
 }
 
 function runTest(test) {
@@ -50,47 +56,50 @@ function runTest(test) {
   var txt = (fs.readFileSync(batchFile) + "");
   txt = applyChanges(txt)
 
-  var subProcess = exec(`cd ${test.path} && ${txt}`);
-  subProcess.stderr.pipe(process.stderr);
+  console.log(colors.yellow('running'), txt);
+  rimraf.sync(test.path);
 
-  subProcess.on('exit', function(errorCode) {
-    if (errorCode) {
-        totals.fail++;
-        console.log(" -", colors.red('failed'), currentTest.name)
-    } else {
-        totals.success++;
-        console.log(" -", colors.green('pass'), currentTest.name)
-    }
-    runNextTest();
-  });
+  try {
+    execSync(`git checkout ${test.path} && cd ${test.path} && ${txt}`, {stdio:[0,1,2]});
+    totals.success++;
+    console.log(" -", colors.green('pass'), currentTest.name)
+  } catch(err) {
+    totals.fail++;
+    console.log(" -", colors.red('failed'), currentTest.name)
+    console.error(err.message);
+    process.exit(1);
+  }
+  runNextTest();
 }
 
 function runNextTest() {
-    if (tests.length > 0) {
-        currentTest = tests.pop();
-        runTest(currentTest);
-    } else {
-        testFinished = true;
-    }
-    lastTestStart = Date.now();
+  if (tests.length > 0) {
+    currentTest = tests.pop();
+    runTest(currentTest);
+  } else {
+    testFinished = true;
+  }
 }
 
 console.log(' -', 'this will take a while...\n');
-execSync('docker pull azureiot/iotz', function(error) {
-    if (error) {
-        console.error(color.red('do you have Docker installed?'));
-        process.exit(1);
+exec('docker pull azureiot/iotz 2>&1', function(error) {
+  if (error) {
+    console.error(colors.red('do you have Docker installed?'));
+    if ((error + "").indexOf("Service Unavailable") > 0) {
+      console.error("You might have a problem with your network connection as well.\n");
     }
-});
+    process.exit(1);
+  }
 
-runNextTest();
+  runNextTest();
 
-var globInterval = setInterval(function() {
+  var globInterval = setInterval(function() {
     if (testFinished) {
-        clearInterval(globInterval);
-        console.log(colors.yellow('\nTest run is finished.\n'));
-        console.log(" -", colors.red  ('total failed'), totals.fail)
-        console.log(" -", colors.green('total pass'), totals.success)
-        console.log(" -", colors.yellow('total'), totals.success + totals.fail)
+      clearInterval(globInterval);
+      console.log(colors.yellow('\nTest run is finished.\n'));
+      console.log(" -", colors.red  ('total failed'), totals.fail)
+      console.log(" -", colors.green('total pass'), totals.success)
+      console.log(" -", colors.yellow('total'), totals.success + totals.fail)
     }
-});
+  });
+}).stdout.pipe(process.stdout);

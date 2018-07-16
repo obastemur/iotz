@@ -138,7 +138,7 @@ exports.createLocalContainer = function(config) {
   execSync(`cd ${__dirname} && ` + batchString, {stdio:[2]});
 };
 
-exports.autoDetectToolchain = function autoDetectToolchain(compile_path) {
+exports.autoDetectToolchain = function autoDetectToolchain(compile_path, runCmd, command) {
   var config = exports.readConfig();
   var exts = config && config.extensions ? config.extensions : {};
 
@@ -152,16 +152,19 @@ exports.autoDetectToolchain = function autoDetectToolchain(compile_path) {
     }
   };
 
+  var detected = null;
   for (var name in exts) {
     if (!exts.hasOwnProperty(name)) continue;
-    if (exports.requireExtension(name).detectProject(compile_path)) {
-      var pc = {
-        "toolchain" : name
-      };
-      fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(pc));
-      return pc;
+    var dd = exports.requireExtension(name).detectProject(compile_path, runCmd, command);
+    if (dd) {
+      if (detected) {
+        console.error(" -", colors.red('error:'), "more than one extensions detected this folder as their type.");
+        console.error(" -", "please define the toolchain and target under iotz.json file manually.");
+        process.exit(1)
+      }
+      detected = dd;
     }
   }
 
-  return null;
+  return detected;
 }

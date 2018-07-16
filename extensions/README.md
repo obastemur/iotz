@@ -4,9 +4,13 @@ iotz extensions define the behavior for predefined commands based on predefined
 functions.
 
 ```
-exports.detectProject = function(project_path) {
-  // return true or false based on whether the project on `project_path` is a
-  // match to extension. If multiple extensions return true. User has to set the
+// meaning for some of the arguments below
+// runCmd -> args after the command
+// command -> command. i.e. (iotz init), command is 'init'
+
+exports.detectProject = function(project_path, runCmd, command) {
+  // return config file json or null based on whether the project on `project_path` is a
+  // match to extension. If multiple extensions returns with a configuration. User has to set the
   // correct extension manually
 }
 
