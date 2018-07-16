@@ -1,1 +1,1 @@
-iotz init && iotz compile
+iotz init && iotz compile && iotz clean
