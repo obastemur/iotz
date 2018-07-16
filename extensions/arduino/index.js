@@ -220,9 +220,20 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
     };
     runString = `arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/program/BUILD ${patch_step}`;
   } else if (command == 'export') {
-    console.error(" -", console.red("error :"),
-              "export from arduino projects is not yet supported");
-    process.exit(1);
+    var makefile = `
+# ----------------------------------------------------------------------------
+#  Copyright (C) Microsoft. All rights reserved.
+#  Licensed under the MIT license.
+# ----------------------------------------------------------------------------
+
+all:
+	arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/program/BUILD
+clean :
+	iotz run mr -rf BUILD/
+`;
+    fs.writeFileSync(path.join(compile_path, 'Makefile'), makefile);
+    console.log(colors.green("Makefile"), "is ready.\nTry ",
+        colors.magenta('iotz make -j2'));
   } else {
     console.error(" -", console.red("error :"),
               "Unknown command", command);
