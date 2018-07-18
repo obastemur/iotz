@@ -48,6 +48,11 @@ function createImage(args, compile_path, config, callback) {
   var command = args.getCommand();
   var runCmd = args.get(command);
 
+  if (command == 'create') {
+    callback(0);
+    return;
+  }
+
   if (command == 'clean' && !config) {
     callback(0);
     return;
@@ -205,20 +210,24 @@ exports.build = function makeBuild(args, compile_path) {
         }
       }
       break;
+      case "create":
+        extensions.createProject(compile_path, runCmd, command);
+        process.exit(0);
       case "run": // do nothing
       break;
       case "connect":
         {
+          var exit_code = 0;
           try {
             var ino = fs.statSync(compile_path).ino;
             var container_name = "aiot_iotz_" + ino;
             execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
-            process.exit(0);
           } catch(e) {
             console.error(" -", colors.red('error:'), "something went wrong");
             console.error("  ", e);
-            process.exit(1);
+            exit_code = 1;
           }
+          process.exit(exit_code);
         }
       break;
       case "make":
@@ -250,7 +259,7 @@ exports.build = function makeBuild(args, compile_path) {
 
     runCommand(args, compile_path, runCmd, function(err) {
       if (err) {
-        if (err.message) {
+        if (typeof err.message === "string" && err.message.indexOf("Command failed") < 0) {
           console.error(" -", colors.magenta('message'), err.message);
         }
         process.exit(1);

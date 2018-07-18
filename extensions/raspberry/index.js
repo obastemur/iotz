@@ -57,3 +57,8 @@ exports.build = function raspberryBuild(config, runCmd, command, compile_path) {
     callback: callback
   };
 }
+
+exports.createProject = function createProject(compile_path, runCmd) {
+  console.log("under construction :)")
+  console.log("please visit the test folder for raspberry project samples");
+}

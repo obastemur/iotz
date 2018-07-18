@@ -25,13 +25,22 @@ Install [Docker](https://docs.docker.com/install/) for your OS.
 npm install -g iotz
 ```
 
-### Use
+### Usage
 
 ```
 usage: iotz <command> [options]
 ```
 
-i.e. `iotz help`
+A quick start with an Arduino mxchip project
+
+```
+iotz create arduino mxchip myproject
+cd myproject
+iotz compile
+```
+
+Alternatively, you might download an online Arduino, ARMmbed, Raspberry Pi etc.
+sample and build it as we did with the tests / examples under [test/](test/)
 
 ### Commands
 
@@ -46,6 +55,28 @@ Update base container to latest and re-install extensions on top of it.
 If there is a container associated with the current folder, delete that.
 
 You may re-install `iotz` via `npm install -g iotz` to get latest changes.
+
+#### create
+`create <toolchain name> <board name> <optional project name>`
+
+Creates an empty project for given `toolchain` and `board`.
+
+i.e.
+```
+iotz create arduino yun
+```
+
+The command above will create a `sampleApplication.ino` file and `iotz.json` config
+file on the current folder. If you give a project name as shown below;
+
+```
+iotz create arduino yun new_project
+```
+
+This will create a folder named `new_project` and put the code and config file under it.
+
+`<toolchain name>` is the name of extension. i.e. `arduino`, `mbed`, `raspberry`...
+You may find the `<board name>`from [here](#where-can-i-find-the-target-board-names)
 
 #### init
 `init <optional target board name>`

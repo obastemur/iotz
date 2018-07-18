@@ -9,6 +9,39 @@ const path   = require('path');
 
 const ARDUINO_VERSION = "1.8.5";
 
+function findBoard(name) {
+  var src = name.toLowerCase();
+
+  for (let boardName in boardNames) {
+    if (!boardNames.hasOwnProperty(boardName)) continue;
+    var lbname = boardNames[boardName].toLowerCase();
+    if (src == boardName || (src.length > 3 && lbname.indexOf(src) >= 0)) {
+      return boardNames[boardName];
+    }
+  }
+
+  return null;
+}
+
+function printBoards() {
+  console.error(' -', colors.yellow('full list below'));
+  var boards = "\t";
+  var counter = 0;
+  for (let boardName in boardNames) {
+    if (!boardNames.hasOwnProperty(boardName)) continue;
+    if (counter == 5) {
+      boards += "\n\t"
+      counter = 0;
+    }
+    if (counter != 0) {
+      boards += " - ";
+    }
+    counter++;
+    boards += boardName
+  }
+  console.error(boards);
+}
+
 exports.detectProject = function(compile_path, runCmd, command) {
   // try to detect by .ino
   var detected = null;
@@ -26,16 +59,10 @@ exports.detectProject = function(compile_path, runCmd, command) {
   // try to detect by board name
   if (typeof runCmd === "string" && runCmd.length >= 2)
   {
-    var src = runCmd.toLowerCase();
-
-    for (let boardName in boardNames) {
-      if (!boardNames.hasOwnProperty(boardName)) continue;
-      var lbname = boardNames[boardName].toLowerCase();
-      if (src == boardName || (src.length > 3 && lbname.indexOf(src) >= 0)) {
-        if (!detected) detected = {"toolchain":"arduino"};
-        detected.target = boardNames[boardName];
-        break;
-       }
+    var found = findBoard(runCmd);
+    if (found) {
+      if (!detected) detected = {"toolchain":"arduino"};
+      detected.target = found;
     }
   }
 
@@ -127,53 +154,18 @@ exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
       if (target_board) {
         console.error(" -", colors.yellow('warning:'), 'iotz.json file has target board defined already.');
       } else {
-        var src = runCmd.toLowerCase();
-        var srclen = src.length;
-
-        for (let boardName in boardNames) {
-          if (!boardNames.hasOwnProperty(boardName)) continue;
-          if (src == boardName) {
-            target_board = boardNames[boardName];
-            console.log(" -", colors.green(boardNames[boardName]), "is selected");
+        target_board = findBoard(runCmd);
+        if (target_board) {
+            console.log(" -", colors.green(target_board), "is selected");
             boardFound = true;
-            break;
-          }
-        }
-
-        // no fullname match. try sub search
-        if (!boardFound && srclen > 2) {
-          for (let boardName in boardNames) {
-            if (!boardNames.hasOwnProperty(boardName)) continue;
-            if (boardName.indexOf(src) == 0) {
-              target_board = boardNames[boardName];
-              console.log(" -", colors.green(boardNames[boardName]), "is selected");
-              boardFound = true;
-              break;
-            }
-          }
         }
       } // target_board
-    }
+    } // typeof runCmd === 'string' .....
 
     if (!target_board) {
       console.error(' -', colors.red('error:'), 'Arduino project is detected. Target board is required.');
       console.error(' -', colors.bold('try'), '"iotz init uno", if target board is uno');
-      console.error(' -', colors.yellow('full list below'));
-      var boards = "\t";
-      var counter = 0;
-      for (let boardName in boardNames) {
-        if (!boardNames.hasOwnProperty(boardName)) continue;
-        if (counter == 5) {
-          boards += "\n\t"
-          counter = 0;
-        }
-        if (counter != 0) {
-          boards += " - ";
-        }
-        counter++;
-        boards += boardName
-      }
-      console.error(boards);
+      printBoards();
       process.exit(1);
     } else if (!boardFound) { // target_board
       var src = target_board.toLowerCase();
@@ -269,3 +261,60 @@ clean :
     callback: callback
   };
 }
+
+exports.createProject = function createProject(compile_path, runCmd) {
+  var args = runCmd.split(' ');
+  var board = findBoard(args[0]);
+  if (!board) {
+    console.error(" -", console.red("error :"),
+              "Unknown board name", args[0]);
+    printBoards();
+    process.exit(1);
+  }
+
+  var projectName;
+  if (args.length > 1) {
+    projectName = args[1];
+  }
+
+  var target_folder;
+  if (projectName) {
+    target_folder = path.join(compile_path, projectName);
+    try {
+      fs.mkdirSync(target_folder);
+    } catch(e) {
+      if (!fs.existsSync(target_folder)) {
+        console.error(" -", colors.red("error:"), "cant't create folder", projectName);
+        process.exit(1);
+      }
+    }
+  } else {
+    target_folder = compile_path;
+    projectName = "sampleApplication"
+  }
+
+  var example = `
+// iotz
+// sample arduino file
+
+void setup() { }
+
+void loop() {
+  printf("hello world!\\r\\n");
+  delay(1);
+}
+`;
+
+  var config = `
+{
+  "name":"${projectName}",
+  "toolchain":"arduino",
+  "target":"${board}",
+  "filename":"${projectName}.ino"
+}
+`;
+
+  fs.writeFileSync(path.join(target_folder, `${projectName}.ino`), example);
+  fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
+  console.log(" -", colors.green('done!'));
+};

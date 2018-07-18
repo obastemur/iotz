@@ -59,6 +59,10 @@ exports.build = function build(config, runCmd, command, compile_path) {
     callback: callback
   };
 }
+
+exports.createProject = function createProject(compile_path, runCmd) {
+  // create an empty project based on the information provided by user
+}
 ```
 
 By default, iotz searches an extension under the official extensions folder and then

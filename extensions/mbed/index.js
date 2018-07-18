@@ -175,3 +175,8 @@ Please update ${colors.magenta('iotz.json')} with "target".'
     callback: callback
   };
 } // mbedBuild
+
+exports.createProject = function createProject(compile_path, runCmd) {
+  console.log("under construction :)")
+  console.log("please visit the test folder for mbed project samples");
+}

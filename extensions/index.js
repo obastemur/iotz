@@ -168,3 +168,14 @@ exports.autoDetectToolchain = function autoDetectToolchain(compile_path, runCmd,
 
   return detected;
 }
+
+exports.createProject = function createProject(compile_path, runCmd, command) {
+  if (typeof runCmd !== "string" || runCmd.length == 0) {
+    console.error(" -", colors.red("error:"), "please specify the type of project you want to create");
+    process.exit(1);
+  }
+
+  var args = runCmd.split(' ');
+  var ext  = exports.requireExtension(args[0]);
+  ext.createProject(compile_path, runCmd.substr(args[0].length + 1));
+}
