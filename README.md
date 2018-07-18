@@ -31,13 +31,22 @@ npm install -g iotz
 usage: iotz <command> [options]
 ```
 
-A quick start with an Arduino mxchip project
+A quick start with an `Arduino` mxchip project
 
 ```
 iotz create arduino mxchip myproject
 cd myproject
 iotz init
 iotz compile
+```
+
+or a `Raspberry Pi` project
+
+```
+iotz create raspberry hello
+cd hello
+iotz init
+iotz make
 ```
 
 Alternatively, you might download an online Arduino, ARMmbed, Raspberry Pi etc.

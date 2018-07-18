@@ -1,0 +1,1 @@
+iotz create raspberry && iotz init && iotz make && iotz run rm sampleApplication.* iotz.json
