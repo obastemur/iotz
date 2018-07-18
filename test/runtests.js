@@ -41,6 +41,7 @@ var currentTest;
 function applyChanges(txt) {
   var pathsep = path.sep;
   txt = txt.replace(/\$\{UTILS_RUN\.JS\}/g, `node ..${pathsep}utils${pathsep}run.js`);
+  txt = txt.replace(/\$\{UTILS_BASELINE\.JS\}/g, `node ..${pathsep}utils${pathsep}baseline.js`);
 
   return txt;
 }
