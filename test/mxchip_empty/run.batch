@@ -1,1 +1,1 @@
-iotz init mxchip && iotz run "echo 'void setup() { } void loop() { }' > test.ino" && iotz compile
+iotz init mxchip && iotz run "echo 'void setup() { } void loop() { }' > test.ino" && iotz compile && iotz run rm iotz.json
