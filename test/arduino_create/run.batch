@@ -1,0 +1,1 @@
+${UTILS_BASELINE.JS} 0 "iotz create arduino mxchip && iotz run cat iotz.json sampleApplication.ino"

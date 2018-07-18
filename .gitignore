@@ -22,3 +22,5 @@ extensions/Dockerfile
 package-lock.json
 iotz-mbed-deps/
 test_baseline
+test/arduino_create/iotz.json
+sampleApplication.ino

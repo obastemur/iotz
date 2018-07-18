@@ -1,0 +1,18 @@
+ - [33minitializing the project container..[39m
+
+{
+  "name":"sampleApplication",
+  "toolchain":"arduino",
+  "target":"AZ3166:stm32f4:MXCHIP_AZ3166",
+  "filename":"sampleApplication.ino"
+}
+
+// iotz
+// sample arduino file
+
+void setup() { }
+
+void loop() {
+  printf("hello world!\r\n");
+  delay(1);
+}
