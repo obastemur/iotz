@@ -89,8 +89,10 @@ exports.build = function mbedBuild(config, runCmd, command) {
       }
     }
 
-    var libs = " && mkdir -p iotz-mbed-deps && find . -name '*.lib' -exec cat {} \\; | while read line; do cd iotz-mbed-deps && mbed add \\$line 2>/dev/null || cd .. && cd .. ; done";
-    libs += " && if [ -d iotz-mbed-deps/mbed-os ]; then rm -rf mbed-os && mv iotz-mbed-deps/mbed-os .; fi"
+    var ppr = process.platform === "win32" ? "" : "\\";
+    var libs = ` && mkdir -p iotz-mbed-deps && find . -name '*.lib' -exec cat {}\
+ \\; | while read line; do cd iotz-mbed-deps && mbed add ${ppr}$line 2>/dev/null || cd .. && cd .. ; done\
+ && if [ -d iotz-mbed-deps/mbed-os ]; then rm -rf mbed-os && mv iotz-mbed-deps/mbed-os .; fi`;
     if (config.deps) {
       for (let lib of config.deps) {
         if (lib) {
