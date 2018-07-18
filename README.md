@@ -36,6 +36,7 @@ A quick start with an Arduino mxchip project
 ```
 iotz create arduino mxchip myproject
 cd myproject
+iotz init
 iotz compile
 ```
 
