@@ -83,7 +83,7 @@ function runNextTest() {
 }
 
 console.log(' -', 'this will take a while...\n');
-exec('docker pull azureiot/iotz 2>&1', function(error) {
+var prc = exec('docker pull azureiot/iotz 2>&1', function(error) {
   if (error) {
     console.error(colors.red('do you have Docker installed?'));
     if ((error + "").indexOf("Service Unavailable") > 0) {
@@ -103,4 +103,8 @@ exec('docker pull azureiot/iotz 2>&1', function(error) {
       console.log(" -", colors.yellow('total'), totals.success + totals.fail)
     }
   });
-}).stdout.pipe(process.stdout);
+});
+
+prc.stdout.on('data', function (data) {
+  process.stdout.write(data);
+});

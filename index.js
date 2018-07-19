@@ -184,7 +184,9 @@ function builder() {
       process.exit(0);
     }
   }
-  compile_path = path.resolve(compile_path)
+
+  compile_path = path.resolve(compile_path);
+
   try {
     make.build(args, compile_path);
   } catch (e) {

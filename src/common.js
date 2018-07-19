@@ -99,9 +99,9 @@ function createImage(args, compile_path, config, callback) {
 
     var batchString = `docker build . --force-rm -t ${container_name}`;
     var subProcess = exec(`cd ${compile_path} && ` + batchString);
-
-    subProcess.stderr.pipe(process.stderr);
-    subProcess.stdin.pipe(process.stdin);
+    subProcess.stderr.on('data', function (data) {
+      process.stderr.write(data);
+    });
 
     subProcess.on('exit', function(errorCode) {
       rimraf.sync(path.join(compile_path, 'Dockerfile'));
@@ -139,8 +139,12 @@ docker run --rm --name ${active_instance} -t --volume \
   var prc = exec(batchString, {stdio:'inherit', maxBuffer: 1024 * 8192}, function(err) {
     callback(err);
   });
-  prc.stdout.pipe(process.stdout);
-  prc.stderr.pipe(process.stderr);
+  prc.stderr.on('data', function (data) {
+    process.stderr.write(data);
+  });
+  prc.stdout.on('data', function (data) {
+    process.stdout.write(data);
+  });
 }
 
 process.on('SIGINT', function() {
