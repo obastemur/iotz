@@ -185,5 +185,16 @@ function builder() {
     }
   }
   compile_path = path.resolve(compile_path)
-  make.build(args, compile_path);
+  try {
+    make.build(args, compile_path);
+  } catch (e) {
+    var message = e + "";
+    if (message.indexOf("Bad response from Docker engine") > 0) {
+      console.error(" -", colors.red("error:"), "Docker is probably not running yet.");
+      console.error("   Error response from daemon: Bad response from Docker engine");
+    } else {
+      console.error(e);
+    }
+    process.exit(1);
+  }
 }
