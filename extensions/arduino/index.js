@@ -251,7 +251,7 @@ clean :
     console.log(colors.green("Makefile"), "is ready.\nTry ",
         colors.magenta('iotz make -j2'));
   } else {
-    console.error(" -", console.red("error :"),
+    console.error(" -", colors.red("error :"),
               "Unknown command", command);
     process.exit(1);
   }
@@ -266,7 +266,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
   var args = runCmd.split(' ');
   var board = findBoard(args[0]);
   if (!board) {
-    console.error(" -", console.red("error :"),
+    console.error(" -", colors.red("error :"),
               "Unknown board name", args[0]);
     printBoards();
     process.exit(1);

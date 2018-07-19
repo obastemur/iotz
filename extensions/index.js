@@ -169,9 +169,15 @@ exports.autoDetectToolchain = function autoDetectToolchain(compile_path, runCmd,
   return detected;
 }
 
-exports.createProject = function createProject(compile_path, runCmd, command) {
+exports.createProject = function createProject(compile_path, runCmd) {
   if (typeof runCmd !== "string" || runCmd.length == 0) {
-    console.error(" -", colors.red("error:"), "please specify the type of project you want to create");
+    console.error(" -", colors.red("error:"), "please specify the type of project you want to create\r\n");
+    console.error("   usage: iotz create <toolchain> <optional target> <optional project name>");
+    console.error("   i.e.");
+    console.error("   iotz create arduino yun");
+    console.error("   iotz create arduino yun myproj");
+    console.error("   iotz create raspberry");
+    console.error("   iotz create raspberry myproj");
     process.exit(1);
   }
 

@@ -97,7 +97,7 @@ exports.build = function mbedBuild(config, runCmd, command) {
       for (let lib of config.deps) {
         if (lib) {
           if (!lib.url) {
-            console.error(" -", console.red("error :"),
+            console.error(" -", colors.red("error :"),
               "Unknown config ", JSON.stringify(lib, 0, 2));
           } else {
             if (lib.url.indexOf(lib.name) == -1) {
@@ -165,7 +165,7 @@ Please update ${colors.magenta('iotz.json')} with "target".'
         colors.magenta('iotz make -j2'));
     }
   } else {
-    console.error(" -", console.red("error :"),
+    console.error(" -", colors.red("error :"),
               "Unknown command", command);
     process.exit(1);
   }

@@ -19,7 +19,7 @@ exports.directCall = function(config, runCmd, command, compile_path) {
   // i.e. your extension name is `abc`
   // user might call `iotz abc`
   // what bash command you want to execute on the container?
-  // check what we do with arduino, mbed, and raspberry
+  // check what we do with arduino, mbed, and raspberry-pi
 };
 
 exports.createExtensions = function() {
@@ -49,7 +49,7 @@ exports.build = function build(config, runCmd, command, compile_path) {
   } else if (command == 'export') {
     // things for `export`
   } else {
-    console.error(" -", console.red("error :"),
+    console.error(" -", colors.red("error :"),
               "Unknown command", command);
     process.exit(1);
   }

@@ -47,11 +47,12 @@ exports.build = function raspberryBuild(config, runCmd, command, compile_path) {
     console.log(" - compiler tools are available under", colors.green('/tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/'));
     runString = "make --version && cmake --version && /tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-g++ -v";
   } else if (command == 'export') {
-    console.error(" -", console.red("error :"),
-              "export from raspberry projects is not supported");
+    console.error(" -", colors.red("error :"),
+`export from a raspberry pi project is not supported.
+   Try '${colors.yellow('iotz create raspberry hello-world')}' for a sample hello-world Makefile`);
     process.exit(1);
   } else {
-    console.error(" -", console.red("error :"),
+    console.error(" -", colors.red("error :"),
               "Unknown command", command);
     process.exit(1);
   }

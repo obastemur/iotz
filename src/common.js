@@ -211,7 +211,7 @@ exports.build = function makeBuild(args, compile_path) {
       }
       break;
       case "create":
-        extensions.createProject(compile_path, runCmd, command);
+        extensions.createProject(compile_path, runCmd);
         process.exit(0);
       case "run": // do nothing
       break;
