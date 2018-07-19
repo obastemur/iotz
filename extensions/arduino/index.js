@@ -207,12 +207,15 @@ exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
       // install always the latest
       var tweak = fs.readFileSync(path.join(__dirname, 'tweaks', 'az3166', 'platform.txt'));
       fs.writeFileSync(path.join(compile_path, ".iotz.mxchip.tweak"), tweak);
+
+      var mxchip_folder =  "cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd `ls | awk '{print $1}'`";
       install_board = ` echo
 COPY .iotz.mxchip.tweak /src/program/.iotz.mxchip.tweak
 
 RUN arduino --install-boards AZ3166:stm32f4 && \
-    rm ~/.arduino15/packages/AZ3166/hardware/stm32f4/1.3.7/platform.txt && \
-    mv /src/program/.iotz.mxchip.tweak ~/.arduino15/packages/AZ3166/hardware/stm32f4/1.3.7/platform.txt`;
+    ${mxchip_folder} && \
+    rm ./platform.txt && \
+    mv /src/program/.iotz.mxchip.tweak ./platform.txt`;
     }
 
     runString = install_board;
