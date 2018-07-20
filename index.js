@@ -191,11 +191,12 @@ function builder() {
     make.build(args, compile_path);
   } catch (e) {
     var message = e + "";
-    if (message.indexOf("Bad response from Docker engine") > 0) {
-      console.error(" -", colors.red("error:"), "Docker is probably not running yet.");
-      console.error("   Error response from daemon: Bad response from Docker engine");
+    if (message.indexOf("Bad response from Docker engine") > 0 ||
+        message.indexOf("docker deamon is not running") > 0) {
+      console.error(" -", colors.red("error:"), "Docker has not started yet?");
+      console.error("   response from Docker: docker deamon is not running");
     } else {
-      console.error(e);
+      console.error(e.message ? e.message : e);
     }
     process.exit(1);
   }
