@@ -182,7 +182,7 @@ exports.build = function makeBuild(args, compile_path) {
       {
         if (command == 'init' && process.platform === "win32") {
           // TODO: detect this and behave accordingly?
-          console.log(colors.yellow('Have you shared the current drive on Docker for Windows?'));
+          console.log(colors.yellow('Please ensure you have shared the current drive on Docker for Windows'));
         }
 
         if (!config) {
@@ -209,7 +209,7 @@ exports.build = function makeBuild(args, compile_path) {
           ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
                 .build(config, runCmd, command, compile_path);
         } catch(e) {
-          console.error(' - error:', "something bad happened..\n", colors.red(e));
+          console.error(' - error:', "something bad happened..\n", colors.red(e.message ? e.message : e));
           process.exit(1);
         }
       }
@@ -221,17 +221,9 @@ exports.build = function makeBuild(args, compile_path) {
       break;
       case "connect":
         {
-          var exit_code = 0;
-          try {
-            var ino = fs.statSync(compile_path).ino;
-            var container_name = "aiot_iotz_" + ino;
-            execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
-          } catch(e) {
-            console.error(" -", colors.red('error:'), "something went wrong");
-            console.error("  ", e);
-            exit_code = 1;
-          }
-          process.exit(exit_code);
+          var ino = fs.statSync(compile_path).ino;
+          var container_name = "aiot_iotz_" + ino;
+          execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
         }
       break;
       case "make":
