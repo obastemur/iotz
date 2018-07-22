@@ -16,10 +16,21 @@ exports.detectProject = function(compile_path, runCmd, command) {
     };
   }
 
-  if (!detected && command == "mbed") {
-    detected = {
-      "toolchain": "mbed"
-    };
+  if (!detected) {
+    var args = [];
+    if (typeof runCmd === 'string' && runCmd.length) {
+      args = runCmd.split(' ');
+    }
+
+    if (command == "mbed" || args[0] == "mbed") {
+      detected = {
+        "toolchain": "mbed"
+      };
+    }
+
+    if (args.length > 1 && detected) {
+      detected.target = args[1]; // deviceId
+    }
   }
 
   return detected;
@@ -64,7 +75,7 @@ var checkSource = function checkSource(config) {
   return source;
 }
 
-exports.build = function mbedBuild(config, runCmd, command) {
+exports.build = function mbedBuild(config, runCmd, command, compile_path) {
   var target_board = config.target;
   var runString = "";
   var callback = null;
@@ -74,18 +85,21 @@ exports.build = function mbedBuild(config, runCmd, command) {
   } else if (command == "init") {
     if (typeof runCmd === 'string' && runCmd.length) {
       // don't let setting target board from multiple places
-      if (target_board) {
-        console.error(" -", colors.magenta('warning:'), 'updating the target board definition on iotz.json file.');
-      }
-
-      config.target = runCmd;
-      target_board = config.target;
-      try {
-        fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
-        console.log(' -', 'successfully updated target on iotz.json file');
-      } catch (e) {
-        console.error(' -', colors.red('error:'), "couldn't update iotz.json with the target board.");
-        console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
+      var detected = exports.detectProject(compile_path, runCmd, command);
+      if (config.target != detected.target) {
+        if (target_board) {
+          console.error(" -", colors.magenta('warning:'), 'updating the target board definition on iotz.json file.');
+        }
+        target = detected.target;
+        target_board = config.target;
+        try {
+          fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
+          console.log(' -', 'successfully updated target on iotz.json file');
+        } catch (e) {
+          console.error(' -', colors.red('error:'), "couldn't update iotz.json with the target board.");
+          console.error('  ', e.message);
+          console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
+        }
       }
     }
 

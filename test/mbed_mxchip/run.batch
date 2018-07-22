@@ -1,0 +1,1 @@
+iotz init mbed MTB_MXCHIP_EMW3166 && iotz run "echo 'int main() { return 0; }' > main.cpp" && iotz export && iotz make -j4 && iotz run rm main.cpp iotz.json Makefile
