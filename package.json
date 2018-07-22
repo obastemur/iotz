@@ -1,7 +1,7 @@
 {
   "name": "iotz",
-  "version": "0.1.0",
-  "description": "ARM mbed / Arduino / GCC ARM compiler toolchain wrapper",
+  "version": "0.1.1",
+  "description": "a containerized and extendible cross compiler box for arduino, arm mbed, raspberry pi and ... more",
   "keywords": [
     "arm",
     "mbed",
