@@ -1,6 +1,6 @@
 {
   "name": "iotz",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "a containerized and extendible cross compiler box for arduino, arm mbed, raspberry pi and ... more",
   "keywords": [
     "arm",
@@ -23,6 +23,9 @@
   "dependencies": {
     "colors": "^1.2.5",
     "rimraf": "^2.6.2"
+  },
+  "scripts": {
+    "postinstall": "iotz update"
   },
   "license": "LICENSE.md"
 }
