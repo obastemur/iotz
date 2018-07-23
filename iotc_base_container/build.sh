@@ -4,7 +4,7 @@
 # Licensed under the MIT license.
 #-------------------------------------------------------------------------------
 
-VERSION="0.2.0"
+VERSION="0.2.1"
 CONTAINER_NAME="azureiot/iotz:${VERSION}"
 
 echo -e "- building container. this will take a while.."

@@ -13,6 +13,7 @@ RUN    apt update \
     && apt install -y gcc-arm-none-eabi software-properties-common cmake \
     && apt install -y build-essential python-pip mercurial python-setuptools \
     && apt install -y gcc-avr avr-libc avrdude curl unzip \
+    && apt install -y libcurl4-openssl-dev libssl-dev uuid-dev \
     && apt-get clean
 
 WORKDIR /src
