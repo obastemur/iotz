@@ -1,0 +1,2 @@
+git clone --recursive https://github.com/Azure/azure-iot-sdk-c.git && cd azure-iot-sdk-c && \
+iotz run mkdir cmake && iotz run "cd cmake && cmake .. && cmake --build . -- -j 2"
