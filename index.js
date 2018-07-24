@@ -23,9 +23,9 @@ var params = [
     {option: "update", text: "update base container to latest"},
     {option: "", text: ""}, // placeholder
     {option: "clean", text:"clean up the local container and generated files"},
-    {option: "connect", text: "mount the container on current path and sync tty"},
+    {option: "connect <optional args>", text: "mount the container on current path and sync tty"},
     {option: "compile", text: "compile the project on current path (needs iotz.json)"},
-    {option: "create",  text: "create an empty project."},
+    {option: "create <args>",  text: "create an empty project."},
     {option: "init <optional target>", text:"initialize a specialized sandbox for current path (needs iotz.json)"},
     {option: "export", text: "exports a Makefile"},
     {option: "", text: ""}, // placeholder

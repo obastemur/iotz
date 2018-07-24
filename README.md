@@ -66,6 +66,27 @@ If there is a container associated with the current folder, delete that.
 
 You may re-install `iotz` via `npm install -g iotz` to get latest changes.
 
+#### clean
+Deletes the local container for the current path. Also, cleans up the auto
+generated files and folders.
+
+#### compile
+Compile the project on given path (may need an `iotz.json` on path)
+
+`compile` triggers a set of platform specific commands to build the project on the path.
+Thus, it requires `target` and `toolchain` are defined under `iotz.json` file.
+
+A successful `init` phase (see above) will ensure that you have `iotz.json` file in place.
+
+! Some platforms (extensions) do not require a particular target hence you won't see
+issue by not having an `iotz.json` file in place.
+
+#### connect
+`connect <additional args for docker>`
+
+Runs the current container bash in an interactive mode (tty is enabled).
+Current path is attached by default.
+
 #### create
 `create <toolchain name> <board name> <optional project name>`
 
@@ -88,6 +109,9 @@ This will create a folder named `new_project` and put the code and config file u
 `<toolchain name>` is the name of extension. i.e. `arduino`, `mbed`, `raspberry`...
 You may find the `<board name>`from [here](#where-can-i-find-the-target-board-names)
 
+#### export
+Exports a makefile (depends to extension)
+
 #### init
 `init <optional target board name>`
 
@@ -101,30 +125,12 @@ accordingly.
 Beware. If you have previously initialized `iotz` for a project (path), once you
 call it again, it will clean up the previous initialization.
 
-#### compile
-Compile the project on given path (may need an `iotz.json` on path)
-
-`compile` triggers a set of platform specific commands to build the project on the path.
-Thus, it requires `target` and `toolchain` are defined under `iotz.json` file.
-
-A successful `init` phase (see above) will ensure that you have `iotz.json` file in place.
-
-! Some platforms (extensions) do not require a particular target hence you won't see
-issue by not having an `iotz.json` file in place.
-
-#### clean
-Deletes the local container for the current path. Also, cleans up the auto
-generated files and folders.
-
 #### run
 `run <cmd> <args>`
 
 Runs the `<cmd>` on container's bash.
 
 i.e. `iotz run ls -l`
-
-#### export
-Exports a makefile (depends to extension)
 
 ### predefined extensions
 ```

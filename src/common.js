@@ -230,7 +230,8 @@ exports.runCommand = function(args, compile_path) {
       {
         var ino = fs.statSync(compile_path).ino;
         var container_name = "aiot_iotz_" + ino;
-        execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
+        if (runCmd == -1) runCmd = "";
+        execSync(`docker run -ti -v ${compile_path}:/src/program ${runCmd} ${container_name}`, {stdio:[0,1,2]});
         process.exit(0);
       }
       break;
