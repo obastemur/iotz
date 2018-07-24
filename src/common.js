@@ -98,7 +98,7 @@ function createImage(args, compile_path, config, callback) {
     var libs = `
     FROM azureiot/iotz_local
 
-    WORKDIR /src/program
+    WORKDIR /src
 
     RUN echo "Setting up ${container_name}" ${runCmd}`;
     fs.writeFileSync(path.join(compile_path, 'Dockerfile'), libs);
@@ -137,10 +137,15 @@ function runCommand(args, compile_path, runCmd, callback) {
     execSync(`docker container rm -f "/${active_instance}" 2>&1`);
   } catch(e) { }
 
+  var pathName = path.basename(compile_path);
+  var mountPath = (compile_path && compile_path.length) ? path.join(compile_path, '..') : compile_path;
+
   var batchString = `\
 cd ${compile_path} && \
-docker run --rm --name ${active_instance} -t --volume \
-"${compile_path}":/src/program:rw,cached ${container_name} /bin/bash -c "${runCmd}"\
+docker run --rm --name ${active_instance} -t -v \
+"${mountPath}":/src:rw,cached \
+-w /src/${pathName} ${container_name} \
+/bin/bash -c "${runCmd}"\
 `;
 
   var prc = exec(batchString, {stdio:'inherit', maxBuffer: 1024 * 8192}, function(err) {
@@ -231,7 +236,10 @@ exports.runCommand = function(args, compile_path) {
         var ino = fs.statSync(compile_path).ino;
         var container_name = "aiot_iotz_" + ino;
         if (runCmd == -1) runCmd = "";
-        execSync(`docker run -ti -v ${compile_path}:/src/program ${runCmd} ${container_name}`, {stdio:[0,1,2]});
+        var name = path.basename(compile_path);
+        // actual mount path is level - 1
+        var mountPath = (compile_path && compile_path.length) ? path.join(compile_path, '..') : compile_path;
+        execSync(`docker run -ti -v ${mountPath}:/src -w /src/${name} ${runCmd} ${container_name}`, {stdio:[0,1,2]});
         process.exit(0);
       }
       break;

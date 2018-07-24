@@ -127,7 +127,7 @@ exports.createLocalContainer = function(config) {
   var libs = `
   FROM azureiot/iotz:latest
 
-  WORKDIR /src/program
+  WORKDIR /src
 
   RUN echo "Setting up ${container_name}"
   ${extensions.join('\n')}
