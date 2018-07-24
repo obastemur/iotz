@@ -131,6 +131,7 @@ if (args.getCommand() == 'version' || args.getCommand() == '-v') {
   process.exit(0);
 }
 
+// verify if docker is installed (TODO: make it better!)
 exec(
   'docker -v', function(err, data, stderr){
     if (err) {
@@ -147,7 +148,8 @@ exec(
 );
 
 function builder() {
-  var compile_path = process.cwd();
+  var compile_path = path.resolve(process.cwd());
+
   if (args.getCommand() == 'update') {
     exec('docker pull azureiot/iotz:latest', function(err, data, stderr) {
       if (err) {
@@ -157,7 +159,7 @@ function builder() {
       } else {
         console.log(data.replace(/\\n/g, '\n'));
         console.log(colors.green(' - base container update was succesfull'));
-        // update extensions
+        // update extensions and local package
         require('./extensions/index.js').updateExtensions(compile_path);
       }
     });
@@ -166,26 +168,21 @@ function builder() {
 
   if (args.getCommand() == 'help' ||
       args.getCommand() == '-h' ||
+      args.getCommand() == '-?' ||
       args.getCommand() == '--help') {
 
     printHelp();
-    process.exit(0);
     return;
   }
 
   if (args.getCommand() == 'compile') {
-    if (process.argv.length > 3) {
-      compile_path = process.argv[3];
-    }
-
     var proj_path = path.join(compile_path, "iotz.json");
     if (!fs.existsSync(proj_path)) {
       console.error(' -', colors.red('error:'), 'iotz.json file is not found on', compile_path);
+      console.log(" -", "Have you called 'init' command first?");
       process.exit(0);
     }
   }
-
-  compile_path = path.resolve(compile_path);
 
   try {
     make.build(args, compile_path);

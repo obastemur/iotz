@@ -113,9 +113,11 @@ exports.createLocalContainer = function(config) {
   try {
     execSync('docker image rm -f azureiot/iotz_local 2>&1')
   } catch(e) { }
-  var container_name = 'azureiot/iotz_local';
 
+  var container_name = 'azureiot/iotz_local';
   var extensions = [];
+
+  // TODO: order by installation date so we benefit from backward caching ?
   for (var name in config.extensions) {
     if (!config.extensions.hasOwnProperty(name)) continue;
     var rext = exports.requireExtension(name);
@@ -138,7 +140,7 @@ exports.createLocalContainer = function(config) {
   execSync(`cd ${__dirname} && ` + batchString, {stdio:[2]});
 };
 
-exports.autoDetectToolchain = function autoDetectToolchain(compile_path, runCmd, command) {
+exports.detectProject = function detectProject(compile_path, runCmd, command) {
   var config = exports.readConfig();
   var exts = config && config.extensions ? config.extensions : {};
 

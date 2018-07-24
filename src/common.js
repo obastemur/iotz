@@ -20,7 +20,7 @@ function getProjectConfig(args, compile_path) {
 
   var command = args.getCommand();
   var runCmd = args.get(command);
-  var config_detected = extensions.autoDetectToolchain(compile_path, runCmd, command);
+  var config_detected = extensions.detectProject(compile_path, runCmd, command);
   var updateConfig = false;
 
   if (!config) {
@@ -34,7 +34,13 @@ function getProjectConfig(args, compile_path) {
   }
 
   if (updateConfig && config) {
-    fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config));
+    try {
+      fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config));
+    } catch (e) {
+      // this is not a must step hence (although weird but) skip if we don't have write access.
+      console.error(' -', colors.yellow('warning:'), "couldn't update iotz.json file.");
+      console.error(' -', e.message);
+    }
   }
 
   return config;
@@ -53,14 +59,14 @@ function createImage(args, compile_path, config, callback) {
     return;
   }
 
-  if (command == 'clean' && !config) {
+  if (command == 'clean' && !config) { // no config hence nothing further to clean
     callback(0);
     return;
   }
 
   // do we have the local container?
   if (images.indexOf("azureiot/iotz_local") == -1) {
-    require('../extensions/index.js').createLocalContainer();
+    extensions.createLocalContainer();
   }
 
   // do we have the project container
@@ -127,6 +133,7 @@ function runCommand(args, compile_path, runCmd, callback) {
   active_instance = container_name + "_";
   try {
     // clean up the previously stopped instance
+    // TODO: configurable?
     execSync(`docker container rm -f "/${active_instance}" 2>&1`);
   } catch(e) { }
 
