@@ -14,7 +14,7 @@ exports.detectProject = function(project_path, runCmd, command) {
   // correct extension manually
 }
 
-exports.directCall = function(config, runCmd, command, compile_path) {
+exports.selfCall = function(config, runCmd, command, compile_path) {
   // define the behavior for a named call
   // i.e. your extension name is `abc`
   // user might call `iotz abc`
@@ -22,12 +22,12 @@ exports.directCall = function(config, runCmd, command, compile_path) {
   // check what we do with arduino, mbed, and raspberry-pi
 };
 
-exports.createExtensions = function() {
+exports.createExtension = function() {
   // what bash command you want to run on the container to prepare the environment
   // for your extension?
 };
 
-exports.build = function build(config, runCmd, command, compile_path) {
+exports.buildCommands = function(config, runCmd, command, compile_path) {
   var callback = null;
   var runString = "";
 
@@ -44,7 +44,7 @@ exports.build = function build(config, runCmd, command, compile_path) {
     // `container_init` will be called no matter what and will be called pre init.
   } else if (command == 'clean') {
     // set what to do for `clean`
-  } else if (command == 'compile') { // build
+  } else if (command == 'compile') {
     // things for `compile`
   } else if (command == 'export') {
     // things for `export`

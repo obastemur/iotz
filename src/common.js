@@ -7,7 +7,7 @@ const colors = require('colors/safe');
 const fs     = require('fs');
 const path   = require('path');
 const rimraf = require('rimraf');
-const exec        = require('child_process').exec;
+const exec       = require('child_process').exec;
 const execSync   = require('child_process').execSync;
 const extensions = require('../extensions/index.js');
 
@@ -87,7 +87,7 @@ function createImage(args, compile_path, config, callback) {
         console.error(" -", colors.red('warning:'), "no 'toolchain' is defined under iotz.json.");
       } else {
         ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
-          .build(config, runCmd, 'container_init', compile_path);
+          .buildCommands(config, runCmd, 'container_init', compile_path);
 
         if (ret && ret.run.length) {
           runCmd = "&& " + ret.run;
@@ -174,7 +174,7 @@ exports.cleanCommon = function(compile_path) {
   console.log(' -', colors.green('container is deleted'));
 };
 
-exports.build = function makeBuild(args, compile_path) {
+exports.runCommand = function(args, compile_path) {
   var command = args.getCommand();
   var config = getProjectConfig(args, compile_path)
 
@@ -214,7 +214,7 @@ exports.build = function makeBuild(args, compile_path) {
         var ret;
         try {
           ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
-                .build(config, runCmd, command, compile_path);
+                .buildCommands(config, runCmd, command, compile_path);
         } catch(e) {
           console.error(' - error:', "something bad happened..\n", colors.red(e.message ? e.message : e));
           process.exit(1);
@@ -240,7 +240,7 @@ exports.build = function makeBuild(args, compile_path) {
       default:
         if (extensions.getToolchain(command, 1) == command) {
           runCmd = extensions.requireExtension(extensions.getToolchain(command))
-                   .directCall(config, runCmd, command, compile_path);
+                   .selfCall(config, runCmd, command, compile_path);
         } else {
           console.error(" - error:", colors.red('unknown command'), command, compile_path);
           process.exit(1);

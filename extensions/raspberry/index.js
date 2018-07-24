@@ -19,11 +19,11 @@ exports.detectProject = function(compile_path, runCmd, command) {
   return detected;
 }
 
-exports.directCall = function(config, runCmd, command, compile_path) {
-  return exports.build(config, runCmd, "compile", compile_path).run;
+exports.selfCall = function(config, runCmd, command, compile_path) {
+  return exports.buildCommands(config, runCmd, "compile", compile_path).run;
 };
 
-exports.createExtensions = function() {
+exports.createExtension = function() {
   return `
   RUN echo -e " - installing raspberry pi tools"
   WORKDIR /tools
@@ -33,7 +33,7 @@ exports.createExtensions = function() {
   `;
 };
 
-exports.build = function raspberryBuild(config, runCmd, command, compile_path) {
+exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path) {
   var callback = null;
   var runString = "";
 
@@ -43,7 +43,7 @@ exports.build = function raspberryBuild(config, runCmd, command, compile_path) {
     // noop
   } else if (command == 'clean') {
     runString = "rm -rf BUILD/";
-  } else if (command == 'compile') { // build
+  } else if (command == 'compile') {
     console.log(" - compiler tools are available under", colors.green('/tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/'));
     runString = "make --version && cmake --version && /tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-g++ -v";
   } else if (command == 'export') {

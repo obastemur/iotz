@@ -36,7 +36,7 @@ exports.detectProject = function(compile_path, runCmd, command) {
   return detected;
 }
 
-exports.directCall = function(config, runCmd, command, compile_path) {
+exports.selfCall = function(config, runCmd, command, compile_path) {
   if (runCmd !== -1) {
     runCmd = command + " " + runCmd;
   } else {
@@ -45,7 +45,7 @@ exports.directCall = function(config, runCmd, command, compile_path) {
   return runCmd;
 };
 
-exports.createExtensions = function() {
+exports.createExtension = function() {
   return `
   RUN echo -e " - installing ARM mbed tools"
 
@@ -75,7 +75,7 @@ var checkSource = function checkSource(config) {
   return source;
 }
 
-exports.build = function mbedBuild(config, runCmd, command, compile_path) {
+exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path) {
   var target_board = config.target;
   var runString = "";
   var callback = null;
@@ -136,7 +136,7 @@ exports.build = function mbedBuild(config, runCmd, command, compile_path) {
 
     // if project seeks a specific version of MBED, import and use it instead
     libs = `mbed new . ${importMbed} --depth 1 && mbed target ${target_board} && mbed toolchain GCC_ARM` + libs;
-    runString = exports.build(config, runCmd, 'clean').run + " && " + libs;
+    runString = exports.buildCommands(config, runCmd, 'clean').run + " && " + libs;
 
     callback = function(config) {
       if (config.hasOwnProperty("mbed_app.json")) {

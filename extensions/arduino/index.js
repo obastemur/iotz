@@ -69,7 +69,7 @@ exports.detectProject = function(compile_path, runCmd, command) {
   return detected;
 }
 
-exports.directCall = function(config, runCmd, command, compile_path) {
+exports.selfCall = function(config, runCmd, command, compile_path) {
   if (runCmd !== -1) {
     runCmd = command + " " + runCmd;
   } else {
@@ -78,7 +78,7 @@ exports.directCall = function(config, runCmd, command, compile_path) {
   return runCmd;
 };
 
-exports.createExtensions = function() {
+exports.createExtension = function() {
   return `
   RUN echo -e " - installing Arduino tools"
   WORKDIR /tools
@@ -122,7 +122,7 @@ const boardNames = {
   "mxchip": "AZ3166:stm32f4:MXCHIP_AZ3166"
 };
 
-exports.build = function arduinoBuild(config, runCmd, command, compile_path) {
+exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_path) {
   var target_board = config.target;
   var callback = null;
   var runString = "";
@@ -221,7 +221,7 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
     runString = install_board;
   } else if (command == 'clean') {
     runString = "rm -rf BUILD/ .arduino15/";
-  } else if (command == 'compile') { // build
+  } else if (command == 'compile') {
     var patch_step = "";
     switch (config.target.toLowerCase()) {
       case "az3166:stm32f4:mxchip_az3166":

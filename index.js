@@ -9,7 +9,7 @@ const colors  = require('colors/safe');
 const fs      = require('fs');
 const path    = require('path');
 const exec    = require('child_process').exec;
-const make    = require('./src/common');
+const commons    = require('./src/common');
 
 var args = {};
 var printHelp = function printHelp() {
@@ -185,7 +185,7 @@ function builder() {
   }
 
   try {
-    make.build(args, compile_path);
+    commons.runCommand(args, compile_path);
   } catch (e) {
     var message = e + "";
     if (message.indexOf("Bad response from Docker engine") > 0 ||

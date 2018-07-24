@@ -121,7 +121,7 @@ exports.createLocalContainer = function(config) {
   for (var name in config.extensions) {
     if (!config.extensions.hasOwnProperty(name)) continue;
     var rext = exports.requireExtension(name);
-    extensions.push(rext.createExtensions());
+    extensions.push(rext.createExtension());
   }
 
   var libs = `
