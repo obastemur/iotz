@@ -227,11 +227,12 @@ exports.build = function makeBuild(args, compile_path) {
       case "run": // do nothing
       break;
       case "connect":
-        {
-          var ino = fs.statSync(compile_path).ino;
-          var container_name = "aiot_iotz_" + ino;
-          execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
-        }
+      {
+        var ino = fs.statSync(compile_path).ino;
+        var container_name = "aiot_iotz_" + ino;
+        execSync(`docker run -ti -v ${compile_path}:/src/program ${container_name}`, {stdio:[0,1,2]});
+        process.exit(0);
+      }
       break;
       case "make":
         runCmd = command + " " + (runCmd != -1 ? runCmd : "");
