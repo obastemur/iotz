@@ -126,6 +126,7 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
   var target_board = config.target;
   var callback = null;
   var runString = "";
+  var pathName = path.basename(compile_path);
 
   if (config && !config.filename) {
     if (command == "compile" || command == "export") {
@@ -210,12 +211,12 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
 
       var mxchip_folder =  "cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd `ls | awk '{print $1}'`";
       install_board = ` echo
-COPY .iotz.mxchip.tweak /src/program/.iotz.mxchip.tweak
+COPY .iotz.mxchip.tweak /tools/.iotz.mxchip.tweak
 
 RUN arduino --install-boards AZ3166:stm32f4 && \
     ${mxchip_folder} && \
     rm ./platform.txt && \
-    mv /src/program/.iotz.mxchip.tweak ./platform.txt`;
+    mv /tools/.iotz.mxchip.tweak ./platform.txt`;
     }
 
     runString = install_board;
@@ -231,13 +232,13 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
           patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd \\`ls | awk '{print \\$1}'\\`"
         }
         patch_step += " && cp bootloader/boot.bin /tools"
-        patch_step += ` && python /tools/boot_patch.py /src/program/BUILD/${config.filename}.bin /src/program/BUILD/${config.filename}o.bin`
-        patch_step += ` && rm /src/program/BUILD/${config.filename}.bin`
-        patch_step += ` && mv /src/program/BUILD/${config.filename}o.bin /src/program/BUILD/${config.filename}.bin`
+        patch_step += ` && python /tools/boot_patch.py /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}o.bin`
+        patch_step += ` && rm /src/${pathName}/BUILD/${config.filename}.bin`
+        patch_step += ` && mv /src/${pathName}/BUILD/${config.filename}o.bin /src/${pathName}/BUILD/${config.filename}.bin`
       break;
       default:
     };
-    runString = `arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/program/BUILD ${patch_step}`;
+    runString = `arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/${pathName}/BUILD ${patch_step}`;
   } else if (command == 'export') {
     var makefile = `
 # ----------------------------------------------------------------------------
@@ -246,7 +247,7 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
 # ----------------------------------------------------------------------------
 
 all:
-	arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/program/BUILD
+	arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/${pathName}/BUILD
 clean :
 	iotz run mr -rf BUILD/
 `;
