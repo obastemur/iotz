@@ -55,7 +55,7 @@ exports.updateConfig = function updateConfig(config) {
   return -1;
 }
 
-exports.getToolchain = function(name, silent) {
+exports.getToolchain = function(name) {
   var config = exports.readConfig();
   if (!config.hasOwnProperty('extensions')) {
     config.extensions = {}; // fake it. we need to create a local container anyways
@@ -64,17 +64,11 @@ exports.getToolchain = function(name, silent) {
   if (config.extensions.hasOwnProperty(name)) {
     return name;
   } else {
-    return exports.installToolchain(name, silent);
+    return exports.installToolchain(name);
   }
 }
 
-exports.installToolchain = function(name, silent) {
-  if (!fs.existsSync(__dirname, name)) {
-    if (silent) return null;
-    console.error(" -", colors.red('error:'), name, "is not available under the iotz extensions. update iotz?");
-    process.exit(1);
-  }
-
+exports.installToolchain = function(name) {
   var config = exports.readConfig();
   if (!config.hasOwnProperty('extensions')) {
     config.extensions = {}; // fake it. we need to create local container anyways
@@ -82,7 +76,7 @@ exports.installToolchain = function(name, silent) {
 
   if (!config.extensions.hasOwnProperty(name)) {
     config.extensions[name] = {};
-    exports.createLocalContainer(config);
+    exports.createContainer(name);
     exports.updateConfig(config);
   }
 
@@ -97,31 +91,32 @@ exports.updateExtensions = function(compile_path) {
     execSync(`docker image rm -f ${container_name} 2>&1`);
   } catch(e) { }
 
+  console.log(" -", "updating extensions");
   // recreate
-  return exports.createLocalContainer();
+  return exports.createLocalContainers();
 }
 
 // azureiot/iotz_local
 // sync only
-exports.createLocalContainer = function(config) {
-  config = config ? config : exports.readConfig();
+exports.createLocalContainers = function() {
+  var config = exports.readConfig();
   if (!config.hasOwnProperty('extensions')) {
     config.extensions = {}; // fake it. we need to create local container anyways
   }
 
-  // wipe the previous one (if there is)
-  try {
-    execSync('docker image rm -f azureiot/iotz_local 2>&1')
-  } catch(e) { }
-
-  var container_name = 'azureiot/iotz_local';
-  var extensions = [];
-
   // TODO: order by installation date so we benefit from backward caching ?
   for (var name in config.extensions) {
     if (!config.extensions.hasOwnProperty(name)) continue;
-    var rext = exports.requireExtension(name);
-    extensions.push(rext.createExtension());
+    exports.createContainer(name);
+  }
+};
+
+exports.createContainer = function(name) {
+  var rext = name != 'default' ? exports.requireExtension(name) : null;
+  var extInfo = rext ? rext.createExtension() : "";
+
+  if (rext) {
+    console.log(" -", "building", colors.magenta(name), 'extension container');
   }
 
   var libs = `
@@ -129,16 +124,20 @@ exports.createLocalContainer = function(config) {
 
   WORKDIR /src
 
-  RUN echo "Setting up ${container_name}"
-  ${extensions.join('\n')}
+  RUN echo "Setting up azureiot/iotz_local_${name}"
+  ${extInfo}
   `;
 
-  console.log(" -", colors.green('updating the local environment.'), "hopefully this will be quick.");
-  fs.writeFileSync(path.join(__dirname, 'Dockerfile'), libs);
+  fs.writeFileSync(path.join(__dirname, name + '.Dockerfile'), libs);
 
-  var batchString = `docker build . --force-rm -t ${container_name}`;
+    // wipe the previous one (if there is)
+  try {
+    execSync(`docker image rm -f azureiot/iotz_local_${name} 2>&1`)
+  } catch(e) { }
+
+  var batchString = `docker build . -f ${name}.Dockerfile --force-rm -t azureiot/iotz_local_${name}`;
   execSync(`cd ${__dirname} && ` + batchString, {stdio:[2]});
-};
+}
 
 exports.detectProject = function detectProject(compile_path, runCmd, command) {
   var config = exports.readConfig();

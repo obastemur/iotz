@@ -11,6 +11,10 @@ mbed-os/
 test/
 iotz_base_container/
 contents/
-extensions/Dockerfile
 test/
 package-lock.json
+extensions/raspberry.Dockerfile
+extensions/default.Dockerfile
+extensions/arduino.Dockerfile
+extensions/mbed.Dockerfile
+extensions/Dockerfile

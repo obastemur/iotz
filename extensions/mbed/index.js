@@ -80,7 +80,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
   var runString = "";
   var callback = null;
 
-  if (command == "container_init") {
+  if (command == "localFolderContainerConstructer") {
     // noop
   } else if (command == "init") {
     if (typeof runCmd === 'string' && runCmd.length) {

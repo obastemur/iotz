@@ -1,7 +1,7 @@
 {
   "name": "iotz",
-  "version": "0.1.2",
-  "description": "a containerized and extendible cross compiler box for arduino, arm mbed, raspberry pi and ... more",
+  "version": "0.1.4",
+  "description": "a containerized cross compiler box for arduino, arm mbed, raspberry pi and ... more",
   "keywords": [
     "arm",
     "mbed",

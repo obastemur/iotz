@@ -273,7 +273,11 @@ Try pruning! -> https://docs.docker.com/config/pruning/
 Probably you did trigger the base container update on another folder and you just
 need to update on the project folder to reset things up.
 
-Try `iotz update` or.. if you have `iotz.json` file, `iotz clean`
+Try `iotz update` and / or `iotz clean`
+
+#### open preproc/ctags_target_for_gcc_minus_e.cpp: no such file or directory
+
+Try `iotz clean` and then compile again
 
 ### Contributing
 

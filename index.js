@@ -156,6 +156,7 @@ function builder() {
   var compile_path = path.resolve(process.cwd());
 
   if (args.getCommand() == 'update') {
+    console.log(" -", "updating.. (this may take some time)");
     exec('docker pull azureiot/iotz:latest', function(err, data, stderr) {
       if (err) {
         console.log(stderr.replace(/\\n/g, '\n'), '\n', data);
