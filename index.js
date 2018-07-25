@@ -9,10 +9,10 @@ const colors  = require('colors/safe');
 const fs      = require('fs');
 const path    = require('path');
 const exec    = require('child_process').exec;
-const commons    = require('./src/common');
+const commons = require('./src/common');
 
 var args = {};
-var printHelp = function printHelp() {
+var printHelp = function printHelp(printAll) {
   console.log("\n  " + colors.cyan("iotz")
     + " - a containerized and extendible cross compiler box for\n\t\t\tarduino, arm mbed, raspberry pi and ... more");
   console.log(colors.yellow('\t\t\t\t\t\t\t   by Azure-IOT\n'));
@@ -46,57 +46,62 @@ var params = [
     space.fill(" ");
     console.log(' ', param.option, space + colors.bold(": "), param.text);
   }
-  console.log(`
-  ${colors.bold("init && compile:")}
-  iotz init && iotz compile
 
-  iotz.json --> {
-                  "toolchain": "arduino",
-                  "target": "AZ3166:stm32f4:MXCHIP_AZ3166",
-                  "filename": "sample.ino"
-                }
+  if (printAll) {
+    console.log(`
+    ${colors.bold("init && compile:")}
+    iotz init && iotz compile
 
-  iotz.json --> {
-                  "toolchain": "mbed",
-                  "target": "nucleo_l476rg",
-                  "deps":
-                    [
-                      {
-                        "name": "NDefLib",
-                        "url" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
-                      }
-                    ]
-                }
+    iotz.json --> {
+                    "toolchain": "arduino",
+                    "target": "AZ3166:stm32f4:MXCHIP_AZ3166",
+                    "filename": "sample.ino"
+                  }
 
-  ${colors.bold("CAUTION:")} 'target' and 'toolchain' names are case sensitive
-  more at: https://aka.ms/iotc-boards
+    iotz.json --> {
+                    "toolchain": "mbed",
+                    "target": "nucleo_l476rg",
+                    "deps":
+                      [
+                        {
+                          "name": "NDefLib",
+                          "url" : "https://developer.mbed.org/teams/ST/code/NDefLib/#31f727872290"
+                        }
+                      ]
+                  }
 
-  ${colors.bold("OTHER examples")}
-  run:
-    iotz run ls -l
-  create:
-    iotz create arduino uno
-    iotz create raspberry
-  make:
-    iotz make
-  mbed:
-    iotz mbed target -S
+    ${colors.bold("CAUTION:")} 'target' and 'toolchain' names are case sensitive
+    more at: https://aka.ms/iotc-boards
 
-    iotz init <optional target name>
-  arduino:
-    iotz arduino --install-boards AZ3166:stm32f4
+    ${colors.bold("OTHER examples")}
+    run:
+      iotz run ls -l
+    create:
+      iotz create arduino uno
+      iotz create raspberry
+    make:
+      iotz make
+    mbed:
+      iotz mbed target -S
 
-    iotz init <optional target name>
-    - if you haven't configured an iotz.json file.
-    use the list below to initialize the environment
-      uno - yun - diecimila - nano - mega
-      megaadk - leonardo - micro - esplora - mini
-      ethernet - fio - bt - lilypad - lilypadusb
-      pro - atmegang - robotMotor - arduino_due_x_dbg - arduino_due_x
-      tinyg - az3166 - mxchip
-    i.e.
-    iotz init uno
-  `);
+      iotz init <optional target name>
+    arduino:
+      iotz arduino --install-boards AZ3166:stm32f4
+
+      iotz init <optional target name>
+      - if you haven't configured an iotz.json file.
+      use the list below to initialize the environment
+        uno - yun - diecimila - nano - mega
+        megaadk - leonardo - micro - esplora - mini
+        ethernet - fio - bt - lilypad - lilypadusb
+        pro - atmegang - robotMotor - arduino_due_x_dbg - arduino_due_x
+        tinyg - az3166 - mxchip
+      i.e.
+      iotz init uno
+    `);
+  } else {
+    console.log("\n ", colors.bold("need more? try 'iotz help more'\n"));
+  }
 };
 
 if (process.argv.length < 3) {
@@ -171,7 +176,7 @@ function builder() {
       args.getCommand() == '-?' ||
       args.getCommand() == '--help') {
 
-    printHelp();
+    printHelp(args.get(args.getCommand()) == 'more' || args.get(args.getCommand()) == 'all');
     return;
   }
 
