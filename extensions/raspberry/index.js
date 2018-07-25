@@ -39,7 +39,7 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
 
   if (command == 'init') {
     // noop
-  } else if (command == 'container_init') {
+  } else if (command == 'localFolderContainerConstructer') {
     // noop
   } else if (command == 'clean') {
     runString = "rm -rf BUILD/";

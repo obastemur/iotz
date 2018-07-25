@@ -31,17 +31,19 @@ exports.buildCommands = function(config, runCmd, command, compile_path) {
   var callback = null;
   var runString = "";
 
-    // define things to do for `init`, `container_init`, `clean`, `compile`, and `export` commands
+    // define things to do for `init`, `localFolderContainerConstructer`, `clean`,
+    // `compile`, and `export` commands
     // set bash stuff into `runString`
     // if you want to run any additional post init logic, set the callback = function(config)
     // `config` corresponds to `iotz.json` contents
 
   if (command == 'init') {
     // set init stuff here
-  } else if (command == 'container_init') {
-    // set container_init things here.
-    // difference between `container_init` and `init` is.. `init` is a user command
-    // `container_init` will be called no matter what and will be called pre init.
+  } else if (command == 'localFolderContainerConstructer') {
+    // set localFolderContainerConstructer things here.
+    // difference between `localFolderContainerConstructer` and `init` is.. `init` is a user command
+    // `localFolderContainerConstructer` will be called no matter what and will be called
+    // prior to `init`
   } else if (command == 'clean') {
     // set what to do for `clean`
   } else if (command == 'compile') {

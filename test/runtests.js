@@ -85,9 +85,13 @@ function runNextTest() {
 console.log(' -', 'this will take a while...\n');
 var prc = exec('docker pull azureiot/iotz 2>&1', function(error) {
   if (error) {
-    console.error(colors.red('do you have Docker installed?'));
-    if ((error + "").indexOf("Service Unavailable") > 0) {
-      console.error("You might have a problem with your network connection as well.\n");
+    if ((error + "").indexOf("Client.Timeout exceeded while awaiting headers") > 0) {
+      console.error(colors.yellow('Restarting Docker may help to solve this issue'));
+    } else {
+      console.error(colors.red('have you installed Docker?'));
+      if ((error + "").indexOf("Service Unavailable") > 0) {
+        console.error("You might have a problem with your network connection as well.\n");
+      }
     }
     process.exit(1);
   }

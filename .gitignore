@@ -2,7 +2,7 @@
 .DS_Store
 .vscode/
 
-# node / build
+# node / build / test
 out/
 node_modules/
 mbed_settings.*
@@ -17,10 +17,16 @@ ST_INTERFACES/
 GettingStarted.html
 Makefile
 mbed_config.h
-extensions/Dockerfile
 .iotz.mxchip.tweak
 package-lock.json
 iotz-mbed-deps/
 test_baseline
 test/arduino_create/iotz.json
 sampleApplication.ino
+
+# runtime
+extensions/raspberry.Dockerfile
+extensions/default.Dockerfile
+extensions/arduino.Dockerfile
+extensions/mbed.Dockerfile
+extensions/Dockerfile

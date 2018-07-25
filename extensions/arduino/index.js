@@ -145,7 +145,7 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
 
   if (command == 'init') {
     // noop
-  } else if (command == 'container_init') {
+  } else if (command == 'localFolderContainerConstructer') {
     var install_board = "";
     var boardFound = false;
 

@@ -47,7 +47,7 @@ function getProjectConfig(args, compile_path) {
 }
 
 function createImage(args, compile_path, config, callback) {
-  var images = execSync('docker images -a');
+  var images = execSync('docker images -a') + "";
   var ino = fs.statSync(compile_path).ino;
   var container_name = "aiot_iotz_" + ino;
 
@@ -64,11 +64,6 @@ function createImage(args, compile_path, config, callback) {
     return;
   }
 
-  // do we have the local container?
-  if (images.indexOf("azureiot/iotz_local") == -1) {
-    extensions.createLocalContainer();
-  }
-
   // do we have the project container
   if (images.indexOf(container_name) == -1 || command == 'init') {
     if (command == 'connect') {
@@ -77,26 +72,36 @@ function createImage(args, compile_path, config, callback) {
       process.exit(1);
     }
 
-    console.log(" -", colors.yellow('initializing the project container..'));
-
     var ret;
-    var config = getProjectConfig(args, compile_path);
+    var config   = getProjectConfig(args, compile_path);
+    var hostBase = 'default';
 
     if (config) {
       if (!config.toolchain) {
         console.error(" -", colors.red('warning:'), "no 'toolchain' is defined under iotz.json.");
       } else {
-        ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
-          .buildCommands(config, runCmd, 'container_init', compile_path);
+        if (command != 'init') {
+          console.log(" -", colors.yellow('initializing the base container..'));
+        }
+        var tc = extensions.getToolchain(config.toolchain);
+        ret = extensions.requireExtension(tc)
+          .buildCommands(config, runCmd, 'localFolderContainerConstructer', compile_path);
 
         if (ret && ret.run.length) {
           runCmd = "&& " + ret.run;
         }
+        hostBase = tc;
       }
     }
 
+    images = execSync('docker images -a') + "";
+    // do we have the local container?
+    if (images.indexOf(`azureiot/iotz_local_${hostBase}`) == -1) {
+      extensions.createContainer(hostBase);
+    }
+
     var libs = `
-    FROM azureiot/iotz_local
+    FROM azureiot/iotz_local_${hostBase}
 
     WORKDIR /src
 
@@ -114,7 +119,7 @@ function createImage(args, compile_path, config, callback) {
       if (ret && ret.callback) {
         ret.callback(config);
       }
-      callback(errorCode);
+      callback(errorCode, hostBase);
     });
   } else {
     callback(0);
@@ -247,8 +252,8 @@ exports.runCommand = function(args, compile_path) {
         runCmd = command + " " + (runCmd != -1 ? runCmd : "");
         break;
       default:
-        if (extensions.getToolchain(command, 1) == command) {
-          runCmd = extensions.requireExtension(extensions.getToolchain(command))
+        if (extensions.getToolchain(command) == command) {
+          runCmd = extensions.requireExtension(command)
                    .selfCall(config, runCmd, command, compile_path);
         } else {
           console.error(" - error:", colors.red('unknown command'), command, compile_path);
