@@ -198,6 +198,9 @@ function builder() {
         message.indexOf("docker deamon is not running") > 0) {
       console.error(" -", colors.red("error:"), "Docker has not started yet?");
       console.error("   response from Docker: docker deamon is not running");
+    } else if (message.indexOf("Client.Timeout exceeded while awaiting headers") > 0) {
+      console.error(e.message ? e.message : e);
+      console.error(colors.yellow('Restarting Docker may help to solve this issue'));
     } else {
       console.error(e.message ? e.message : e);
     }
