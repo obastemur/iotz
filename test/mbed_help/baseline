@@ -1,4 +1,4 @@
- - [33minitializing the project container..[39m
+ - [33minitializing the base container..[39m
 usage: mbed [-h] [--version]             ...
 
 Command-line code management tool for ARM mbed OS - http://www.mbed.com

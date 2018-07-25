@@ -104,7 +104,6 @@ exports.createLocalContainers = function() {
     config.extensions = {}; // fake it. we need to create local container anyways
   }
 
-  // TODO: order by installation date so we benefit from backward caching ?
   for (var name in config.extensions) {
     if (!config.extensions.hasOwnProperty(name)) continue;
     exports.createContainer(name);
