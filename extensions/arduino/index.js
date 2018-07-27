@@ -228,7 +228,7 @@ var getBoardNames = function() {
 function getAndParseArduinoConfig() {
   try {
     execSync(`\
-docker run -t -v ${__dirname}:/src/iotz \
+docker run -t -v "${__dirname}":/src/iotz \
 -w /src/iotz azureiot/iotz_local_arduino \
 /bin/bash -c "find /root/.arduino15 -name 'boards.txt' -exec ./append_config.sh {} \\;"
     `, {stdio: 'inherit'});
