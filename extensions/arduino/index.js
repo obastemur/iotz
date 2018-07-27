@@ -6,16 +6,19 @@
 const colors = require('colors/safe');
 const fs     = require('fs');
 const path   = require('path');
+const execSync = require('child_process').execSync;
 
 const ARDUINO_VERSION = "1.8.5";
 
 function findBoard(name) {
   var src = name.toLowerCase();
-
+  var boardNames = getBoardNames();
   for (let boardName in boardNames) {
     if (!boardNames.hasOwnProperty(boardName)) continue;
-    var lbname = boardNames[boardName].toLowerCase();
-    if (src == boardName || (src.length > 3 && lbname.indexOf(src) >= 0)) {
+    var codename = boardNames[boardName].codename;
+    var longname = boardNames[boardName].longname.toLowerCase();
+    if (src == boardName || codename == name || (src.length > 3
+        && codename.toLowerCase().indexOf(src) >= 0) || src == longname) {
       return boardNames[boardName];
     }
   }
@@ -27,6 +30,7 @@ function printBoards() {
   console.error(' -', colors.yellow('full list below'));
   var boards = "\t";
   var counter = 0;
+  var boardNames = getBoardNames();
   for (let boardName in boardNames) {
     if (!boardNames.hasOwnProperty(boardName)) continue;
     if (counter == 5) {
@@ -62,7 +66,7 @@ exports.detectProject = function(compile_path, runCmd, command) {
     var found = findBoard(runCmd);
     if (found) {
       if (!detected) detected = {"toolchain":"arduino"};
-      detected.target = found;
+      detected.target = found.codename;;
     }
   }
 
@@ -78,48 +82,191 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
   return runCmd;
 };
 
+var preInstalledPlatforms =
+{
+  "arduino:avr" : 1,
+  "esp8266:esp8266" : 1,
+  "AZ3166:stm32f4" : 1
+};
+
+var boardNames_ = null;
+var getBoardNames = function() {
+  if (boardNames_ != null) return boardNames_;
+
+  var PLATFORM_SEP = 'IOTZ_BOARD_FILE_PATH=';
+  var config = fs.readFileSync(path.join(__dirname, "boards.config")) + "";
+
+  // parse boards.config file
+  var getPlatforms = function() {
+    var ind = -1;
+    var platforms = [];
+    while ((ind = config.indexOf(PLATFORM_SEP, ind + 1)) != -1) {
+      platforms.push(ind);
+    }
+    return platforms;
+  }
+
+  var getCustomConfigs = function(subconfig) {
+    var startIndex = subconfig.indexOf('\nmenu.');
+    if (startIndex != -1) {
+      startIndex ++; // ditch \n
+    } else {
+      return null; // no custom config
+    }
+
+    var lastIndex = subconfig.search(/(####)(#)+(\n)+/);
+    var customarr = subconfig.substr(startIndex, lastIndex - startIndex).split('\n');
+    var customNames = [];
+    for (var i = 0; i < customarr.length; i++) {
+      var line = customarr[i];
+      if (line.trim().length < 5) // menu.
+      {
+        continue;
+      }
+
+      line = line.trim().replace('menu.', '');
+      if (line.indexOf('=') == -1) {
+        console.error(' -', colors.yellow('warning'), 'unidentified config at \n'
+          + subConfig.substr(0, startIndex) + "\n@ -> " + line);
+        continue; // broken config?
+      }
+      var cn = line.substr(0, line.indexOf('=')).trim();
+      if (cn.length == 0) continue;
+      customNames.push(cn);
+    }
+    return customNames;
+  }
+
+  var getCustomConfig = function(subconfig, boardName, board, longName, customConfigs) {
+    var name = boardName + board; // boardName.name=longName (board stands for .name=longName)
+    var ind = subconfig.indexOf("\n", subconfig.indexOf(name));
+
+    if (ind == -1) return []; // broken config?
+    ind++; // ditch \n
+    var lastIndex = subconfig.indexOf('.name=', ind);
+    if (lastIndex == -1) // last board
+      lastIndex = subconfig.length;
+
+    var configs = subconfig.substr(ind, lastIndex - ind).split('\n');
+    var list = [];
+    for (var i = 0; i < customConfigs.length; i++) {
+      var ccname = customConfigs[i];
+      for (var j = 0; j < configs.length; j++) {
+        var cstr = configs[j].trim();
+        var clen = cstr.length;
+        if (clen == 0) continue;
+        cstr = cstr.replace(boardName + ".menu." + ccname + ".", "");
+        if (clen != cstr.length) {
+          var eqind = cstr.indexOf('=');
+          if (eqind == -1) continue; // broken config?
+          cstr = cstr.substr(0, eqind);
+          cstr = "custom_" + ccname + "=" + boardName + "_" + cstr;
+          list.push(cstr);
+          break;
+        }
+      }
+    }
+
+    return list;
+  }
+
+  boardNames_ = {};
+  var platforms = getPlatforms();
+  for (var i = 0; i < platforms.length; i++) {
+    var platformIndex = platforms[i];
+    var nextPlatformIndex = i == platforms.length - 1 ? config.length : platforms[i + 1];
+    var subconfig = config.substr(platformIndex, nextPlatformIndex - platformIndex);
+
+    var platformURI = subconfig.substr(PLATFORM_SEP.length, subconfig.indexOf('\n') - PLATFORM_SEP.length);
+
+    var packageName = platformURI.replace('/root/.arduino15/packages/', '');
+    packageName = packageName.substr(0, packageName.indexOf('/hardware/'));
+    var hardwareName = platformURI.replace('/root/.arduino15/packages/' + packageName + '/hardware/', '');
+    hardwareName = hardwareName.substr(0, hardwareName.indexOf('/'));
+
+    var customConfigs = getCustomConfigs(subconfig);
+    var boards = subconfig.match(/.name=.+?(?=\n)/gi);
+    for (var j = 0; j < boards.length; j++) {
+      var board = boards[j];
+      if (board.trim().length < 6) continue; // .name only. broken config?
+      var ind = subconfig.indexOf(board);
+      var k = ind - 1;
+      for (; k >= 0; k--) {
+        if (subconfig.charAt(k) == ' ' || subconfig.charAt(k) == '\n')
+          break;
+      }
+      if (k < 0) continue; // broken config?
+      var boardName = subconfig.substr(k + 1, ind - (k + 1));
+      var longName = board.replace('.name=', '').trim();
+      if ((ind = longName.indexOf('#')) >= 0) {
+        if (ind == 0) {
+          // broken config?
+          continue;
+        }
+        // remove comments from name
+        longName = longName.substr(0, ind);
+      }
+
+      var customconfig = getCustomConfig(subconfig, boardName, board, longName, customConfigs);
+      var indexName = boardName;
+      if (boardNames_.hasOwnProperty(indexName)) {
+        indexName = packageName + " " + indexName;
+      }
+
+      boardNames_[indexName] = {
+        name: indexName,
+        longname: longName,
+        codename: packageName + ":" + hardwareName + ":" + boardName,
+        config: customconfig
+      };
+    }
+  }
+
+  return boardNames_;
+}
+
+function getAndParseArduinoConfig() {
+  try {
+    execSync(`\
+docker run -t -v ${__dirname}:/src/iotz \
+-w /src/iotz azureiot/iotz_local_arduino \
+/bin/bash -c "find /root/.arduino15 -name 'boards.txt' -exec ./append_config.sh {} \\;"
+    `, {stdio: 'inherit'});
+  } catch (e) {
+    return { error: e };
+  }
+}
+
 exports.createExtension = function() {
-  return `
+  var preInstall = "";
+  for(var platform in preInstalledPlatforms) {
+    if (!preInstalledPlatforms.hasOwnProperty(platform)) continue;
+
+    preInstall += `&& arduino --install-boards ${platform} `;
+  }
+
+  var runString = `
   RUN echo -e " - installing Arduino tools"
   WORKDIR /tools
   RUN curl "https://downloads.arduino.cc/arduino-${ARDUINO_VERSION}-linux64.tar.xz" -o arduino.tar.xz
 
-  COPY arduino/arduino15.base arduino/boot_patch.py /tools/
+  COPY arduino/preferences.txt /tools/.arduino15/
+  COPY arduino/tweaks/az3166/az3166_boot_patch.py /tools/
 
-  RUN  mv arduino15.base arduino15.tar.gz \
-    && tar xf arduino.tar.xz && tar xfz arduino15.tar.gz \
-    && rm arduino.tar.xz && rm arduino15.tar.gz \
-    && ln -s /tools/arduino-1.8.5/arduino-builder /usr/local/bin/arduino-builder \
-    && ln -s /tools/arduino-1.8.5/arduino /usr/local/bin/arduino \
-    && mv .arduino15 ~/
+  RUN  tar xf arduino.tar.xz \
+    && rm arduino.tar.xz \
+    && ln -s /tools/arduino-${ARDUINO_VERSION}/arduino-builder /usr/local/bin/arduino-builder \
+    && ln -s /tools/arduino-${ARDUINO_VERSION}/arduino /usr/local/bin/arduino \
+    && mv .arduino15 ~/ \
+    ${preInstall}
   `;
-};
 
-const boardNames = {
-  "uno": "arduino:avr:uno",
-  "yun": "arduino:avr:yun",
-  "diecimila": "arduino:avr:diecimila",
-  "nano": "arduino:avr:nano",
-  "mega": "arduino:avr:mega",
-  "megaadk": "arduino:avr:megaADK",
-  "leonardo": "arduino:avr:leonardo",
-  "micro": "arduino:avr:micro",
-  "esplora": "arduino:avr:esplora",
-  "mini": "arduino:avr:mini",
-  "ethernet": "arduino:avr:ethernet",
-  "fio": "arduino:avr:fio",
-  "bt": "arduino:avr:bt",
-  "lilypad": "arduino:avr:lilypad",
-  "lilypadusb": "arduino:avr:LilyPadUSB",
-  "pro": "arduino:avr:pro",
-  "atmegang": "arduino:avr:atmegang",
-  "atmegang": "arduino:avr:atmegang",
-  "robotMotor": "arduino:avr:robotMotor",
-  "arduino_due_x_dbg": "arduino:sam:arduino_due_x_dbg",
-  "arduino_due_x": "arduino:sam:arduino_due_x",
-  "tinyg": "arduino:avr:tinyg",
-  "az3166": "AZ3166:stm32f4:MXCHIP_AZ3166",
-  "mxchip": "AZ3166:stm32f4:MXCHIP_AZ3166"
+  var callback = getAndParseArduinoConfig;
+
+  return {
+    run: runString,
+    callback : callback
+  };
 };
 
 exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_path) {
@@ -157,6 +304,7 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
       } else {
         target_board = findBoard(runCmd);
         if (target_board) {
+            target_board = target_board.codename;
             console.log(" -", colors.green(target_board), "is selected");
             boardFound = true;
         }
@@ -171,41 +319,53 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
     } else if (!boardFound) { // target_board
       var src = target_board.toLowerCase();
 
+      var boardNames = getBoardNames();
       for (let boardName in boardNames) {
         if (!boardNames.hasOwnProperty(boardName)) continue;
-        if (src == boardName) {
-          target_board = boardNames[boardName];
-          console.log(" -", colors.green(boardNames[boardName]), "is selected");
-          boardFound = true;
+        if (src == boardName || boardNames[boardName].codename == target_board) {
+          target_board = boardNames[boardName].codename;
+          console.log(" -", colors.green(target_board), "is selected");
+          boardFound = src == boardName;
           break;
         }
       }
     }
 
-    if (boardFound) {
+    if (boardFound || target_board) {
       // update iotz.json
       config.target = target_board;
       try {
-        fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
-        console.log(' -', 'successfully updated target on iotz.json file');
+        if (boardFound) {
+          fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
+          console.log(' -', 'successfully updated target on iotz.json file');
+        }
       } catch (e) {
         console.error(' -', colors.red('error:'), "couldn't update iotz.json with the target board.");
         console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
       }
     }
 
-    if (target_board != "AZ3166:stm32f4:MXCHIP_AZ3166") {
-      // crop the first two segments (i.e. arduino:avr:xxxx -> arduino:avr)
-      var names = target_board.split(':');
+    // crop the first two segments (i.e. arduino:avr:xxxx -> arduino:avr)
+    var names = target_board.split(':');
+    if (names.length < 3) {
+      if (names.length) {
+        names = findBoard(names[0]);
+        if (names) {
+          target_board = names.codename;
+          names = target_board.split(':');
+          config.target = target_board;
+          fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
+          console.log(' -', 'successfully updated target on iotz.json file');
+        }
+      }
       if (names.length < 3) {
-        console.error(' -', colors.red('error'), 'invalid target board name for arduino. try --help ?');
+        console.error(' -', colors.red('error'), 'invalid target board name for arduino.');
+        printBoards();
         process.exit(1);
       }
-      var brandName = names[0] + ":" + names[1];
+    }
 
-      install_board = "arduino --install-boards " + brandName;
-    } else {
-      // install always the latest
+    if (target_board == "AZ3166:stm32f4:MXCHIP_AZ3166") {
       var tweak = fs.readFileSync(path.join(__dirname, 'tweaks', 'az3166', 'platform.txt'));
       fs.writeFileSync(path.join(compile_path, ".iotz.mxchip.tweak"), tweak);
 
@@ -213,10 +373,21 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
       install_board = ` echo
 COPY .iotz.mxchip.tweak /tools/.iotz.mxchip.tweak
 
-RUN arduino --install-boards AZ3166:stm32f4 && \
-    ${mxchip_folder} && \
+RUN ${mxchip_folder} && \
     rm ./platform.txt && \
-    mv /tools/.iotz.mxchip.tweak ./platform.txt`;
+    mv /tools/.iotz.mxchip.tweak ./platform.txt && `;
+    }
+    var brandName = names[0] + ":" + names[1];
+
+    if (!preInstalledPlatforms.hasOwnProperty(brandName)) {
+      install_board = "arduino --install-boards " + brandName + " && ";
+    }
+
+    var board = findBoard(target_board);
+    if (board && board.config && board.config.length) {
+      install_board += ` echo "${board.config.join('" >> /root/.arduino15/preferences.txt && echo "')}` + "\"";
+    } else {
+      install_board += ' true'
     }
 
     runString = install_board;
@@ -232,7 +403,7 @@ RUN arduino --install-boards AZ3166:stm32f4 && \
           patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd \\`ls | awk '{print \\$1}'\\`"
         }
         patch_step += " && cp bootloader/boot.bin /tools"
-        patch_step += ` && python /tools/boot_patch.py /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}o.bin`
+        patch_step += ` && python /tools/az3166_boot_patch.py /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}o.bin`
         patch_step += ` && rm /src/${pathName}/BUILD/${config.filename}.bin`
         patch_step += ` && mv /src/${pathName}/BUILD/${config.filename}o.bin /src/${pathName}/BUILD/${config.filename}.bin`
       break;
@@ -274,6 +445,8 @@ exports.createProject = function createProject(compile_path, runCmd) {
               "Unknown board name", args[0]);
     printBoards();
     process.exit(1);
+  } else {
+    board = board.codename;
   }
 
   var projectName;

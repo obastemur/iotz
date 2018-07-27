@@ -1,3 +1,1 @@
- - [33minitializing the project container..[39m
-Picked up JAVA_TOOL_OPTIONS: 
-Error: unknown option: --help
+/bin/bash: arduino: command not found

@@ -11,12 +11,16 @@ const exec       = require('child_process').exec;
 const execSync   = require('child_process').execSync;
 const extensions = require('../extensions/index.js');
 
-function getProjectConfig(args, compile_path) {
+function getProjectConfig(args, command, compile_path) {
   var proj_path = path.join(compile_path, "iotz.json");
   var config = null;
   try {
     config = JSON.parse(fs.readFileSync(proj_path) + "");
   } catch(e) { }
+
+  if (!config && command == 'clean') {
+    return null;
+  }
 
   var command = args.getCommand();
   var runCmd = args.get(command);
@@ -66,20 +70,22 @@ function createImage(args, compile_path, config, callback) {
 
   // do we have the project container
   if (images.indexOf(container_name) == -1 || command == 'init') {
-    if (command == 'connect') {
-      console.error(" -", colors.red('error:'), "there wasn't any project 'initialized' on this path.");
-      console.error('  ', "try 'iotz init' ?");
-      process.exit(1);
+    if (!images.indexOf(container_name)) {
+      exports.cleanCommon(compile_path, 'init'); // force clean the previous one.
     }
-
     var ret;
-    var config   = getProjectConfig(args, compile_path);
+    var config   = getProjectConfig(args, command, compile_path);
     var hostBase = 'default';
+    runCmd = (runCmd == -1) ? "" : runCmd;
 
-    if (config) {
+    if (config && command != 'connect') {
       if (!config.toolchain) {
         console.error(" -", colors.red('warning:'), "no 'toolchain' is defined under iotz.json.");
       } else {
+        if (command == 'clean') {
+          callback(0);
+          return;
+        }
         if (command != 'init') {
           console.log(" -", colors.yellow('initializing the base container..'));
         }
@@ -154,6 +160,9 @@ docker run --rm --name ${active_instance} -t -v \
 `;
 
   var prc = exec(batchString, {stdio:'inherit', maxBuffer: 1024 * 8192}, function(err) {
+    if ((err + "").indexOf('Unable to find image') > 0) {
+      console.log("\n -", colors.bold('image was already removed?'));
+    }
     callback(err);
   });
   prc.stderr.on('data', function (data) {
@@ -174,22 +183,27 @@ process.on('SIGINT', function() {
   process.exit();
 });
 
-exports.cleanCommon = function(compile_path) {
+exports.cleanCommon = function(compile_path, command) {
   var ino = fs.statSync(compile_path).ino;
   var container_name = "aiot_iotz_" + ino;
   try {
     // clean up the previously stopped instance
     execSync(`docker image rm -f ${container_name} 2>&1`);
   } catch(e) { }
-  console.log(' -', colors.green('container is deleted'));
+  if (command != 'init') {
+    console.log(' -', colors.green('container is deleted'));
+  }
 };
 
 exports.runCommand = function(args, compile_path) {
   var command = args.getCommand();
-  var config = getProjectConfig(args, compile_path)
+  var config = getProjectConfig(args, command, compile_path)
 
   createImage(args, compile_path, config, function(errorCode) {
     var runCmd = args.get(command);
+    if (!config && command != 'clean') {
+      config = getProjectConfig(args, command, compile_path)
+    }
 
     switch(command) {
       case "init":
@@ -203,8 +217,10 @@ exports.runCommand = function(args, compile_path) {
         }
 
         if (!config) {
+          if (command == 'clean' || command == 'init') {
+            exports.cleanCommon(compile_path, command);
+          }
           if (command == 'clean') {
-            exports.cleanCommon(compile_path);
             return;
           }
 

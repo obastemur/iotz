@@ -25,6 +25,10 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
 exports.createExtension = function() {
   // what bash command you want to run on the container to prepare the environment
   // for your extension?
+  return {
+    run: // commands to run under Dockerfile
+    callback: function()... optional callback to run after container is created
+  }
 };
 
 exports.buildCommands = function(config, runCmd, command, compile_path) {

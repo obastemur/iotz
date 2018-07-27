@@ -46,14 +46,17 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
 };
 
 exports.createExtension = function() {
-  return `
-  RUN echo -e " - installing ARM mbed tools"
+  return {
+    run :`
+      RUN echo -e " - installing ARM mbed tools"
 
-  RUN pip install mbed-cli \
-    && mkdir XXX && cd XXX && echo "#include <mbed.h>\\nint main(){return 0;}" > main.cpp \
-    && mbed new . && mbed compile -t GCC_ARM -m NUCLEO_L476RG \
-    && cd .. && rm -rf XXX
-  `;
+      RUN pip install mbed-cli \
+        && mkdir XXX && cd XXX && echo "#include <mbed.h>\\nint main(){return 0;}" > main.cpp \
+        && mbed new . && mbed compile -t GCC_ARM -m NUCLEO_L476RG \
+        && cd .. && rm -rf XXX
+      `,
+    callback: null
+  }
 };
 
 var checkSource = function checkSource(config) {
