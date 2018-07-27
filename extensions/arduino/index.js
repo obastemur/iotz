@@ -95,6 +95,9 @@ var getBoardNames = function() {
 
   var PLATFORM_SEP = 'IOTZ_BOARD_FILE_PATH=';
   var config = fs.readFileSync(path.join(__dirname, "boards.config")) + "";
+  if (process.platform === "win32") {
+    config = config.replace(/\r\n/g, "\n");
+  }
 
   // parse boards.config file
   var getPlatforms = function() {
