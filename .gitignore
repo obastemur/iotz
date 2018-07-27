@@ -10,7 +10,6 @@ BUILD/
 .mbed
 mbed-os.lib
 mbed-os/
-.arduino15/
 NDefLib/
 X_NUCLEO_NFC02A1/
 ST_INTERFACES/

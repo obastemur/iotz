@@ -112,7 +112,7 @@ exports.createLocalContainers = function() {
 
 exports.createContainer = function(name) {
   var rext = name != 'default' ? exports.requireExtension(name) : null;
-  var extInfo = rext ? rext.createExtension() : "";
+  var extInfo = rext ? rext.createExtension() : {run: ""};
 
   if (rext) {
     console.log(" -", "building", colors.magenta(name), 'extension container');
@@ -124,7 +124,7 @@ exports.createContainer = function(name) {
   WORKDIR /src
 
   RUN echo "Setting up azureiot/iotz_local_${name}"
-  ${extInfo}
+  ${extInfo.run}
   `;
 
   fs.writeFileSync(path.join(__dirname, name + '.Dockerfile'), libs);
@@ -136,6 +136,9 @@ exports.createContainer = function(name) {
 
   var batchString = `docker build . -f ${name}.Dockerfile --force-rm -t azureiot/iotz_local_${name}`;
   execSync(`cd ${__dirname} && ` + batchString, {stdio:[2]});
+  if (extInfo.callback) {
+    extInfo.callback();
+  }
 }
 
 exports.detectProject = function detectProject(compile_path, runCmd, command) {

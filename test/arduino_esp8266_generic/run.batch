@@ -1,0 +1,1 @@
+iotz init esp8266 && iotz compile && iotz clean && iotz run rm iotz.json

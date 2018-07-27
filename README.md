@@ -215,34 +215,20 @@ your board there and on the same page you will find the `TARGET NAME` for that b
 should help for starters;
 
 ```
-arduino:avr:uno
-arduino:avr:yun
-arduino:avr:diecimila
-arduino:avr:nano
-arduino:avr:mega
-arduino:avr:megaADK
-arduino:avr:leonardo
-arduino:avr:micro
-arduino:avr:esplora
-arduino:avr:mini
-arduino:avr:ethernet
-arduino:avr:fio
-arduino:avr:bt
-arduino:avr:LilyPadUSB
-arduino:avr:lilypad
-arduino:avr:pro
-arduino:avr:atmegang
-arduino:avr:robotControl
-arduino:avr:robotMotor
-arduino:sam:arduino_due_x_dbg
-arduino:sam:arduino_due_x
-arduino:avr:tinyg
+  AZ3166 MXCHIP_AZ3166 - arduino yun - arduino uno - arduino diecimila
+  arduino nano - arduino mega - arduino megaADK - arduino leonardo - arduino leonardoeth
+  arduino micro - arduino esplora - arduino mini - arduino ethernet - arduino fio
+  arduino bt - arduino pro - arduino atmegang - arduino robotControl - arduino robotMotor
+  arduino gemma - arduino circuitplay32u4cat - arduino yunmini - arduino chiwawa - arduino one
+  arduino unowifi - esp8266 generic - esp8266 esp8285 - esp8266 espduino - esp8266 huzzah
+  esp8266 espresso_lite_v1 - esp8266 espresso_lite_v2 - esp8266 phoenix_v1 - esp8266 phoenix_v2 - esp8266 nodemcu
+  esp8266 nodemcuv2 - esp8266 modwifi - esp8266 thing - esp8266 thingdev - esp8266 esp210
+  esp8266 d1_mini - esp8266 d1_mini_pro - esp8266 d1_mini_lite - esp8266 d1 - esp8266 espino
+  esp8266 espinotee - esp8266 wifinfo - esp8266 arduino-esp8266 - esp8266 gen4iod - esp8266 oak
 ```
 
-MXCHIP AZ3166
-```
-AZ3166:stm32f4:MXCHIP_AZ3166
-```
+`iotz` arduino extension helps with the names. i.e. `iotz init mxchip` is sufficient instead
+of `iotz init MXCHIP_AZ3166`
 
 #### How your project folder structure should look like?
 

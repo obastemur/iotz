@@ -7,7 +7,6 @@ BUILD/
 .mbed
 mbed-os.lib
 mbed-os/
-.arduino15/
 test/
 iotz_base_container/
 contents/
