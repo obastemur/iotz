@@ -407,7 +407,7 @@ RUN ${mxchip_folder} && \
         }
         patch_step += " && cp bootloader/boot.bin /tools"
         patch_step += ` && python /tools/az3166_boot_patch.py /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}o.bin`
-        patch_step += ` && rm /src/${pathName}/BUILD/${config.filename}.bin`
+        patch_step += ` && mv /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}_no_bootloader.bin`
         patch_step += ` && mv /src/${pathName}/BUILD/${config.filename}o.bin /src/${pathName}/BUILD/${config.filename}.bin`
       break;
       default:
