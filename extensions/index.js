@@ -163,7 +163,7 @@ exports.detectProject = function detectProject(compile_path, runCmd, command) {
       if (detected) {
         console.error(" -", colors.red('error:'), "more than one extensions detected this folder as their type.");
         console.error(" -", "please define the toolchain and target under iotz.json file manually.");
-        process.exit(1)
+        return false;
       }
       detected = dd;
     }
