@@ -115,7 +115,8 @@ exports.createContainer = function(name) {
   var extInfo = rext ? rext.createExtension() : {run: ""};
 
   if (rext) {
-    console.log(" -", "building", colors.magenta(name), 'extension container');
+    console.log(" -", "building", colors.magenta(name), 'extension container',
+                colors.gray('(it may take some time)'));
   }
 
   var libs = `
