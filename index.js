@@ -181,15 +181,6 @@ function builder() {
     return;
   }
 
-  if (args.getCommand() == 'compile') {
-    var proj_path = path.join(compile_path, "iotz.json");
-    if (!fs.existsSync(proj_path)) {
-      console.error(' -', colors.red('error:'), 'iotz.json file is not found on', compile_path);
-      console.log(" -", "Have you called 'init' command first?");
-      process.exit(0);
-    }
-  }
-
   try {
     commons.runCommand(args, compile_path);
   } catch (e) {

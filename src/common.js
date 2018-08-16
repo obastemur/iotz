@@ -24,16 +24,19 @@ function getProjectConfig(args, command, compile_path) {
 
   var command = args.getCommand();
   var runCmd = args.get(command);
-  var config_detected = extensions.detectProject(compile_path, runCmd, command);
+  var config_detected;
   var updateConfig = false;
 
-  if (!config) {
-    config = config_detected;
-    updateConfig = true;
-  } else if (!config.toolchain) {
-    if (config_detected && config_detected.toolchain) {
-      config.toolchain = config_detected.toolchain;
+  if (!config || !config.toolchain) {
+    config_detected = extensions.detectProject(compile_path, runCmd, command);
+    if (!config) {
+      config = config_detected;
       updateConfig = true;
+    } else if (!config.toolchain) {
+      if (config_detected && config_detected.toolchain) {
+        config.toolchain = config_detected.toolchain;
+        updateConfig = true;
+      }
     }
   }
 
@@ -224,8 +227,8 @@ exports.runCommand = function(args, compile_path) {
             return;
           }
 
-          console.error(" -", colors.red('error :'), "iotz.json file is needed. try 'iotz help'");
-          process.exit(1);
+          // not detected. use default container.
+          config = { toolchain: "default" };
         }
 
         if (!config.hasOwnProperty('toolchain')) {
