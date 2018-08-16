@@ -90,12 +90,7 @@ var params = [
 
       iotz init <optional target name>
       - if you haven't configured an iotz.json file.
-      use the list below to initialize the environment
-        uno - yun - diecimila - nano - mega
-        megaadk - leonardo - micro - esplora - mini
-        ethernet - fio - bt - lilypad - lilypadusb
-        pro - atmegang - robotMotor - arduino_due_x_dbg - arduino_due_x
-        tinyg - az3166 - mxchip
+      use the list from https://aka.ms/iotc-boards
       i.e.
       iotz init uno
     `);

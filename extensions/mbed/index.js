@@ -43,7 +43,7 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
     runCmd = command;
   }
   return runCmd;
-};
+}
 
 exports.createExtension = function() {
   return {
@@ -57,7 +57,7 @@ exports.createExtension = function() {
       `,
     callback: null
   }
-};
+}
 
 var checkSource = function checkSource(config) {
   var source = '';
@@ -129,7 +129,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
             }
           }
         }
-      };
+      }
     }
 
     var importMbed = "";

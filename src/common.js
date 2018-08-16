@@ -203,6 +203,11 @@ exports.runCommand = function(args, compile_path) {
   var config = getProjectConfig(args, command, compile_path)
 
   createImage(args, compile_path, config, function(errorCode) {
+    if (errorCode) {
+      console.error(" - error:", "docker couldn't create an image for this path");
+      process.exit(1);
+    }
+
     var runCmd = args.get(command);
     if (!config && command != 'clean') {
       config = getProjectConfig(args, command, compile_path)
@@ -263,7 +268,9 @@ exports.runCommand = function(args, compile_path) {
         var name = path.basename(compile_path);
         // actual mount path is level - 1
         var mountPath = (compile_path && compile_path.length) ? path.join(compile_path, '..') : compile_path;
-        execSync(`docker run -ti -v ${mountPath}:/src -w /src/${name} ${runCmd} ${container_name}`, {stdio:[0,1,2]});
+        try {
+          execSync(`docker run -ti -v ${mountPath}:/src -w /src/${name} ${runCmd} ${container_name}`, {stdio:[0,1,2]});
+        } catch(e) { /* noop */ }
         process.exit(0);
       }
       break;
