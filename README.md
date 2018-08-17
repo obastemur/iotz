@@ -1,6 +1,7 @@
-### iotz - iot easy
+## iotz - compile things easy
 
-#### a containerized and extendible cross compiler box for arduino, arm mbed, raspberry pi and ... more
+[![Join the chat at https://gitter.im/Microsoft/iotz](https://badges.gitter.im/Microsoft/iotz.svg)](https://gitter.im/Microsoft/iotz?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Licensed under the MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Azure/iotz/blob/master/LICENSE.md)
 
 **reason** : IOT compiler toolchains have varying interfaces and designs.
 Cross compiler tools are `mostly` platform specific.
@@ -263,6 +264,10 @@ Try `iotz update` and / or `iotz clean`
 #### open preproc/ctags_target_for_gcc_minus_e.cpp: no such file or directory
 
 Try `iotz clean` and then compile again
+
+### Roadmap
+
+See active list of [features](https://github.com/Azure/iotz/issues?q=is%3Aissue+is%3Aopen+label%3Afeature) under development
 
 ### Contributing
 
