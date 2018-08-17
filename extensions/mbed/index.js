@@ -16,19 +16,19 @@ exports.detectProject = function(compile_path, runCmd, command) {
     };
   }
 
-  if (!detected) {
-    var args = [];
-    if (typeof runCmd === 'string' && runCmd.length) {
-      args = runCmd.split(' ');
-    }
+  var args = [];
+  if (typeof runCmd === 'string' && runCmd.length) {
+    args = runCmd.split(' ');
+  }
 
-    if (command == "mbed" || args[0] == "mbed") {
+  if (!detected || args.length > 1) {
+    if (!detected && (command == "mbed" || args[0] == "mbed")) {
       detected = {
         "toolchain": "mbed"
       };
     }
 
-    if (args.length > 1 && detected) {
+    if (detected && args.length > 1) {
       detected.target = args[1]; // deviceId
     }
   }
