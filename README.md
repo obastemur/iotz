@@ -2,14 +2,18 @@
 
 #### a containerized and extendible cross compiler box for arduino, arm mbed, raspberry pi and ... more
 
-**reason** : IOT compiler toolchains have many moving parts and configurations.
+**reason** : IOT compiler toolchains have varying interfaces and designs.
 Cross compiler tools are `mostly` platform specific.
 
-**motto** : Improve developer productivity by providing all the cross compiler
-capabilities on user's favorite OS. Make installation and usage painless.
+**motto** : Improve developer productivity by making cross compile process easy. Also, help
+toolchain developer to focus on a single base target (iotz base container)
 
 **status** : It works generally but need more work to cover more platforms :)
-If it doesn't work for you, create an issue please. (seriously!)
+Possibly have some bugs too. If it doesn't work for you, create an issue please. (seriously!)
+
+**thanks** : `iotz` is a wrapper for other compiler toolchains. We appreciate the
+amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC, 
+Raspberry Pi tools, and many other tools, frameworks and libraries.
 
 ### See it in action ?
 
@@ -196,11 +200,6 @@ mbed nucleo l476rg with a lib
 `filename`: main source code filename.
 
 *Depending to extension, you might have other required definitions.*
-
-### Thanks
-`iotz` works on top of other compiler toolchains. We appreciate the
-amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC cross
-compiler, Raspberry Pi tools, and many other tools, frameworks and libraries.
 
 ### F.A.Q
 
