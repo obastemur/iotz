@@ -5,8 +5,8 @@ functions.
 
 ```
 // meaning for some of the arguments below
-// runCmd -> args after the command
-// command -> command. i.e. (iotz init), command is 'init'
+// runCmd -> args after the command. i.e. -> iotz init mbed mxchip. -> runCmd == 'mbed mxchip'
+// command -> the command itself. i.e. -> iotz init mbed mxchip -> command is 'init'
 
 exports.detectProject = function(project_path, runCmd, command) {
   // return config file json or null based on whether the project on `project_path` is a
@@ -20,7 +20,7 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
   // user might call `iotz abc`
   // what bash command you want to execute on the container?
   // check what we do with arduino, mbed, and raspberry-pi
-};
+}
 
 exports.createExtension = function() {
   // what bash command you want to run on the container to prepare the environment
@@ -29,7 +29,7 @@ exports.createExtension = function() {
     run: // commands to run under Dockerfile
     callback: function()... optional callback to run after container is created
   }
-};
+}
 
 exports.buildCommands = function(config, runCmd, command, compile_path) {
   var callback = null;
