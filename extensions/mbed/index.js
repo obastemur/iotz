@@ -16,19 +16,19 @@ exports.detectProject = function(compile_path, runCmd, command) {
     };
   }
 
-  if (!detected) {
-    var args = [];
-    if (typeof runCmd === 'string' && runCmd.length) {
-      args = runCmd.split(' ');
-    }
+  var args = [];
+  if (typeof runCmd === 'string' && runCmd.length) {
+    args = runCmd.split(' ');
+  }
 
-    if (command == "mbed" || args[0] == "mbed") {
+  if (!detected || args.length > 1) {
+    if (!detected && (command == "mbed" || args[0] == "mbed")) {
       detected = {
         "toolchain": "mbed"
       };
     }
 
-    if (args.length > 1 && detected) {
+    if (detected && args.length > 1) {
       detected.target = args[1]; // deviceId
     }
   }
@@ -107,7 +107,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
     }
 
     var ppr = process.platform === "win32" ? "" : "\\";
-    var libs = ` && mkdir -p iotz-mbed-deps && find . -name '*.lib' -exec cat {}\
+    var libs = ` && mkdir -p iotz-mbed-deps && find . -type f \\( -iname "*.lib" ! -iname "mbed-os.lib" \\) -exec cat {}\
  \\; | while read line; do cd iotz-mbed-deps && mbed add ${ppr}$line 2>/dev/null || cd .. && cd .. ; done\
  && if [ -d iotz-mbed-deps/mbed-os ]; then rm -rf mbed-os && mv iotz-mbed-deps/mbed-os .; fi`;
     if (config.deps) {

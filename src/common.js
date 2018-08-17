@@ -27,7 +27,7 @@ function getProjectConfig(args, command, compile_path) {
   var config_detected;
   var updateConfig = false;
 
-  if (!config || !config.toolchain) {
+  if (!config || !config.toolchain || !config.target) {
     config_detected = extensions.detectProject(compile_path, runCmd, command);
     if (!config) {
       config = config_detected;
@@ -35,6 +35,11 @@ function getProjectConfig(args, command, compile_path) {
     } else if (!config.toolchain) {
       if (config_detected && config_detected.toolchain) {
         config.toolchain = config_detected.toolchain;
+        updateConfig = true;
+      }
+    } else if (!config.target) {
+      if (config_detected && config_detected.target) {
+        config.target = config_detected.target;
         updateConfig = true;
       }
     }
