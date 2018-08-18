@@ -1,0 +1,1 @@
+iotz create mbed MTB_MXCHIP_EMW3166 xxx && cd xxx && iotz init && iotz export && iotz make -j4 && cd .. && iotz run rm -rf xxx
