@@ -18,7 +18,7 @@ function getProjectConfig(args, command, compile_path) {
     config = JSON.parse(fs.readFileSync(proj_path) + "");
   } catch(e) { }
 
-  if (!config && command == 'clean') {
+  if ((!config && command == 'clean') || command == 'create') {
     return null;
   }
 
@@ -214,9 +214,7 @@ exports.runCommand = function(args, compile_path) {
     }
 
     var runCmd = args.get(command);
-    if (!config && command != 'clean') {
-      config = getProjectConfig(args, command, compile_path)
-    }
+    config = getProjectConfig(args, command, compile_path);
 
     switch(command) {
       case "init":
