@@ -58,7 +58,7 @@ exports.detectProject = function(compile_path, runCmd, command) {
       };
       break;
     }
-  };
+  }
 
   // try to detect by board name
   if (typeof runCmd === "string" && runCmd.length >= 2)
@@ -80,7 +80,7 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
     runCmd = command;
   }
   return runCmd;
-};
+}
 
 var preInstalledPlatforms =
 {
@@ -251,7 +251,9 @@ exports.createExtension = function() {
   var runString = `
   RUN echo -e " - installing Arduino tools"
   WORKDIR /tools
-  RUN curl "https://downloads.arduino.cc/arduino-${ARDUINO_VERSION}-linux64.tar.xz" -o arduino.tar.xz
+  RUN curl "https://downloads.arduino.cc/arduino-${ARDUINO_VERSION}-linux64.tar.xz" -o arduino.tar.xz \
+    && apt install -y gcc-avr avr-libc binutils-avr avrdude \
+    && apt-get clean
 
   COPY arduino/preferences.txt /tools/.arduino15/
   COPY arduino/tweaks/az3166/az3166_boot_patch.py /tools/
@@ -270,7 +272,7 @@ exports.createExtension = function() {
     run: runString,
     callback : callback
   };
-};
+}
 
 exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_path) {
   var target_board = config.target;
@@ -497,4 +499,4 @@ void loop() {
   fs.writeFileSync(path.join(target_folder, `${projectName}.ino`), example);
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
   console.log(" -", colors.green('done!'));
-};
+}
