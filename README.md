@@ -13,7 +13,7 @@ toolchain developer to focus on a single base target (iotz base container)
 Possibly have some bugs too. If it doesn't work for you, create an issue please. (seriously!)
 
 **thanks** : `iotz` is a wrapper for other compiler toolchains. We appreciate the
-amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC, 
+amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC,
 Raspberry Pi tools, and many other tools, frameworks and libraries.
 
 ### See it in action ?
@@ -56,6 +56,10 @@ iotz make
 
 Alternatively, you might download an online Arduino, ARMmbed, Raspberry Pi etc.
 sample and build it as we did with the tests / examples under [test/](test/)
+
+The documentation below, applies to all extensions. However, you may find some extension
+specific details under their README. i.e. [arduino](extensions/arduino/README.md)
+[mbed](extensions/mbed/README.md) [raspberry](extensions/raspberry/README.md)
 
 ### Commands
 
