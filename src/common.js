@@ -29,18 +29,20 @@ function getProjectConfig(args, command, compile_path) {
 
   if (!config || !config.toolchain || !config.target) {
     config_detected = extensions.detectProject(compile_path, runCmd, command);
-    if (!config) {
-      config = config_detected;
-      updateConfig = true;
-    } else if (!config.toolchain) {
-      if (config_detected && config_detected.toolchain) {
-        config.toolchain = config_detected.toolchain;
+    if (config_detected) {
+      if (!config) {
+        config = config_detected;
         updateConfig = true;
-      }
-    } else if (!config.target) {
-      if (config_detected && config_detected.target) {
-        config.target = config_detected.target;
-        updateConfig = true;
+      } else if (!config.toolchain) {
+        if (config_detected.toolchain) {
+          config.toolchain = config_detected.toolchain;
+          updateConfig = true;
+        }
+      } else if (!config.target) {
+        if (config_detected.target) {
+          config.target = config_detected.target;
+          updateConfig = true;
+        }
       }
     }
   }
@@ -76,7 +78,7 @@ function createImage(args, compile_path, config, callback) {
     return;
   }
 
-  // do we have the project container
+  // do we have the project container?
   if (images.indexOf(container_name) == -1 || command == 'init') {
     if (!images.indexOf(container_name)) {
       exports.cleanCommon(compile_path, 'init'); // force clean the previous one.
@@ -88,7 +90,7 @@ function createImage(args, compile_path, config, callback) {
 
     if (config && command != 'connect') {
       if (!config.toolchain) {
-        console.error(" -", colors.red('warning:'), "no 'toolchain' is defined under iotz.json.");
+        console.error(" -", colors.yellow('warning:'), "no 'toolchain' is defined under iotz.json.");
       } else {
         if (command == 'clean') {
           callback(0);
@@ -158,6 +160,10 @@ function runCommand(args, compile_path, runCmd, callback) {
 
   var pathName = path.basename(compile_path);
   var mountPath = (compile_path && compile_path.length) ? path.join(compile_path, '..') : compile_path;
+  if (!fs.existsSync(mountPath)) {
+    console.error(" - error:", `${mountPath} does not exist. Beware! you can't use iotz from a root folder`);
+    process.exit(1);
+  }
 
   var batchString = `\
 cd ${compile_path} && \
@@ -183,7 +189,7 @@ docker run --rm --name ${active_instance} -t -v \
 
 process.on('SIGINT', function() {
   if (active_instance) {
-    // make sure container will stop
+    // bad hack to make sure container will stop (so host OS don't overwrite the shared)
     try {
       execSync(`docker kill ${active_instance} 2>&1`);
     } catch(e) { }
@@ -239,15 +245,6 @@ exports.runCommand = function(args, compile_path) {
           config = { toolchain: "default" };
         }
 
-        if (!config.hasOwnProperty('toolchain')) {
-          if (command == 'clean') {
-            exports.cleanCommon(compile_path);
-            return;
-          }
-          console.error(' - error:', colors.red('no toolchain is defined. i.e. "toolchain":"arduino" or "toolchain":"mbed" etc..'));
-          process.exit(1);
-        }
-
         var ret;
         try {
           ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
@@ -271,6 +268,10 @@ exports.runCommand = function(args, compile_path) {
         var name = path.basename(compile_path);
         // actual mount path is level - 1
         var mountPath = (compile_path && compile_path.length) ? path.join(compile_path, '..') : compile_path;
+        if (!fs.existsSync(mountPath)) {
+          console.error(" - error:", `${mountPath} does not exist. Beware! you can't use iotz from a root folder`);
+          process.exit(1);
+        }
         try {
           execSync(`docker run -ti -v ${mountPath}:/src -w /src/${name} ${runCmd} ${container_name}`, {stdio:[0,1,2]});
         } catch(e) { /* noop */ }
@@ -285,7 +286,7 @@ exports.runCommand = function(args, compile_path) {
           runCmd = extensions.requireExtension(command)
                    .selfCall(config, runCmd, command, compile_path);
         } else {
-          console.error(" - error:", colors.red('unknown command'), command, compile_path);
+          console.error(" - error:", colors.red("unknown command"), command, compile_path);
           process.exit(1);
         }
     };
@@ -320,4 +321,4 @@ exports.runCommand = function(args, compile_path) {
       }
     })
   });
-} // mbedBuild
+}

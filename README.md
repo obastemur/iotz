@@ -3,34 +3,45 @@
 [![Join the chat at https://gitter.im/Microsoft/iotz](https://badges.gitter.im/Microsoft/iotz.svg)](https://gitter.im/Microsoft/iotz?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Licensed under the MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Azure/iotz/blob/master/LICENSE.md)
 
-**reason** : IOT compiler toolchains have varying interfaces and designs.
-Cross compiler tools are `mostly` platform specific.
+**motto**
+- cross compiling tools are `mostly` platform specific (and sometimes hard to setup throughly)
+- the tools may not be available on user's favorite OS (or may have a platform specific bug(s)/inconsistencies)
+- there are many toolchains with specific needs and way of using.
+- toolchains or their dependecies sometimes don't play well with each other on the same user host system.
+- there are many platforms for iot toolchain developers to target.
+- reproing build reliability among the systems is not so easy.
+- higher entry level for a device framework / tooling
+- advanced users might still need a transparent way to reach actual sub framework
 
-**motto** : Improve developer productivity by making cross compile process easy. Also, help
-toolchain developer to focus on a single base target (iotz base container)
+`iotz` is a containerized wrapper for other compiler toolchains.
+- tries to answer the problems above
+- provides a seamless interface for iot and cross platform toolchains.
+- provides an external extension support so anyone (big or small) can attach their platform freely
 
-**status** : It works generally but need more work to cover more platforms :)
-Possibly have some bugs too. If it doesn't work for you, create an issue please. (seriously!)
+It is in a very early phase hence appreciates the feedbacks and contributions.
 
-**thanks** : `iotz` is a wrapper for other compiler toolchains. We appreciate the
-amazing work is being done by ARM mbed-cli, Arduino tools, Docker, GNU GCC,
-Raspberry Pi tools, and many other tools, frameworks and libraries.
+**deep down** >
+see [extensions and how things work](extensions/README.md)
 
-### See it in action ?
+**thanks** >
+We appreciate the amazing work is being done by ARM mbed-cli, Arduino tools,
+Docker, GNU GCC, Raspberry Pi tools, and many other tools, frameworks and libraries.
+
+### see it in action ?
 
 ![ARM mbed demo](contents/demo.gif)
 
-### Requirement
+### requirements
 
-Install [Docker](https://docs.docker.com/install/) for your OS.
+Install [Node.js](https://nodejs.org/en/download/) and [Docker](https://docs.docker.com/install/).
 
-### How to install
+### how to install
 
 ```
 npm install -g iotz
 ```
 
-### Usage
+### usage
 
 ```
 usage: iotz <command> [options]
@@ -61,7 +72,7 @@ The documentation below, applies to all extensions. However, you may find some e
 specific details under their README. i.e. [arduino](extensions/arduino/README.md)
 [mbed](extensions/mbed/README.md) [raspberry](extensions/raspberry/README.md)
 
-### Commands
+### commands
 
 #### help
 Display available options
@@ -161,7 +172,7 @@ i.e. `iotz run ls -l`
     iotz arduino --install-boards AZ3166:stm32f4
 ```
 
-### Extensions
+### extensions and how things work
 
 How to develop an `iotz` extension and some other details are given [here](extensions/README.md)
 
@@ -208,7 +219,7 @@ mbed nucleo l476rg with a lib
 
 ### F.A.Q
 
-#### Where can I find the target Board Names
+#### where can I find the target Board Names
 
 We can't help you will all :) but we may show you the ones we know!
 
@@ -234,7 +245,7 @@ should help for starters;
 `iotz` arduino extension helps with the names. i.e. `iotz init mxchip` is sufficient instead
 of `iotz init MXCHIP_AZ3166`
 
-#### How your project folder structure should look like?
+#### how your project folder structure should look like?
 
 However the folder structure was for ARMmbed or Arduino.. Keep it the same!
 If you are just starting and don't have a particular structure, please visit
@@ -243,7 +254,7 @@ their websites and see the sample projects.
 You might also visit `test/` folder and see what we did. Also, check `run.batch`
 for the commands we do run.
 
-#### How containers are managed ?
+#### how containers are managed ?
 
 `iotz` creates a sub container that is tailored for your project and depend on
 `azureiot/iotz` container.
@@ -254,11 +265,11 @@ In order to benefit from docker caching, name approach below is used.
 
 i.e. `aiot_iotz_7396162`
 
-#### How should I clean up the containers ?
+#### how should I clean up the containers ?
 
 Try pruning! -> https://docs.docker.com/config/pruning/
 
-#### Unable to find `mbed` or `arduino` or `arm-linux-gnueabihf-g++` ....
+#### unable to find `mbed` or `arduino` or `arm-linux-gnueabihf-g++` ....
 
 Probably you did trigger the base container update on another folder and you just
 need to update on the project folder to reset things up.
@@ -269,13 +280,13 @@ Try `iotz update` and / or `iotz clean`
 
 Try `iotz clean` and then compile again
 
-### Roadmap
+### roadmap
 
-See active list of [features](https://github.com/Azure/iotz/issues?q=is%3Aissue+is%3Aopen+label%3Afeature) under development
+See active list of [features](https://github.com/Azure/iotz/issues?q=is%3Aissue+is%3Aopen+label%3Afeature) under development.
 
-### Contributing
+### contributing
 
-Please run the tests under the `test` folder and see if your changes are okay!
+Please run the tests under the `test` folder and see if your changes are okay! (Running the tests may take some serious time and amount of your network traffic.)
 
 ```
 cd test && node runtests.js
@@ -295,7 +306,7 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-### Reporting Security Issues
+### reporting security issues
 
 Security issues and bugs should be reported privately, via email, to the Microsoft
 Security Response Center (MSRC) at [secure@microsoft.com](mailto:secure@microsoft.com).

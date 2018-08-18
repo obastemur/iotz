@@ -1,6 +1,6 @@
 ### iotz - arduino
 
-Try now! (lets create an arduino `hello-world` project)
+Lets create an arduino `hello-world` project.
 
 ```
 iotz create arduino uno hello

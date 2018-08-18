@@ -11,6 +11,7 @@ const colors = require('colors/safe');
 exports.requireExtension = function (name) {
   try {
     // try local
+    // todo: make sure user entry doesn't end up resolving random files
     return require(`./${name}`);
   } catch (_) {
     // TODO: log this ? (that's why the separation)

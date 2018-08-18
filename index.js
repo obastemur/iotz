@@ -13,10 +13,6 @@ const commons = require('./src/common');
 
 var args = {};
 var printHelp = function printHelp(printAll) {
-  console.log("\n  " + colors.cyan("iotz")
-    + " - a containerized and extendible cross compiler box for\n\t\t\tarduino, arm mbed, raspberry pi and ... more");
-  console.log(colors.yellow('\t\t\t\t\t\t\t   by Azure-IOT\n'));
-
 var params = [
     {option: "help", text: "display available options"},
     {option: "version", text: "show version"},
@@ -26,14 +22,14 @@ var params = [
     {option: "connect <optional args>", text: "mount the container on current path and sync tty"},
     {option: "compile", text: "compile the project on current path (needs iotz.json)"},
     {option: "create <args>",  text: "create an empty project."},
-    {option: "init <optional target>", text:"initialize a specialized sandbox for current path (needs iotz.json)"},
+    {option: "init <extension> <optional target>", text:"initialize a project for current path"},
     {option: "export", text: "exports a Makefile"},
     {option: "", text: ""}, // placeholder
     {option: "arduino <args>", text:"run arduino cli with given args"},
-    {option: "make", text:"run make command"},
+    {option: "make <optional args>", text:"run Makefile command"},
     {option: "mbed <args>", text:"run mbed cli with given args"},
     {option: "raspberry", text: "shows make, cmake, and gcc gnuhf versions"},
-    {option: "run <cmd>", text: "run command on the target system"}
+    {option: "run <cmd>", text: "run a bash command on the target system"}
   ];
 
   console.log(' ', "usage:", colors.cyan('iotz'), '<cmd>', '[options]\n\n',
@@ -142,12 +138,12 @@ exec(
           '\n');
       process.exit(1);
     } else {
-      builder();
+      start();
     }
   }
 );
 
-function builder() {
+function start() {
   var compile_path = path.resolve(process.cwd());
 
   if (args.getCommand() == 'update') {
