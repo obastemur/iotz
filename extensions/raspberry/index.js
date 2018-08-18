@@ -34,7 +34,7 @@ exports.createExtension = function() {
       `,
     callback: null
   };
-};
+}
 
 exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path) {
   var callback = null;
@@ -128,4 +128,4 @@ clean:
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
   fs.writeFileSync(path.join(target_folder, `Makefile`), makefile);
   console.log(" -", colors.green('done!'));
-};
+}

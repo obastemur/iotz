@@ -194,6 +194,64 @@ Please update ${colors.magenta('iotz.json')} with "target".'
 } // mbedBuild
 
 exports.createProject = function createProject(compile_path, runCmd) {
-  console.log("under construction :)")
-  console.log("please visit the test folder for mbed project samples");
+  var args = runCmd.length ? runCmd.split(' ') : [];
+  if (!args.length) {
+    console.error(" -", colors.red("error :"),
+              "Unknown board name", args[0]);
+    console.log('List of supported devices are available under https://os.mbed.com/platforms/');
+    process.exit(1);
+  } else {
+    board = args[0];
+  }
+
+  var projectName;
+  if (args.length > 1) {
+    projectName = args[1];
+  }
+
+  var target_folder;
+  if (projectName) {
+    target_folder = path.join(compile_path, projectName);
+    try {
+      fs.mkdirSync(target_folder);
+    } catch(e) {
+      if (!fs.existsSync(target_folder)) {
+        console.error(" -", colors.red("error:"), "cant't create folder", projectName);
+        process.exit(1);
+      }
+    }
+  } else {
+    target_folder = compile_path;
+    projectName = "sampleApplication"
+  }
+
+  var example = `
+// iotz
+// sample mbed file
+
+#include "mbed.h"
+
+DigitalOut myled(LED1);
+
+int main() {
+    while(1) {
+        myled = 1; // LED is ON
+        wait(0.2); // 200 ms
+        myled = 0; // LED is OFF
+        wait(1.0); // 1 sec
+    }
+}
+`;
+
+  var config = `
+{
+  "name":"${projectName}",
+  "toolchain":"mbed",
+  "target":"${board}"
+}
+`;
+
+  fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
+  fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
+  console.log(" -", colors.green('done!'));
 }
