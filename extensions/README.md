@@ -33,11 +33,13 @@ but the actual work folder and inode are set to current folder.
 This way; you may work with `arduino` toolchain under `yourproject/arduino`
 while enjoying `mbed` toolchain under `yourproject/mbed`
 
-Please find the extension template below.
+_please note; the path approach mentioned above will be configurable to suit more needs_
 
-reminder; By default, iotz searches the extension under the official extensions
-folder and then tries to `require` blindly. So, if you have published your `iotz`
-extension to npm, user should install that extension globally to make it available to `iotz`
+Details for extension template is given below.
+
+reminder; _By default, iotz searches the extension under the official extensions_
+_folder and then tries to `require` blindly. So, if you have published your `iotz`_
+_extension to npm, user should install that extension globally to make it available to `iotz`_
 
 ```
 // meaning for some of the arguments below

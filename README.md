@@ -81,10 +81,11 @@ Display available options
 Show version (semver)
 
 #### update
-Update base container to latest and re-install extensions on top of it.
-If there is a container associated with the current folder, delete that.
+Update base container to latest (from Docker registry) and re-install extensions on top of it.
+If there is a container associated with the current folder, delete that. (force update)
 
-You may re-install `iotz` via `npm install -g iotz` to get latest changes.
+You may re-install `iotz` via `npm install -g iotz` to get latest changes. Post
+install process will automaticall call `update` command.
 
 #### clean
 Deletes the local container for the current path. Also, cleans up the auto
@@ -94,23 +95,23 @@ generated files and folders.
 Compile the project on given path (may need an `iotz.json` on path)
 
 `compile` triggers a set of platform specific commands to build the project on the path.
-Thus, it requires `target` and `toolchain` are defined under `iotz.json` file.
+Thus, it may require both `target` and `toolchain` are defined under `iotz.json` file.
 
-A successful `init` phase (see above) will ensure that you have `iotz.json` file in place.
+A successful `init` phase (see below) will ensure that you have `iotz.json` file in place.
 
-! Some platforms (extensions) do not require a particular target hence you won't see
-issue by not having an `iotz.json` file in place.
+_Some platforms (extensions) do not require a particular target hence you won't see_
+_issue by not having an `iotz.json` file in place._
 
 #### connect
 `connect <additional args for docker>`
 
 Runs the current container bash in an interactive mode (tty is enabled).
-Current path is attached by default.
+`../<current path>` is attached by default.
 
 #### create
 `create <toolchain name> <board name> <optional project name>`
 
-Creates an empty project for given `toolchain` and `board`.
+Creates an empty project for given `toolchain` and optinally `board`.
 
 i.e.
 ```
@@ -129,18 +130,20 @@ This will create a folder named `new_project` and put the code and config file u
 `<toolchain name>` is the name of extension. i.e. `arduino`, `mbed`, `raspberry`...
 You may find the `<board name>`from [here](#where-can-i-find-the-target-board-names)
 
+Once creation is done, you need to call `iotz init` on the target project folder
+to setup the specialized container.
+
 #### export
 Exports a makefile (depends to extension)
 
 #### init
 `init <optional target board name>`
 
-Initialize a specialized sandbox for current path.
+Initialize a specialized container for current path.
 
-In order to make things lite and performant, `iotz` initialize a specialized
-container per project. `init` phase is required for specialization. Also, iotz
-detects the extension required for the project during this phase and installs
-accordingly.
+`iotz` initializes a specialized container per project. `init` phase is required
+for specialization. `iotz` detects the extension required for the project
+during this phase and installs as defined by the extension itself.
 
 Beware. If you have previously initialized `iotz` for a project (path), once you
 call it again, it will clean up the previous initialization.
@@ -172,14 +175,10 @@ i.e. `iotz run ls -l`
     iotz arduino --install-boards AZ3166:stm32f4
 ```
 
-### extensions and how things work
-
-How to develop an `iotz` extension and some other details are given [here](extensions/README.md)
-
 ### iotz.json file
 
-Although introducing a yet another project file is not desirable, it helps to do things
-easier for some folks and might help to create a better centralized experience.
+Introducing a yet another project file is not desirable. Yet, a basic configuration
+is needed to keep toolchain user from repeating entries.
 
 A basic `iotz.json` file for mxchip AZ3166
 ```
@@ -205,7 +204,7 @@ mbed nucleo l476rg with a lib
 }
 ```
 
-*WARNING:* `deps` names are case sensitive
+*WARNING:* `deps` names are case sensitive (and optional)
 
 `toolchain`: name of the extension. i.e. `arduino` or `mbed` or anything else!
 
@@ -215,16 +214,17 @@ mbed nucleo l476rg with a lib
 
 `filename`: main source code filename.
 
-*Depending to extension, you might have other required definitions.*
+_*_Depending to extension, you might have other required definitions._
 
 ### F.A.Q
 
-#### where can I find the target Board Names
+#### where can I find the target board names
 
-We can't help you will all :) but we may show you the ones we know!
+`iotz` doesn't control the extensions and what targets those extensions support.
+You will find a basic info below. Please check extension's page for better coverage.
 
 `ARM mbed` target names are available from `https://os.mbed.com/`. Simply find
-your board there and on the same page you will find the `TARGET NAME` for that board.
+your board there. On the board page, you will find the `TARGET NAME` for that board.
 
 `Arduino` target names might be a bit more tricky to find but the list below
 should help for starters;
@@ -242,17 +242,17 @@ should help for starters;
   esp8266 espinotee - esp8266 wifinfo - esp8266 arduino-esp8266 - esp8266 gen4iod - esp8266 oak
 ```
 
-`iotz` arduino extension helps with the names. i.e. `iotz init mxchip` is sufficient instead
-of `iotz init MXCHIP_AZ3166`
+`iotz` arduino extension helps with the names. i.e. `iotz init arduino mxchip` is sufficient instead
+of `iotz init arduino MXCHIP_AZ3166`
 
 #### how your project folder structure should look like?
 
-However the folder structure was for ARMmbed or Arduino.. Keep it the same!
+However the folder structure was for ARMmbed or Arduino or other.. Keep it the same!
 If you are just starting and don't have a particular structure, please visit
 their websites and see the sample projects.
 
 You might also visit `test/` folder and see what we did. Also, check `run.batch`
-for the commands we do run.
+for the commands we run for tests.
 
 #### how containers are managed ?
 
@@ -264,6 +264,8 @@ In order to benefit from docker caching, name approach below is used.
 `aiot_iotz_` `folder_ino`
 
 i.e. `aiot_iotz_7396162`
+
+more info is available [here](extensions/README.md)
 
 #### how should I clean up the containers ?
 
