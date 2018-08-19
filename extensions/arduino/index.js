@@ -93,6 +93,19 @@ var boardNames_ = null;
 var getBoardNames = function() {
   if (boardNames_ != null) return boardNames_;
 
+  var config_stat = fs.statSync(path.join(__dirname, "boards.config"));
+  if (fs.existsSync(path.join(__dirname, "board_list.json"))) {
+    var list = JSON.parse(fs.readFileSync(path.join(__dirname, "board_list.json")));
+    if (config_stat.mtimeMs == list.mtimeMs) {
+      boardNames_ = list.boardNames_;
+      return list.boardNames_;
+    }
+  }
+
+  var result = {
+    mtimeMs : config_stat.mtimeMs
+  };
+
   var PLATFORM_SEP = 'IOTZ_BOARD_FILE_PATH=';
   var config = fs.readFileSync(path.join(__dirname, "boards.config")) + "";
   if (process.platform === "win32") {
@@ -225,10 +238,16 @@ var getBoardNames = function() {
     }
   }
 
+  result.boardNames_ = boardNames_;
+  fs.writeFileSync(path.join(__dirname, "board_list.json"), JSON.stringify(result));
   return boardNames_;
 }
 
 function getAndParseArduinoConfig() {
+  try {
+    fs.unlinkSync(path.join(__dirname, 'boards.config'));
+  } catch(e) {}
+
   try {
     execSync(`\
 docker run -t -v "${__dirname}":/src/iotz \
@@ -238,6 +257,8 @@ docker run -t -v "${__dirname}":/src/iotz \
   } catch (e) {
     return { error: e };
   }
+
+  getBoardNames() // will trigger parse
 }
 
 exports.createExtension = function() {
@@ -248,6 +269,12 @@ exports.createExtension = function() {
     preInstall += `&& arduino --install-boards ${platform} `;
   }
 
+  // mxchip && esp8266 hosts
+  var boardhosts =
+      "echo \"boardsmanager.additional.urls=https://raw.githubusercontent.com/VSChina/"
+     +"azureiotdevkit_tools/master/package_azureboard_index.json,http://arduino.esp8266"
+     +".com/stable/package_esp8266com_index.json\" > ~/.arduino15/preferences.txt";
+
   var runString = `
   RUN echo -e " - installing Arduino tools"
   WORKDIR /tools
@@ -255,14 +282,14 @@ exports.createExtension = function() {
     && apt install -y gcc-avr avr-libc binutils-avr avrdude \
     && apt-get clean
 
-  COPY arduino/preferences.txt /tools/.arduino15/
   COPY arduino/tweaks/az3166/az3166_boot_patch.py /tools/
 
   RUN  tar xf arduino.tar.xz \
     && rm arduino.tar.xz \
+    && mkdir ~/.arduino15/ \
+    && ${boardhosts} \
     && ln -s /tools/arduino-${ARDUINO_VERSION}/arduino-builder /usr/local/bin/arduino-builder \
     && ln -s /tools/arduino-${ARDUINO_VERSION}/arduino /usr/local/bin/arduino \
-    && mv .arduino15 ~/ \
     ${preInstall}
   `;
 

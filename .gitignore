@@ -29,3 +29,5 @@ extensions/default.Dockerfile
 extensions/arduino.Dockerfile
 extensions/mbed.Dockerfile
 extensions/Dockerfile
+
+extensions/arduino/board_list.json
