@@ -24,7 +24,7 @@ It is in a very early phase hence appreciates the feedbacks and contributions.
 see [extensions and how things work](extensions/README.md)
 
 **thanks** >
-We appreciate the amazing work is being done by ARM mbed-cli, Arduino tools,
+We appreciate the amazing work that is being done by ARM mbed-cli, Arduino tools,
 Docker, GNU GCC, Raspberry Pi tools, and many other tools, frameworks and libraries.
 
 ### see it in action ?
@@ -38,7 +38,7 @@ Install [Node.js](https://nodejs.org/en/download/) and [Docker](https://docs.doc
 ### how to install
 
 ```
-npm install -g iotz
+npm i iotz -g
 ```
 
 ### usage
