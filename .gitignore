@@ -31,3 +31,4 @@ extensions/mbed.Dockerfile
 extensions/Dockerfile
 
 extensions/arduino/board_list.json
+extensions/esp32.Dockerfile
