@@ -1,45 +1,49 @@
-## how it works
+## how does it work?
 
-`iotz` is an extension based tool. In other words, iotz doesn't implement anything
-or provide any toolchain or subsystem by itself. Extensions, define the behavior
-for predefined commands. They may even expose their own set of commands.
+**iotz**, brings a `Ubuntu` base image with most common dependencies are pre-installed.
+That image is named/tagged as `azureiot/iotz`.
 
-`iotz` brings a specialized `ubuntu` based container with common build tools and system
-libraries are installed. That's named as `azureiot/iotz`
+In order to explain things easier, lets assume that we want to develop an application for `Arduino Uno`
+board using Arduino toolchain. In order to setup the environment, `iotz` expects us to execute `iotz init arduino uno`
+under the project folder.
 
-Lets assume that you work with `arduino` toolchain and `uno` board.
+Once we do that, **iotz** will call `createExtension` function from `iotz` Arduino extension.
+That function returns a set of docker specific commands to create a specialized arduino base container.
+Eventually, we will find the container named as `azureiot/iotz_local_arduino`.
+This specialized container image (fork from the base image) has all the necessary tools to compile an Arduino project.
 
-Once you call `iotz init arduino uno`, iotz calls `createExtension` function from
-`arduino` extension file. That function, returns the set of docker specific commands
-to create a specialized `arduino` base container. Eventually, you will find that
-container is named as `azureiot/iotz_local_arduino`
+_Initial creation process for extension image may take time. However, it happens once (unless you force update them)._
 
-The base container creations may take time and happens once (unless you force update them)
+Lets step back for a second and talk more about `iotz init arduino uno` call we made.
+Assuming, we executed that command under a project folder located at `pre_folder/app_folder/` path.
+On the file system, that path has a unique id / inode number (locally unique).
+**iotz** uses that unique id to create specific image for that folder only. (image is based on arduino base image)
+If unique id for `pre_folder/app_folder/` path was `8595881942`, the final image name would be `aiot_iotz_8595881942`.
 
-Assuming you have called `iotz init arduino uno` under a folder `some_folder/app_folder/`.
-That folder has a unique inode number and `iotz` uses that inode to fork the specialized
-container for that folder only.
+_Unless you list the docker container list manually, all the things mentioned above won't be visible to you._
 
-Lets say, the folder `pre_folder/app_folder/` has inode `8595881942`. Once `init` process is
-completed, you will have a container with a name `aiot_iotz_8595881942` is created.
-Unless you list the docker container list, all the things above won't be visible to you.
+Later calls to iotz (under the same path) will always resolve under the same container.
+i.e. `iotz connect` under the same path will simply mount `pre_folder` on the same container named `aiot_iotz_8595881942`.
+However, it will put you on the shell under the `pre_folder/app_folder` instead.
+Mount location is predefined to `../<current path>` but the actual work path and unique id are set based on current path.
 
-Later calls to `iotz` under the same folder will always resolve under the same container.
-i.e. `iotz connect` under the same path will simply mount `pre_folder` on the same
-container named `aiot_iotz_8595881942`. However, it will put you on the `shell`
-under the `pre_folder/app_folder`. Mount location is always `../<current path>`
-but the actual work folder and inode are set to current folder.
+_please note; the path approach mentioned above is premature and will be configurable to suit more needs_
 
-This way; you may work with `arduino` toolchain under `yourproject/arduino`
-while enjoying `mbed` toolchain under `yourproject/mbed`
+During the `init` step, `iotz` gathered everything it needs to setup the environment.
+We have a configuration file that has been filled by `iotz` (iotz.json). So,
+next time, we may just call `iotz init` and it will grab the rest from that file.
+Finally, `iotz` created a specialized Docker image that is bound to our project folder (`aiot_iotz_8595881942`).
 
-_please note; the path approach mentioned above will be configurable to suit more needs_
+As a last step, we will execute `iotz compile`.  *iotz* will gather the `compile`
+related set of commands from the Arduino extension and execute them on `aiot_iotz_8595881942`.
 
-Details for extension template is given below.
+That's it!
 
-reminder; _By default, iotz searches the extension under the official extensions_
-_folder and then tries to `require` blindly. So, if you have published your `iotz`_
-_extension to npm, user should install that extension globally to make it available to `iotz`_
+Details for the extension template is given below.
+
+_reminder; By default, iotz searches the extension under the official extensions_
+_folder and then tries to require blindly. So, if you have published your iotz_
+_extension to npm, the user should install that extension globally to make it available to iotz_
 
 ```
 // meaning for some of the arguments below

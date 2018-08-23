@@ -3,22 +3,26 @@
 [![Join the chat at https://gitter.im/Microsoft/iotz](https://badges.gitter.im/Microsoft/iotz.svg)](https://gitter.im/Microsoft/iotz?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Licensed under the MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Azure/iotz/blob/master/LICENSE.md)
 
-**motto**
-- cross compiling tools are `mostly` platform specific (and sometimes hard to setup throughly)
-- the tools may not be available on user's favorite OS (or may have a platform specific bug(s)/inconsistencies)
-- there are many toolchains with specific needs and way of using.
-- toolchains or their dependecies sometimes don't play well with each other on the same user host system.
-- there are many platforms for iot toolchain developers to target.
-- reproing build reliability among the systems is not so easy.
-- higher entry level for a device framework / tooling
-- advanced users might still need a transparent way to reach actual sub framework
+**iotz** is an extension based containerized wrapper for other iot compiler toolchains.
+There are many toolchains with specific needs and way of using. We developed this
+experimental tool to make compiling things easier.
 
-`iotz` is a containerized wrapper for other compiler toolchains.
-- tries to answer the problems above
-- provides a seamless interface for iot and cross platform toolchains.
-- provides an external extension support so anyone (big or small) can attach their platform freely
+-	cross compiling tools are mostly platform specific (and sometimes hard to setup thoroughly)
+-	the tools may not be available on user's favorite OS (or may have a platform specific bug(s)/inconsistencies)
+-	toolchains or their dependencies sometimes don't play well with each other on the same user host system.
+-	there are many platforms for iot toolchain developers to target.
+-	reproducing build reliability across systems is not easy.
+-	higher entry level for a device framework / tooling
+-	advanced users might still need a transparent way to reach actual sub framework
+-	some platforms already benefit the pre-built docker containers as a build environment
 
-It is in a very early phase hence appreciates the feedbacks and contributions.
+`iotz`;
+-	tries to answer the problems above
+-	provides a seamless interface for iot and cross platform toolchains.
+-	provides an external extension support, so anyone (big or small) can attach their platform freely
+-	doesn't provide any toolchain by itself. (extension can add commands or define the behavior for pre-exist commands)
+
+_It is in an early phase hence both feedback and contributions are appreciated_
 
 **deep down** >
 see [extensions and how things work](extensions/README.md)
