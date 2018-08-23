@@ -11,6 +11,31 @@ const exec       = require('child_process').exec;
 const execSync   = require('child_process').execSync;
 const extensions = require('../extensions/index.js');
 
+var FIX_PATH_CONTAINER = function(p) {
+  if (process.platform === "win32") {
+    return p.replace(/\\/g, "/");
+  } else {
+    return p;
+  }
+}
+
+function getMountPath(config, compile_path) {
+  var path_depth = compile_path.split(path.sep).length;
+  var autoConfig = "..";
+  if (path_depth >= 3) {
+    autoConfig = ".." + path.sep + "..";
+  }
+
+  var mountConfig = config && config.mountConfig ? config.mountConfig : autoConfig;
+  var mount_path = (compile_path && compile_path.length) ? path.join(compile_path, mountConfig) : compile_path;
+  if (!fs.existsSync(mount_path)) {
+    console.error(" - error:", `${mount_path} does not exist. Beware! you may not use iotz from a root folder`);
+    process.exit(1);
+  }
+
+  return mount_path;
+}
+
 function getProjectConfig(args, command, compile_path) {
   var proj_path = path.join(compile_path, "iotz.json");
   var config = null;
@@ -101,7 +126,8 @@ function createImage(args, compile_path, config, callback) {
         }
         var tc = extensions.getToolchain(config.toolchain);
         ret = extensions.requireExtension(tc)
-          .buildCommands(config, runCmd, 'localFolderContainerConstructer', compile_path);
+          .buildCommands(config, runCmd, 'localFolderContainerConstructer', compile_path,
+                         getMountPath(config, compile_path));
 
         if (ret && ret.run.length) {
           runCmd = "&& " + ret.run;
@@ -143,7 +169,7 @@ function createImage(args, compile_path, config, callback) {
 }
 
 var active_instance = null;
-function runCommand(args, compile_path, runCmd, callback) {
+function execCommand(args, compile_path, runCmd, config, callback) {
   if (!runCmd || runCmd.length == 0) {
     callback(0);
     return;
@@ -158,18 +184,13 @@ function runCommand(args, compile_path, runCmd, callback) {
     execSync(`docker container rm -f "/${active_instance}" 2>&1`);
   } catch(e) { }
 
-  var pathName = path.basename(compile_path);
-  var mountPath = (compile_path && compile_path.length) ? path.join(compile_path, '..') : compile_path;
-  if (!fs.existsSync(mountPath)) {
-    console.error(" - error:", `${mountPath} does not exist. Beware! you can't use iotz from a root folder`);
-    process.exit(1);
-  }
+  var mount_path = getMountPath(config, compile_path);
 
   var batchString = `\
 cd ${compile_path} && \
 docker run --rm --name ${active_instance} -t -v \
-"${mountPath}":/src:rw,cached \
--w /src/${pathName} ${container_name} \
+"${mount_path}":/src:rw,cached \
+-w /src/${FIX_PATH_CONTAINER(path.relative(mount_path, compile_path))} ${container_name} \
 /bin/bash -c "${runCmd}"\
 `;
 
@@ -248,7 +269,7 @@ exports.runCommand = function(args, compile_path) {
         var ret;
         try {
           ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
-                .buildCommands(config, runCmd, command, compile_path);
+                .buildCommands(config, runCmd, command, compile_path, getMountPath(config, compile_path));
         } catch(e) {
           console.error(' - error:', "something bad happened..\n", colors.red(e.message ? e.message : e));
           process.exit(1);
@@ -265,15 +286,11 @@ exports.runCommand = function(args, compile_path) {
         var ino = fs.statSync(compile_path).ino;
         var container_name = "aiot_iotz_" + ino;
         if (runCmd == -1) runCmd = "";
-        var name = path.basename(compile_path);
-        // actual mount path is level - 1
-        var mountPath = (compile_path && compile_path.length) ? path.join(compile_path, '..') : compile_path;
-        if (!fs.existsSync(mountPath)) {
-          console.error(" - error:", `${mountPath} does not exist. Beware! you can't use iotz from a root folder`);
-          process.exit(1);
-        }
+        var mount_path = getMountPath(config, compile_path);
         try {
-          execSync(`docker run -ti -v ${mountPath}:/src -w /src/${name} ${runCmd} ${container_name}`, {stdio:[0,1,2]});
+          execSync(`docker run -ti -v ${mount_path
+}:/src -w /src/${FIX_PATH_CONTAINER(path.relative(mount_path, compile_path))
+} ${runCmd} ${container_name}`, {stdio:[0,1,2]});
         } catch(e) { /* noop */ }
         process.exit(0);
       }
@@ -305,7 +322,7 @@ exports.runCommand = function(args, compile_path) {
       return;
     }
 
-    runCommand(args, compile_path, runCmd, function(err) {
+    execCommand(args, compile_path, runCmd, config, function(err) {
       if (err) {
         if (typeof err.message === "string" && err.message.indexOf("Command failed") < 0) {
           console.error(" -", colors.magenta('message'), err.message);

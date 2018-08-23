@@ -74,7 +74,7 @@ exports.createExtension = function() {
   }
 }
 
-exports.buildCommands = function(config, runCmd, command, compile_path) {
+exports.buildCommands = function(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
   var runString = "";
 

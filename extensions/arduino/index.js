@@ -301,11 +301,19 @@ exports.createExtension = function() {
   };
 }
 
-exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_path) {
+var FIX_PATH_CONTAINER = function(p) {
+  if (process.platform === "win32") {
+    return p.replace(/\\/g, "/");
+  } else {
+    return p;
+  }
+}
+
+exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_path, mount_path) {
   var target_board = config.target;
   var callback = null;
   var runString = "";
-  var pathName = path.basename(compile_path);
+  var pathName = FIX_PATH_CONTAINER(path.relative(mount_path, compile_path));
 
   if (config && !config.filename) {
     if (command == "compile" || command == "export") {
@@ -470,8 +478,8 @@ clean :
 }
 
 exports.createProject = function createProject(compile_path, runCmd) {
-  var args = runCmd.split(' ');
-  var board = findBoard(args[0]);
+  var args = typeof runCmd === 'string' ? runCmd.split(' ') : [];
+  var board = args.length ? findBoard(args[0]) : null;
   if (!board) {
     console.error(" -", colors.red("error :"),
               "Unknown board name", args[0]);
