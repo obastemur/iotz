@@ -8,7 +8,7 @@ const path = require('path');
 const execSync = require('child_process').execSync;
 const colors = require('colors/safe');
 
-exports.requireExtension = function (name) {
+exports.requireExtension = function (name, no_fail) {
   try {
     // try local
     // todo: make sure user entry doesn't end up resolving random files
@@ -17,12 +17,16 @@ exports.requireExtension = function (name) {
     // TODO: log this ? (that's why the separation)
     try {
       // search global
-      return require(name)
+      return require(name);
     } catch (__) {
-      console.error(" - error:", colors.red('extension'), name, "not found");
-      process.exit(1);
+      if (!no_fail) {
+        console.error(" - error:", colors.red('extension'), name, "not found");
+        process.exit(1);
+      }
     }
   }
+
+  return null;
 }
 
 function getConfigPath() {
@@ -156,6 +160,11 @@ exports.detectProject = function detectProject(compile_path, runCmd, command) {
       exts[file] = {};
     }
   };
+
+  var potentialExtension = (typeof runCmd === 'string') ? runCmd.split(' ')[0] : null;
+  if (potentialExtension && exports.requireExtension(potentialExtension, true) != null) {
+    return exports.requireExtension(potentialExtension).detectProject(compile_path, runCmd, command);
+  }
 
   var detected = null;
   for (var name in exts) {

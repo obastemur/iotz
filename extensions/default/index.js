@@ -22,7 +22,7 @@ exports.createExtension = function() {
   };
 };
 
-exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path) {
+exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
   var runString = "";
 
@@ -50,7 +50,7 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
 }
 
 exports.createProject = function createProject(compile_path, runCmd) {
-  var args = runCmd.split(' ');
+  var args = typeof runCmd === 'string' ? runCmd.split(' ') : [];
 
   var projectName;
   if (args.length) {

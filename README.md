@@ -218,6 +218,10 @@ mbed nucleo l476rg with a lib
 
 `filename`: main source code filename.
 
+`mountConfig`: By default, iotz mounts from `../`. If depth of the current path is
+3 or more folders, iotz mounts from `../..`. This approach may not fit for all. So,
+you may use `mountConfig` to define a _relative_ mount point manually. i.e. `"mountConfig": "../build"`
+
 _*_Depending to extension, you might have other required definitions._
 
 ### F.A.Q

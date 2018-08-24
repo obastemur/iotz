@@ -78,7 +78,7 @@ var checkSource = function checkSource(config) {
   return source;
 }
 
-exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path) {
+exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path, mount_path) {
   var target_board = config.target;
   var runString = "";
   var callback = null;
@@ -194,7 +194,7 @@ Please update ${colors.magenta('iotz.json')} with "target".'
 } // mbedBuild
 
 exports.createProject = function createProject(compile_path, runCmd) {
-  var args = runCmd.length ? runCmd.split(' ') : [];
+  var args = (typeof runCmd === 'string') ? runCmd.split(' ') : [];
   if (!args.length) {
     console.error(" -", colors.red("error :"),
               "Unknown board name", args[0]);

@@ -10,7 +10,7 @@ const fs = require('fs');
 exports.detectProject = function(compile_path, runCmd, command) {
   var detected = null;
 
-  if (!detected && command == "raspberry") {
+  if (command == "raspberry" || ((typeof runCmd === 'string') && runCmd.split(' ')[0] == 'raspberry')) {
     detected = {
       "toolchain": "raspberry"
     };
@@ -21,7 +21,7 @@ exports.detectProject = function(compile_path, runCmd, command) {
 
 exports.selfCall = function(config, runCmd, command, compile_path) {
   return exports.buildCommands(config, runCmd, "compile", compile_path).run;
-};
+}
 
 exports.createExtension = function() {
   return {
@@ -36,7 +36,7 @@ exports.createExtension = function() {
   };
 }
 
-exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path) {
+exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
   var runString = "";
 
@@ -67,7 +67,7 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
 }
 
 exports.createProject = function createProject(compile_path, runCmd) {
-  var args = runCmd.split(' ');
+  var args = (typeof runCmd === 'string') ? runCmd.split(' ') : null;
 
   var projectName;
   if (args.length) {
