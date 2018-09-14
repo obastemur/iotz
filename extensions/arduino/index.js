@@ -92,11 +92,14 @@ var preInstalledPlatforms =
 var boardNames_ = null;
 var getBoardNames = function() {
   if (boardNames_ != null) return boardNames_;
-
-  var config_stat = fs.statSync(path.join(__dirname, "boards.config"));
+  var listFile = path.join(__dirname, "boards.config");
+  var config_stat = { "mtimeMs": 0 };
+  if (fs.existsSync(listFile)) {
+    config_stat = fs.statSync(listFile);
+  }
   if (fs.existsSync(path.join(__dirname, "board_list.json"))) {
     var list = JSON.parse(fs.readFileSync(path.join(__dirname, "board_list.json")));
-    if (config_stat.mtimeMs == list.mtimeMs) {
+    if (!config_stat.mtimeMs || config_stat.mtimeMs == list.mtimeMs) {
       boardNames_ = list.boardNames_;
       return list.boardNames_;
     }
