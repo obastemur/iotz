@@ -1,6 +1,6 @@
 {
   "name": "iotz",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "a containerized cross compiler box for arduino, arm mbed, raspberry pi and ... more",
   "keywords": [
     "arm",
@@ -19,6 +19,7 @@
   "bin": {
     "iotz": "./index.js"
   },
+  "lib": "extensions/index.js",
   "main": "index.js",
   "dependencies": {
     "colors": "^1.2.5",

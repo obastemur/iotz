@@ -77,7 +77,7 @@ function getProjectConfig(args, command, compile_path) {
       fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config));
     } catch (e) {
       // this is not a must step hence (although weird but) skip if we don't have write access.
-      console.error(' -', colors.yellow('warning:'), "couldn't update iotz.json file.");
+      console.error(' -', colors.bold('warning:'), "couldn't update iotz.json file.");
       console.error(' -', e.message);
     }
   }
@@ -115,14 +115,14 @@ function createImage(args, compile_path, config, callback) {
 
     if (config && command != 'connect') {
       if (!config.toolchain) {
-        console.error(" -", colors.yellow('warning:'), "no 'toolchain' is defined under iotz.json.");
+        console.error(" -", colors.bold('warning:'), "no 'toolchain' is defined under iotz.json.");
       } else {
         if (command == 'clean') {
           callback(0);
           return;
         }
         if (command != 'init') {
-          console.log(" -", colors.yellow('initializing the base container..'));
+          console.log(" -", colors.bold('initializing the base container..'));
         }
         var tc = extensions.getToolchain(config.toolchain);
         ret = extensions.requireExtension(tc)
@@ -325,7 +325,7 @@ exports.runCommand = function(args, compile_path) {
     execCommand(args, compile_path, runCmd, config, function(err) {
       if (err) {
         if (typeof err.message === "string" && err.message.indexOf("Command failed") < 0) {
-          console.error(" -", colors.magenta('message'), err.message);
+          console.error(" -", colors.bold('message'), err.message);
         }
         process.exit(1);
         return;

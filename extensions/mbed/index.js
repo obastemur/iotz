@@ -91,7 +91,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
       var detected = exports.detectProject(compile_path, runCmd, command);
       if (config.target != detected.target) {
         if (target_board) {
-          console.error(" -", colors.magenta('warning:'), 'updating the target board definition on iotz.json file.');
+          console.error(" -", colors.bold('warning:'), 'updating the target board definition on iotz.json file.');
         }
         target = detected.target;
         target_board = config.target;
@@ -154,7 +154,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
  && mbed target -S && \
 echo -e \
 '${colors.yellow('you should define the "target" from the above.')}\
-Please update ${colors.magenta('iotz.json')} with "target".'
+Please update ${colors.bold('iotz.json')} with "target".'
 `;
     }
   } else if (command == "clean") {
@@ -179,7 +179,7 @@ Please update ${colors.magenta('iotz.json')} with "target".'
       fs.writeFileSync(mpath, source);
 
       console.log(colors.green("Makefile"), "is ready.\nTry ",
-        colors.magenta('iotz make -j2'));
+        colors.bold('iotz make -j2'));
     }
   } else {
     console.error(" -", colors.red("error :"),

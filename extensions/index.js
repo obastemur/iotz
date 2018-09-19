@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const execSync = require('child_process').execSync;
 const colors = require('colors/safe');
+const HOME_DIR = require('os').homedir();
 
 exports.requireExtension = function (name, no_fail) {
   try {
@@ -29,18 +30,27 @@ exports.requireExtension = function (name, no_fail) {
   return null;
 }
 
-function getConfigPath() {
-  var home = process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-  return path.join(home, "azure.iotz.config.json");
+exports.getConfigPath = function getConfigPath() {
+  // check write access to home folder and see if .iotz folder exists
+  var iotzHome = path.join(HOME_DIR, ".iotz");
+  if (!fs.existsSync(iotzHome)) {
+    try {
+      fs.mkdirSync(iotzHome);
+    } catch(e) {
+      console.error("error:", "couldn't create", iotzHome, "folder to store configuration.");
+    }
+  }
+  return iotzHome;
 }
 
 exports.readConfig = function readConfig() {
   try {
-    if (!fs.existsSync(getConfigPath())) {
+    var iotzHome = exports.getConfigPath();
+    if (!fs.existsSync(path.join(iotzHome, "config.json"))) {
       // try to create config
       if (exports.updateConfig({}) != 0) return null;
     }
-    var config = fs.readFileSync(getConfigPath()) + "";
+    var config = fs.readFileSync(path.join(iotzHome, "config.json")) + "";
     return JSON.parse(config);
   } catch(e) {
     console.log(" -", colors.red('error:'), e);
@@ -51,7 +61,8 @@ exports.readConfig = function readConfig() {
 
 exports.updateConfig = function updateConfig(config) {
   try {
-    fs.writeFileSync(getConfigPath(), JSON.stringify(config));
+    var iotzHome = exports.getConfigPath();
+    fs.writeFileSync(path.join(iotzHome, "config.json"), JSON.stringify(config));
     return 0;
   } catch(e) {
     console.log(" -", colors.red('error:'), e);
@@ -120,8 +131,8 @@ exports.createContainer = function(name) {
   var extInfo = rext ? rext.createExtension() : {run: ""};
 
   if (rext) {
-    console.log(" -", "building", colors.magenta(name), 'extension container',
-                colors.gray('(it may take some time)'));
+    console.log(" -", "building", colors.bold(name), 'extension container',
+                '(it may take some time)');
   }
 
   var libs = `
@@ -133,7 +144,8 @@ exports.createContainer = function(name) {
   ${extInfo.run}
   `;
 
-  fs.writeFileSync(path.join(__dirname, name + '.Dockerfile'), libs);
+  var iotzHome = exports.getConfigPath();
+  fs.writeFileSync(path.join(iotzHome, name + '.Dockerfile'), libs);
 
     // wipe the previous one (if there is)
   try {
@@ -141,7 +153,7 @@ exports.createContainer = function(name) {
   } catch(e) { }
 
   var batchString = `docker build . -f ${name}.Dockerfile --force-rm -t azureiot/iotz_local_${name}`;
-  execSync(`cd ${__dirname} && ` + batchString, {stdio:[2]});
+  execSync(`cd ${iotzHome} && ` + batchString, {stdio:[2]});
   if (extInfo.callback) {
     extInfo.callback();
   }

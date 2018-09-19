@@ -57,7 +57,7 @@ function runTest(test) {
   var txt = (fs.readFileSync(batchFile) + "");
   txt = applyChanges(txt)
 
-  console.log(colors.yellow('running'), txt);
+  console.log(colors.bold('running'), txt);
   rimraf.sync(test.path);
 
   try {
@@ -101,10 +101,10 @@ var prc = exec('docker pull azureiot/iotz 2>&1', function(error) {
   var globInterval = setInterval(function() {
     if (testFinished) {
       clearInterval(globInterval);
-      console.log(colors.yellow('\nTest run is finished.\n'));
+      console.log(colors.bold('\nTest run is finished.\n'));
       console.log(" -", colors.red  ('total failed'), totals.fail)
       console.log(" -", colors.green('total pass'), totals.success)
-      console.log(" -", colors.yellow('total'), totals.success + totals.fail)
+      console.log(" -", colors.bold('total'), totals.success + totals.fail)
     }
   });
 });

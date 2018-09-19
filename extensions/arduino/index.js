@@ -3,12 +3,13 @@
 //  Licensed under the MIT license.
 // ----------------------------------------------------------------------------
 
-const colors = require('colors/safe');
-const fs     = require('fs');
-const path   = require('path');
+const colors   = require('colors/safe');
+const fs       = require('fs');
+const path     = require('path');
 const execSync = require('child_process').execSync;
+const iotz     = require('../index');
 
-const ARDUINO_VERSION = "1.8.5";
+const ARDUINO_VERSION = "1.8.7";
 
 function findBoard(name) {
   var src = name.toLowerCase();
@@ -27,7 +28,7 @@ function findBoard(name) {
 }
 
 function printBoards() {
-  console.error(' -', colors.yellow('full list below'));
+  console.error(' -', colors.bold('board config list is given below'));
   var boards = "\t";
   var counter = 0;
   var boardNames = getBoardNames();
@@ -90,32 +91,37 @@ var preInstalledPlatforms =
 };
 
 var boardNames_ = null;
-var getBoardNames = function() {
+var getBoardNames = function(forceUpdate) {
   if (boardNames_ != null) return boardNames_;
-  var listFile = path.join(__dirname, "boards.config");
-  var config_stat = { "mtimeMs": 0 };
-  if (fs.existsSync(listFile)) {
-    config_stat = fs.statSync(listFile);
+
+  var iotzHome = iotz.getConfigPath();
+  var listFile = path.join(iotzHome, "arduino.boards.config");
+  var configStat = { "mtimeMs": 0 };
+  if (!forceUpdate && fs.existsSync(listFile)) {
+    configStat = fs.statSync(listFile);
+  } else {
+    fs.writeFileSync(listFile, fs.readFileSync(path.join(__dirname, "boards.config")))
+    configStat = fs.statSync(listFile);
   }
-  if (fs.existsSync(path.join(__dirname, "board_list.json"))) {
-    var list = JSON.parse(fs.readFileSync(path.join(__dirname, "board_list.json")));
-    if (!config_stat.mtimeMs || config_stat.mtimeMs == list.mtimeMs) {
+  if (!forceUpdate && fs.existsSync(path.join(iotzHome, "arduino.board_list.json"))) {
+    var list = JSON.parse(fs.readFileSync(path.join(iotzHome, "arduino.board_list.json")));
+    if (!configStat.mtimeMs || configStat.mtimeMs == list.mtimeMs) {
       boardNames_ = list.boardNames_;
       return list.boardNames_;
     }
   }
 
   var result = {
-    mtimeMs : config_stat.mtimeMs
+    mtimeMs : configStat.mtimeMs
   };
 
   var PLATFORM_SEP = 'IOTZ_BOARD_FILE_PATH=';
-  var config = fs.readFileSync(path.join(__dirname, "boards.config")) + "";
+  var config = fs.readFileSync(listFile) + "";
   if (process.platform === "win32") {
     config = config.replace(/\r\n/g, "\n");
   }
 
-  // parse boards.config file
+  // parse arduino.boards.config file
   var getPlatforms = function() {
     var ind = -1;
     var platforms = [];
@@ -145,7 +151,7 @@ var getBoardNames = function() {
 
       line = line.trim().replace('menu.', '');
       if (line.indexOf('=') == -1) {
-        console.error(' -', colors.yellow('warning'), 'unidentified config at \n'
+        console.error(' -', colors.bold('warning'), 'unidentified config at \n'
           + subConfig.substr(0, startIndex) + "\n@ -> " + line);
         continue; // broken config?
       }
@@ -242,26 +248,28 @@ var getBoardNames = function() {
   }
 
   result.boardNames_ = boardNames_;
-  fs.writeFileSync(path.join(__dirname, "board_list.json"), JSON.stringify(result));
+  var iotzHome = iotz.getConfigPath();
+  fs.writeFileSync(path.join(iotzHome, "arduino.board_list.json"), JSON.stringify(result));
   return boardNames_;
 }
 
 function getAndParseArduinoConfig() {
+  var iotzHome = iotz.getConfigPath();
   try {
-    fs.unlinkSync(path.join(__dirname, 'boards.config'));
+    fs.unlinkSync(path.join(iotzHome, 'arduino.boards.config'));
   } catch(e) {}
 
-  try {
-    execSync(`\
-docker run -t -v "${__dirname}":/src/iotz \
+  var command = `\
+docker run -t -v "${iotzHome}":/src/iotz \
 -w /src/iotz azureiot/iotz_local_arduino \
-/bin/bash -c "find /root/.arduino15 -name 'boards.txt' -exec ./append_config.sh {} \\;"
-    `, {stdio: 'inherit'});
+/bin/bash -c "chmod +x ./arduino.append_config.sh && find /root/.arduino15 -name 'boards.txt' -exec ./arduino.append_config.sh {} \\;"`;
+  try {
+    execSync(command, {stdio: 'inherit'});
   } catch (e) {
     return { error: e };
   }
 
-  getBoardNames() // will trigger parse
+  getBoardNames(true /*forceUpdate*/);
 }
 
 exports.createExtension = function() {
@@ -285,7 +293,7 @@ exports.createExtension = function() {
     && apt install -y gcc-avr avr-libc binutils-avr avrdude \
     && apt-get clean
 
-  COPY arduino/tweaks/az3166/az3166_boot_patch.py /tools/
+  COPY arduino.az3166.boot_patch.py /tools/
 
   RUN  tar xf arduino.tar.xz \
     && rm arduino.tar.xz \
@@ -296,11 +304,16 @@ exports.createExtension = function() {
     ${preInstall}
   `;
 
-  var callback = getAndParseArduinoConfig;
+  var iotzHome = iotz.getConfigPath();
+  fs.writeFileSync(path.join(iotzHome, 'arduino.az3166.boot_patch.py'),
+      fs.readFileSync(path.join(__dirname, 'tweaks/az3166/az3166_boot_patch.py')));
+
+  fs.writeFileSync(path.join(iotzHome, 'arduino.append_config.sh'),
+      fs.readFileSync(path.join(__dirname, 'append_config.sh')));
 
   return {
     run: runString,
-    callback : callback
+    callback : getAndParseArduinoConfig
   };
 }
 
@@ -323,8 +336,8 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
       var files = fs.readdirSync(compile_path);
       for (let file of files) {
         if (path.extname(file).toLowerCase() == '.ino') {
-          console.log(" -", colors.yellow("warning"));
-          console.log(" -", "picked", colors.magenta(file), " automatically as a project file");
+          console.log(" -", colors.bold("warning"));
+          console.log(" -", "picked", colors.bold(file), " automatically as a project file");
           console.log(" -", "you can define it from 'iotz.json' 'filename'");
           config.filename = file;
           break;
@@ -343,7 +356,7 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
     if (typeof runCmd === 'string' && runCmd.length && target_board != runCmd) {
       // don't let setting target board from multiple places
       if (target_board) {
-        console.error(" -", colors.yellow('warning:'), 'iotz.json file has target board defined already.');
+        console.error(" -", colors.bold('warning:'), 'iotz.json file has target board defined already.');
       } else {
         target_board = findBoard(runCmd);
         if (target_board) {
@@ -446,13 +459,13 @@ RUN ${mxchip_folder} && \
           patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd \\`ls | awk '{print \\$1}'\\`"
         }
         patch_step += " && cp bootloader/boot.bin /tools"
-        patch_step += ` && python /tools/az3166_boot_patch.py /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}o.bin`
+        patch_step += ` && python /tools/arduino.az3166.boot_patch.py /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}o.bin`
         patch_step += ` && mv /src/${pathName}/BUILD/${config.filename}.bin /src/${pathName}/BUILD/${config.filename}_no_bootloader.bin`
         patch_step += ` && mv /src/${pathName}/BUILD/${config.filename}o.bin /src/${pathName}/BUILD/${config.filename}.bin`
       break;
       default:
     };
-    runString = `arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/${pathName}/BUILD ${patch_step}`;
+    runString = `rm -rf /src/${pathName}/BUILD/build.options.json && arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/${pathName}/BUILD ${patch_step}`;
   } else if (command == 'export') {
     var makefile = `
 # ----------------------------------------------------------------------------
@@ -461,13 +474,14 @@ RUN ${mxchip_folder} && \
 # ----------------------------------------------------------------------------
 
 all:
+	rm -rf BUILD/build.options.json
 	arduino --board '${target_board}' --verify '${config.filename}' --pref build.path=/src/${pathName}/BUILD
 clean :
 	iotz run mr -rf BUILD/
 `;
     fs.writeFileSync(path.join(compile_path, 'Makefile'), makefile);
     console.log(colors.green("Makefile"), "is ready.\nTry ",
-        colors.magenta('iotz make -j2'));
+        colors.bold('iotz make -j2'));
   } else {
     console.error(" -", colors.red("error :"),
               "Unknown command", command);
