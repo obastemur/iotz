@@ -1,0 +1,10 @@
+#### 0.2.4
+
+- Use HOME/.iotz for extension / common garbage
+- Windows: Powershell friendly colors
+- Arduino: Update Arduino IDE to 1.8.7
+- Arduino: Clean build configs on each build to prevent file not found bug Arduino IDE causes
+
+#### 0.2.5
+
+- Fix Windows image creation on additional drives

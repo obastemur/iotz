@@ -151,7 +151,7 @@ function createImage(args, compile_path, config, callback) {
     fs.writeFileSync(path.join(compile_path, 'Dockerfile'), libs);
 
     var batchString = `docker build . --force-rm -t ${container_name}`;
-    var subProcess = exec(`cd ${compile_path} && ` + batchString);
+    var subProcess = exec(`cd ${compile_path} && ` + batchString, {cwd:compile_path});
     subProcess.stderr.on('data', function (data) {
       process.stderr.write(data);
     });

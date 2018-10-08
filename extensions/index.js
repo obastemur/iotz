@@ -153,7 +153,7 @@ exports.createContainer = function(name) {
   } catch(e) { }
 
   var batchString = `docker build . -f ${name}.Dockerfile --force-rm -t azureiot/iotz_local_${name}`;
-  execSync(`cd ${iotzHome} && ` + batchString, {stdio:[2]});
+  execSync(`cd ${iotzHome} && ` + batchString, {stdio:[2], cwd:iotzHome});
   if (extInfo.callback) {
     extInfo.callback();
   }
