@@ -33,6 +33,9 @@ function getMountPath(config, compile_path) {
     process.exit(1);
   }
 
+  if (process.platform === "win32")
+    mount_path = mount_path.replace("\\", "\\\\");
+
   return mount_path;
 }
 

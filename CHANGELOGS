@@ -8,3 +8,8 @@
 #### 0.2.5
 
 - Fix Windows image creation on additional drives
+
+#### 0.2.6
+
+- Fix Windows shared path back slashes
+- Update mbed-os base container dependencies

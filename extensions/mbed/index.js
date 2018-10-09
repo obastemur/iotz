@@ -50,7 +50,7 @@ exports.createExtension = function() {
     run :`
       RUN echo -e " - installing ARM mbed tools"
 
-      RUN pip install mbed-cli \
+      RUN apt-get install -y libudev-dev libsystemd-dev libusb-1.0-0-dev && pip install mbed-cli \
         && mkdir XXX && cd XXX && echo "#include <mbed.h>\\nint main(){return 0;}" > main.cpp \
         && mbed new . && mbed compile -t GCC_ARM -m NUCLEO_L476RG \
         && cd .. && rm -rf XXX
