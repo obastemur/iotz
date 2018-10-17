@@ -10,9 +10,15 @@ const colors = require('colors/safe');
 const HOME_DIR = require('os').homedir();
 
 exports.requireExtension = function (name, no_fail) {
+  if (typeof name === 'string')
+    name = name.replace(/\\/g, "").replace(/\//g, "");
+  else {
+    console.error(" - error:", colors.red('extension'), name, "not found");
+    process.exit(1);
+  }
+
   try {
     // try local
-    // todo: make sure user entry doesn't end up resolving random files
     return require(`./${name}`);
   } catch (_) {
     // TODO: log this ? (that's why the separation)
