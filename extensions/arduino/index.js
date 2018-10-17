@@ -10,6 +10,7 @@ const execSync = require('child_process').execSync;
 const iotz     = require('../index');
 
 const ARDUINO_VERSION = "1.8.7";
+const isWindows = process.platform === "win32";
 
 function findBoard(name) {
   var src = name.toLowerCase();
@@ -117,7 +118,7 @@ var getBoardNames = function(forceUpdate) {
 
   var PLATFORM_SEP = 'IOTZ_BOARD_FILE_PATH=';
   var config = fs.readFileSync(listFile) + "";
-  if (process.platform === "win32") {
+  if (isWindows) {
     config = config.replace(/\r\n/g, "\n");
   }
 
@@ -318,7 +319,7 @@ exports.createExtension = function() {
 }
 
 var FIX_PATH_CONTAINER = function(p) {
-  if (process.platform === "win32") {
+  if (isWindows) {
     return p.replace(/\\/g, "/");
   } else {
     return p;
@@ -453,7 +454,7 @@ RUN ${mxchip_folder} && \
     var patch_step = "";
     switch (config.target.toLowerCase()) {
       case "az3166:stm32f4:mxchip_az3166":
-        if (process.platform === "win32") {
+        if (isWindows) {
           patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd `ls | awk '{print $1}'`"
         } else {
           patch_step =  " && cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd \\`ls | awk '{print \\$1}'\\`"

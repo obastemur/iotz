@@ -17,3 +17,4 @@
 #### 0.2.7
 
 - Prevent extension name to have a backward-forward slashes
+- const isWindows instead of string comparision in place

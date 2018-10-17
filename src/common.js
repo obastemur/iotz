@@ -10,9 +10,10 @@ const rimraf = require('rimraf');
 const exec       = require('child_process').exec;
 const execSync   = require('child_process').execSync;
 const extensions = require('../extensions/index.js');
+const isWindows = process.platform === "win32";
 
 var FIX_PATH_CONTAINER = function(p) {
-  if (process.platform === "win32") {
+  if (isWindows) {
     return p.replace(/\\/g, "/");
   } else {
     return p;
@@ -33,8 +34,9 @@ function getMountPath(config, compile_path) {
     process.exit(1);
   }
 
-  if (process.platform === "win32")
+  if (isWindows) {
     mount_path = mount_path.replace("\\", "\\\\");
+  }
 
   return mount_path;
 }
@@ -252,7 +254,7 @@ exports.runCommand = function(args, compile_path) {
       case "clean":
       case "export":
       {
-        if (command == 'init' && process.platform === "win32") {
+        if (isWindows && command == 'init') {
           // TODO: detect this and behave accordingly?
           console.log(colors.yellow('Please ensure you have shared the current drive on Docker for Windows'));
         }
