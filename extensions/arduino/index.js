@@ -2,6 +2,7 @@
 //  Copyright (C) Microsoft. All rights reserved.
 //  Licensed under the MIT license.
 // ----------------------------------------------------------------------------
+"use strict"
 
 const colors   = require('colors/safe');
 const fs       = require('fs');
@@ -290,7 +291,7 @@ exports.createExtension = function() {
   var runString = `
   RUN echo -e " - installing Arduino tools"
   WORKDIR /tools
-  RUN curl "https://downloads.arduino.cc/arduino-${ARDUINO_VERSION}-linux64.tar.xz" -o arduino.tar.xz \
+  RUN apt-get update && curl "https://downloads.arduino.cc/arduino-${ARDUINO_VERSION}-linux64.tar.xz" -o arduino.tar.xz \
     && apt install -y gcc-avr avr-libc binutils-avr avrdude \
     && apt-get clean
 

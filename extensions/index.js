@@ -2,6 +2,7 @@
 //  Copyright (C) Microsoft. All rights reserved.
 //  Licensed under the MIT license.
 // ----------------------------------------------------------------------------
+"use strict"
 
 const fs = require('fs');
 const path = require('path');

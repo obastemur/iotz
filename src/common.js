@@ -2,6 +2,7 @@
 //  Copyright (C) Microsoft. All rights reserved.
 //  Licensed under the MIT license.
 // ----------------------------------------------------------------------------
+"use strict"
 
 const colors = require('colors/safe');
 const fs     = require('fs');

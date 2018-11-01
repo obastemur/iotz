@@ -18,3 +18,8 @@
 
 - Prevent extension name to have a backward-forward slashes
 - const isWindows instead of string comparision in place
+
+#### 0.2.8
+
+- use strict mode
+- push update apt source on create extension
