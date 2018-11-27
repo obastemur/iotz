@@ -2,7 +2,7 @@
 usage: mbed [-h] [--version]             ...
 
 Command-line code management tool for ARM mbed OS - http://www.mbed.com
-version 1.8.2
+version 1.8.3
 
 Use "mbed <command> -h|--help" for detailed help.
 Online manual and guide available at https://github.com/ARMmbed/mbed-cli

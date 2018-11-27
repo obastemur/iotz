@@ -23,3 +23,8 @@
 
 - use strict mode
 - push update apt source on create extension
+
+#### 0.3.0
+
+- new `addFeatures` extension interface
+- new `extension` micro-python

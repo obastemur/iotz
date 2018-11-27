@@ -327,6 +327,10 @@ var FIX_PATH_CONTAINER = function(p) {
   }
 }
 
+exports.addFeatures = function(config, runCmd, command, compile_path) {
+  // noop
+}
+
 exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_path, mount_path) {
   var target_board = config.target;
   var callback = null;

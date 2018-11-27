@@ -61,6 +61,15 @@ exports.createExtension = function() {
   }
 }
 
+exports.addFeatures = function(config, runCmd, command, compile_path) {
+  if (command == "mbed") {
+    return {
+      run: "mbed " + (runCmd != -1 ? runCmd : ""),
+      calllback: null
+    }
+  }
+}
+
 var checkSource = function checkSource(config) {
   var source = '';
   if (config.hasOwnProperty("mbed_app.json")) {

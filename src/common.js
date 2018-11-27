@@ -175,7 +175,7 @@ function createImage(args, compile_path, config, callback) {
 }
 
 var active_instance = null;
-function execCommand(args, compile_path, runCmd, config, callback) {
+function execCommand(args, compile_path, runCmd, config, callback, commitChanges) {
   if (!runCmd || runCmd.length == 0) {
     callback(0);
     return;
@@ -192,17 +192,33 @@ function execCommand(args, compile_path, runCmd, config, callback) {
 
   var mount_path = getMountPath(config, compile_path);
 
-  var batchString = `\
+  var batchString;
+
+  if (commitChanges) {
+    var libs = `
+    FROM ${container_name}
+
+    ${runCmd}
+`;
+    fs.writeFileSync(path.join(compile_path, container_name + '.Dockerfile'), libs);
+
+    batchString = `docker build . -f ${container_name}.Dockerfile --force-rm -t ${container_name}`;
+  } else {
+    batchString = `\
 cd ${compile_path} && \
 docker run --rm --name ${active_instance} -t -v \
 "${mount_path}":/src:rw,cached \
 -w /src/${FIX_PATH_CONTAINER(path.relative(mount_path, compile_path))} ${container_name} \
 /bin/bash -c "${runCmd}"\
 `;
+  }
 
   var prc = exec(batchString, {stdio:'inherit', maxBuffer: 1024 * 8192}, function(err) {
     if ((err + "").indexOf('Unable to find image') > 0) {
       console.log("\n -", colors.bold('image was already removed?'));
+    }
+    if (commitChanges) {
+      rimraf.sync(path.join(compile_path, container_name + '.Dockerfile'));
     }
     callback(err);
   });
@@ -305,7 +321,16 @@ exports.runCommand = function(args, compile_path) {
         runCmd = command + " " + (runCmd != -1 ? runCmd : "");
         break;
       default:
-        if (extensions.getToolchain(command) == command) {
+        if (config && config.toolchain) {
+          if (extensions.getToolchain(config.toolchain) == config.toolchain) {
+            ret = extensions.requireExtension(config.toolchain)
+                   .addFeatures(config, runCmd, command, compile_path);
+          }
+          if (!ret || !ret.run) {
+            console.error(` - error: you should provide a command to run. Unknown command "${command}".`);
+            process.exit(1);
+          }
+        } else if (extensions.getToolchain(command) == command) {
           runCmd = extensions.requireExtension(command)
                    .selfCall(config, runCmd, command, compile_path);
         } else {
@@ -328,6 +353,7 @@ exports.runCommand = function(args, compile_path) {
       return;
     }
 
+    var commitChanges = ret && ret.commitChanges ? true : false;
     execCommand(args, compile_path, runCmd, config, function(err) {
       if (err) {
         if (typeof err.message === "string" && err.message.indexOf("Command failed") < 0) {
@@ -342,6 +368,6 @@ exports.runCommand = function(args, compile_path) {
       if (command == 'clean') {
         exports.cleanCommon(compile_path);
       }
-    })
+    }, commitChanges)
   });
 }
