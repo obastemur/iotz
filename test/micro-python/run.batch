@@ -1,0 +1,1 @@
+iotz init micropython && iotz upip install httplib2 && iotz run cat /root/.micropython/lib/python3/httplib2/certs.py

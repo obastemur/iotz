@@ -9,7 +9,13 @@ const path = require('path');
 const fs = require('fs');
 
 exports.detectProject = function(compile_path, runCmd, command) {
-  return false;
+  var detected = null;
+  if (runCmd == 'micro-python' || runCmd == 'micropython') {
+    detected = {
+      "toolchain": "micro-python"
+    };
+  }
+  return detected;
 }
 
 exports.selfCall = function(config, runCmd, command, compile_path) {
@@ -18,16 +24,33 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
 
 exports.createExtension = function() {
   return {
-    run : '',
+    run : `
+    RUN apt-get update
+    RUN apt-get install -y build-essential libreadline-dev libffi-dev git pkg-config
+    RUN mkdir /tools && cd /tools \
+      && git clone --recurse-submodules https://github.com/micropython/micropython.git \
+      && cd ./micropython/ports/unix \
+      && make axtls \
+      && make
+    RUN ln -s /tools/micropython/ports/unix/micropython /usr/bin/micropython
+`,
     callback: null
   };
 };
 
 exports.addFeatures = function(config, runCmd, command, compile_path) {
-  // noop
+  if (command == "upip") {
+    return {
+      run: "RUN micropython -m upip " + (runCmd != -1 ? runCmd : ""),
+      callback: null,
+      commitChanges: true
+    }
+  } else if (command == "micropython") {
+    return exports.buildCommands(config, runCmd, "compile", compile_path);
+  }
 }
 
-exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path, mount_path) {
+exports.buildCommands = function mpBuild(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
   var runString = "";
 
@@ -36,9 +59,9 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
   } else if (command == 'localFolderContainerConstructer') {
     // noop
   } else if (command == 'clean') {
-    runString = "make clean"
+    // noop
   } else if (command == 'compile') {
-    runString = "make " + (runCmd != -1 ? runCmd : "")
+    runString = "micropython " + (runCmd != -1 ? runCmd : "")
   } else if (command == 'export') {
     // noop
     process.exit(0);

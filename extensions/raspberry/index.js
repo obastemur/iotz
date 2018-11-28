@@ -37,6 +37,10 @@ exports.createExtension = function() {
   };
 }
 
+exports.addFeatures = function(config, runCmd, command, compile_path) {
+  // noop
+}
+
 exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
   var runString = "";

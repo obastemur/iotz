@@ -57,6 +57,18 @@ exports.detectProject = function(project_path, runCmd, command) {
   // correct extension manually
 }
 
+// adds additional commands to local container project
+// i.e. user already has a config file (iotz.json) on the current path with toolchain defined
+exports.addFeatures = function(config, runCmd, command, compile_path) {
+  if (command == "??????????") {
+    return {
+      run: "...", // commands to run
+      calllback: null, // callback after exec
+      commitChanges: false // update container with the changes. `run` must have docker commands
+    }
+  }
+}
+
 exports.selfCall = function(config, runCmd, command, compile_path) {
   // define the behavior for a named call
   // i.e. your extension name is `abc`
@@ -71,6 +83,7 @@ exports.createExtension = function() {
   return {
     run: // commands to run under Dockerfile
     callback: function()... optional callback to run after container is created
+    commitChanges: false // update container with the changes. `run` must have docker commands
   }
 }
 
@@ -105,7 +118,8 @@ exports.buildCommands = function(config, runCmd, command, compile_path, mount_pa
 
   return {
     run: runString,
-    callback: callback
+    callback: callback,
+    commitChanges: false // update container with the changes. `run` must have docker commands
   };
 }
 
