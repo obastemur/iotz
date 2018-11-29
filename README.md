@@ -29,7 +29,7 @@ see [extensions and how things work](extensions/README.md)
 
 **thanks** >
 We appreciate the amazing work that is being done by ARM mbed-cli, Arduino tools,
-Docker, GNU GCC, Raspberry Pi tools, and many other tools, frameworks and libraries.
+Docker, GNU GCC, Raspberry Pi tools, Micropython and many other tools, frameworks and libraries.
 
 ### see it in action ?
 
@@ -44,6 +44,12 @@ Install [Node.js](https://nodejs.org/en/download/) and [Docker](https://docs.doc
 ```
 npm i iotz -g
 ```
+
+```
+iotz update
+```
+
+*You may need `sudo` to run the update command. Try without `sudo` first*
 
 ### usage
 
@@ -69,7 +75,7 @@ iotz init
 iotz make
 ```
 
-Alternatively, you might download an online Arduino, ARMmbed, Raspberry Pi etc.
+Alternatively, you might download an online Arduino, ARMmbed, Micropython, Raspberry Pi etc.
 sample and build it as we did with the tests / examples under [test/](test/)
 
 The documentation below, applies to all extensions. However, you may find some extension
@@ -159,12 +165,25 @@ Runs the `<cmd>` on container's bash.
 
 i.e. `iotz run ls -l`
 
+#### apt / apt-get / pip / npm
+Use package managers. i.e. `apt-get install -y wget` would add `wget` into the current container.
+
+`iotz` runs on top of Docker containers. As a result, your scripts won't change the
+container. i.e. `iotz run apt install -y wget` will work but once the execution is complete,
+container will be back to its' original state. So, if you want to add packages into actual
+image, use the commands `apt`, `apt-get`, `pip`, `npm` directly.
+
+P.S. Use `-y` with `apt` and `apt-get`
+P.S. `npm` is not available by default but once you install `node` package via `apt`, `npm` command will
+update the container image going forward.
+
 ### predefined extensions
 ```
   arduino <args>                           :  run arduino cli with given args
   make <args>                              :  run make command
   mbed <args>                              :  run mbed cli with given args
   raspberry                                :  shows make, cmake, and gcc gnuhf versions
+  micropython
 ```
 
 ### other examples
@@ -225,6 +244,20 @@ you may use `mountConfig` to define a _relative_ mount point manually. i.e. `"mo
 _*_Depending to extension, you might have other required definitions._
 
 ### F.A.Q
+
+#### How to update iotz?
+
+```
+npm i -g iotz
+```
+
+Once it's complete
+
+```
+iotz update
+```
+
+*You may need `sudo` to run the update command. Try without `sudo` first*
 
 #### where can I find the target board names
 

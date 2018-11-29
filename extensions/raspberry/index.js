@@ -30,6 +30,7 @@ exports.createExtension = function() {
     ` RUN echo -e " - installing raspberry pi tools"
       WORKDIR /tools
       RUN apt-get update && wget https://github.com/raspberrypi/tools/archive/5caa7046982f0539cf5380f94da04b31129ed521.zip && \
+      apt clean && \
       unzip -o -q 5caa7046982f0539cf5380f94da04b31129ed521.zip && \
       mv tools-5caa7046982f0539cf5380f94da04b31129ed521 rpitools && rm 5caa7046982f0539cf5380f94da04b31129ed521.zip
       `,

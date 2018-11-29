@@ -26,7 +26,7 @@ exports.createExtension = function() {
   return {
     run : `
     RUN apt-get update
-    RUN apt-get install -y build-essential libreadline-dev libffi-dev git pkg-config
+    RUN apt-get install -y build-essential libreadline-dev libffi-dev git pkg-config && apt clean
     RUN mkdir /tools && cd /tools \
       && git clone --recurse-submodules https://github.com/micropython/micropython.git \
       && cd ./micropython/ports/unix \
@@ -101,42 +101,14 @@ exports.createProject = function createProject(compile_path, runCmd) {
     projectName = "sampleApplication"
   }
 
-  var example = `
-// iotz
-// ${projectName}.cpp
-
-#include <stdio.h>
-
-int main()
-{
-  printf("hello world!\\r\\n");
-  return 0;
-}
-`;
-
   var config = `
 {
   "name":"${projectName}",
-  "toolchain":"default"
+  "toolchain":"micro-python"
 }
 `;
 
-  var makefile = `
-# iotz - ${projectName} makefile
-
-CC_COMPILER  = gcc
-CXX_COMPILER = g++
-
-C_FLAGS = -Os
-
-${projectName}.o: ${projectName}.cpp
-	$(CXX_COMPILER) $(CFLAGS) ${projectName}.cpp -o ${projectName}.o && echo '${projectName}.o is ready'
-clean:
-	rm ${projectName}.o
-`;
-
-  fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
+  fs.writeFileSync(path.join(target_folder, `${projectName}.py`), "print('hello')");
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  fs.writeFileSync(path.join(target_folder, `Makefile`), makefile);
   console.log(" -", colors.green('done!'));
 };

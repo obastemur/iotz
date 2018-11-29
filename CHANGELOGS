@@ -28,3 +28,9 @@
 
 - new `addFeatures` extension interface
 - new `extension` micro-python
+
+##### 0.4.0
+
+- Support for package managers to shape the actual container (apt / apt-get / pip / npm)
+- Micro-python sample project
+- Do not auto update on install

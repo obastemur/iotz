@@ -252,6 +252,22 @@ exports.cleanCommon = function(compile_path, command) {
   }
 };
 
+var addFeatures = function(config, runCmd, command, compile_path) {
+  if (command == "apt-get" || command == "apt" || command == "pip" || command == "npm") {
+    return {
+      run: "RUN " + command + " " + (runCmd != -1 ? runCmd : ""),
+      callback: null,
+      commitChanges: true
+    }
+  } else if (command == "make") {
+    return {
+      run: command + " " + (runCmd != -1 ? runCmd : ""),
+      callback: null,
+      commitChanges: false
+    }
+  }
+}
+
 exports.runCommand = function(args, compile_path) {
   var command = args.getCommand();
   var config = getProjectConfig(args, command, compile_path)
@@ -317,25 +333,25 @@ exports.runCommand = function(args, compile_path) {
         process.exit(0);
       }
       break;
-      case "make":
-        runCmd = command + " " + (runCmd != -1 ? runCmd : "");
-        break;
       default:
-        if (config && config.toolchain) {
-          if (extensions.getToolchain(config.toolchain) == config.toolchain) {
-            ret = extensions.requireExtension(config.toolchain)
-                   .addFeatures(config, runCmd, command, compile_path);
-          }
-          if (!ret || !ret.run) {
-            console.error(` - error: you should provide a command to run. Unknown command "${command}".`);
+        ret = addFeatures(config, runCmd, command, compile_path);
+        if (!ret) {
+          if (config && config.toolchain) {
+            if (extensions.getToolchain(config.toolchain) == config.toolchain) {
+              ret = extensions.requireExtension(config.toolchain)
+                    .addFeatures(config, runCmd, command, compile_path);
+            }
+            if (!ret || !ret.run) {
+              console.error(` - error: you should provide a command to run. Unknown command "${command}".`);
+              process.exit(1);
+            }
+          } else if (extensions.getToolchain(command) == command) {
+            runCmd = extensions.requireExtension(command)
+                    .selfCall(config, runCmd, command, compile_path);
+          } else {
+            console.error(" - error:", colors.red("unknown command"), command, compile_path);
             process.exit(1);
           }
-        } else if (extensions.getToolchain(command) == command) {
-          runCmd = extensions.requireExtension(command)
-                   .selfCall(config, runCmd, command, compile_path);
-        } else {
-          console.error(" - error:", colors.red("unknown command"), command, compile_path);
-          process.exit(1);
         }
     };
 
