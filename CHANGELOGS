@@ -34,3 +34,7 @@
 - Support for package managers to shape the actual container (apt / apt-get / pip / npm)
 - Micro-python sample project
 - Do not auto update on install
+
+##### 0.4.1
+
+- Update build definitions for mxchip to cover breaking 1.6.0 release changes
