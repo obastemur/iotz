@@ -88,6 +88,7 @@ exports.selfCall = function(config, runCmd, command, compile_path) {
 var preInstalledPlatforms =
 {
   "arduino:avr" : 1,
+  "arduino:samd" : 1,
   "esp8266:esp8266" : 1,
   "AZ3166:stm32f4" : 1
 };
@@ -102,7 +103,10 @@ var getBoardNames = function(forceUpdate) {
   if (!forceUpdate && fs.existsSync(listFile)) {
     configStat = fs.statSync(listFile);
   } else {
-    fs.writeFileSync(listFile, fs.readFileSync(path.join(__dirname, "boards.config")))
+    if (!fs.existsSync(listFile)) getAndParseArduinoConfig(true);
+
+    if (!fs.existsSync(listFile))
+      fs.writeFileSync(listFile, fs.readFileSync(path.join(__dirname, "boards.config")))
     configStat = fs.statSync(listFile);
   }
   if (!forceUpdate && fs.existsSync(path.join(iotzHome, "arduino.board_list.json"))) {
@@ -154,7 +158,7 @@ var getBoardNames = function(forceUpdate) {
       line = line.trim().replace('menu.', '');
       if (line.indexOf('=') == -1) {
         console.error(' -', colors.bold('warning'), 'unidentified config at \n'
-          + subConfig.substr(0, startIndex) + "\n@ -> " + line);
+          + subconfig.substr(0, startIndex) + "\n@ -> " + line);
         continue; // broken config?
       }
       var cn = line.substr(0, line.indexOf('=')).trim();
@@ -176,20 +180,22 @@ var getBoardNames = function(forceUpdate) {
 
     var configs = subconfig.substr(ind, lastIndex - ind).split('\n');
     var list = [];
-    for (var i = 0; i < customConfigs.length; i++) {
-      var ccname = customConfigs[i];
-      for (var j = 0; j < configs.length; j++) {
-        var cstr = configs[j].trim();
-        var clen = cstr.length;
-        if (clen == 0) continue;
-        cstr = cstr.replace(boardName + ".menu." + ccname + ".", "");
-        if (clen != cstr.length) {
-          var eqind = cstr.indexOf('=');
-          if (eqind == -1) continue; // broken config?
-          cstr = cstr.substr(0, eqind);
-          cstr = "custom_" + ccname + "=" + boardName + "_" + cstr;
-          list.push(cstr);
-          break;
+    if (customConfigs) {
+      for (var i = 0; i < customConfigs.length; i++) {
+        var ccname = customConfigs[i];
+        for (var j = 0; j < configs.length; j++) {
+          var cstr = configs[j].trim();
+          var clen = cstr.length;
+          if (clen == 0) continue;
+          cstr = cstr.replace(boardName + ".menu." + ccname + ".", "");
+          if (clen != cstr.length) {
+            var eqind = cstr.indexOf('=');
+            if (eqind == -1) continue; // broken config?
+            cstr = cstr.substr(0, eqind);
+            cstr = "custom_" + ccname + "=" + boardName + "_" + cstr;
+            list.push(cstr);
+            break;
+          }
         }
       }
     }
@@ -212,7 +218,10 @@ var getBoardNames = function(forceUpdate) {
     hardwareName = hardwareName.substr(0, hardwareName.indexOf('/'));
 
     var customConfigs = getCustomConfigs(subconfig);
+
+    subconfig = subconfig.replace(/\r/g, "\n");
     var boards = subconfig.match(/.name=.+?(?=\n)/gi);
+
     for (var j = 0; j < boards.length; j++) {
       var board = boards[j];
       if (board.trim().length < 6) continue; // .name only. broken config?
@@ -255,7 +264,7 @@ var getBoardNames = function(forceUpdate) {
   return boardNames_;
 }
 
-function getAndParseArduinoConfig() {
+function getAndParseArduinoConfig(updateConfigFileOnly) {
   var iotzHome = iotz.getConfigPath();
   try {
     fs.unlinkSync(path.join(iotzHome, 'arduino.boards.config'));
@@ -268,10 +277,13 @@ docker run -t -v "${iotzHome}":/src/iotz \
   try {
     execSync(command, {stdio: 'inherit'});
   } catch (e) {
+    console.log("!!", e.message);
     return { error: e };
   }
 
-  getBoardNames(true /*forceUpdate*/);
+  if (!updateConfigFileOnly) {
+    getBoardNames(true /*forceUpdate*/);
+  }
 }
 
 exports.createExtension = function() {

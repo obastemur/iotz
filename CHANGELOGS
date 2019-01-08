@@ -42,3 +42,8 @@
 ##### 0.4.2
 
 - Fix updated MBED cli installation
+
+##### 0.4.3
+
+- Add Arduino::SAMD boards
+- Fix append_config
