@@ -38,3 +38,7 @@
 ##### 0.4.1
 
 - Update build definitions for mxchip to cover breaking 1.6.0 release changes
+
+##### 0.4.2
+
+- Fix updated MBED cli installation
