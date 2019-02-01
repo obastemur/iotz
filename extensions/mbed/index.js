@@ -57,8 +57,14 @@ exports.createExtension = function() {
         && mkdir XXX && cd XXX && echo "#include <mbed.h>\\nint main(){return 0;}" > main.cpp \
         && mbed new . \
         && pip install -r /src/XXX/mbed-os/requirements.txt \
-        && mbed compile -t GCC_ARM -m NUCLEO_L476RG \
-        && cd .. && rm -rf XXX
+        && cd .. && rm -rf XXX \
+        && mkdir /tools && cd /tools \
+        && wget "https://developer.arm.com/-/media/Files/downloads/gnu-rm/6-2017q2/gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2" \
+        && bunzip2 gcc-arm-none-eabi-6-2017-q2-update-linux.tar.bz2 \
+        && tar -xvf gcc-arm-none-eabi-6-2017-q2-update-linux.tar \
+        && rm -rf gcc-arm-none-eabi-6-2017-q2-update/share/doc/ \
+        && rm -rf gcc-arm-none-eabi-6-2017-q2-update-linux.tar \
+        && mbed config --global GCC_ARM_PATH /tools/gcc-arm-none-eabi-6-2017-q2-update/bin \
       `,
     callback: null
   }
@@ -103,7 +109,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
     if (typeof runCmd === 'string' && runCmd.length) {
       // don't let setting target board from multiple places
       var detected = exports.detectProject(compile_path, runCmd, command);
-      if (config.target != detected.target) {
+      if (detected && (detected.target || target_board) && target_board != detected.target) {
         if (target_board) {
           console.error(" -", colors.bold('warning:'), 'updating the target board definition on iotz.json file.');
         }
@@ -117,6 +123,13 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
           console.error('  ', e.message);
           console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
         }
+      } else if (!detected.target && !target_board) {
+        return {
+          run: runString,
+          callback: function() {
+            console.log("Done!");
+          }
+        };
       }
     }
 

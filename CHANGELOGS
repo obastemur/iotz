@@ -42,3 +42,8 @@
 ##### 0.4.2
 
 - Fix updated MBED cli installation
+
+##### 0.4.3
+
+- Let MBED extension to create an instance without a definitive target board
+- Fetch latest stable none-eabi 2017q2
