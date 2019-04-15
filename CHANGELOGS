@@ -47,3 +47,8 @@
 
 - Let MBED extension to create an instance without a definitive target board
 - Fetch latest stable none-eabi 2017q2
+
+##### 0.4.4
+
+- Remove mxchip tweaks.
+

@@ -428,16 +428,8 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
     }
 
     if (target_board == "AZ3166:stm32f4:MXCHIP_AZ3166") {
-      var tweak = fs.readFileSync(path.join(__dirname, 'tweaks', 'az3166', 'platform.txt'));
-      fs.writeFileSync(path.join(compile_path, ".iotz.mxchip.tweak"), tweak);
-
       var mxchip_folder =  "cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd `ls | awk '{print $1}'`";
-      install_board = ` echo
-COPY .iotz.mxchip.tweak /tools/.iotz.mxchip.tweak
-
-RUN ${mxchip_folder} && \
-    rm ./platform.txt && \
-    mv /tools/.iotz.mxchip.tweak ./platform.txt && `;
+      install_board = ` echo \nRUN ${mxchip_folder} && `;
     }
     var brandName = names[0] + ":" + names[1];
 
