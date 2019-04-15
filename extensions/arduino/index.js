@@ -367,14 +367,14 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
         target_board = findBoard(runCmd);
         if (target_board) {
             target_board = target_board.codename;
-            console.log(" -", colors.green(target_board), "is selected");
+            console.log(" -", colors.bold(target_board), "is selected");
             boardFound = true;
         }
       } // target_board
     } // typeof runCmd === 'string' .....
 
     if (!target_board) {
-      console.error(' -', colors.red('error:'), 'Arduino project is detected. Target board is required.');
+      console.error(' -', colors.bold('error:'), 'Arduino project is detected. Target board is required.');
       console.error(' -', colors.bold('try'), '"iotz init uno", if target board is uno');
       printBoards();
       process.exit(1);
@@ -386,7 +386,7 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
         if (!boardNames.hasOwnProperty(boardName)) continue;
         if (src == boardName || boardNames[boardName].codename == target_board) {
           target_board = boardNames[boardName].codename;
-          console.log(" -", colors.green(target_board), "is selected");
+          console.log(" -", colors.bold(target_board), "is selected");
           boardFound = src == boardName;
           break;
         }
@@ -402,7 +402,7 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
           console.log(' -', 'successfully updated target on iotz.json file');
         }
       } catch (e) {
-        console.error(' -', colors.red('error:'), "couldn't update iotz.json with the target board.");
+        console.error(' -', colors.bold('error:'), "couldn't update iotz.json with the target board.");
         console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
       }
     }
@@ -421,7 +421,7 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
         }
       }
       if (names.length < 3) {
-        console.error(' -', colors.red('error'), 'invalid target board name for arduino.');
+        console.error(' -', colors.bold('error'), 'invalid target board name for arduino.');
         printBoards();
         process.exit(1);
       }
@@ -431,10 +431,11 @@ exports.buildCommands = function arduinoBuild(config, runCmd, command, compile_p
       var mxchip_folder =  "cd /root/.arduino15/packages/AZ3166/hardware/stm32f4/ && cd `ls | awk '{print $1}'`";
       install_board = ` echo \nRUN ${mxchip_folder} && `;
     }
+
     var brandName = names[0] + ":" + names[1];
 
     if (!preInstalledPlatforms.hasOwnProperty(brandName)) {
-      install_board = "arduino --install-boards " + brandName + " && ";
+      install_board += "arduino --install-boards " + brandName + " && ";
     }
 
     var board = findBoard(target_board);
@@ -478,10 +479,10 @@ clean :
 	iotz run mr -rf BUILD/
 `;
     fs.writeFileSync(path.join(compile_path, 'Makefile'), makefile);
-    console.log(colors.green("Makefile"), "is ready.\nTry ",
+    console.log(colors.bold("Makefile"), "is ready.\nTry ",
         colors.bold('iotz make -j2'));
   } else {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown command", command);
     process.exit(1);
   }
@@ -496,7 +497,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
   var args = typeof runCmd === 'string' ? runCmd.split(' ') : [];
   var board = args.length ? findBoard(args[0]) : null;
   if (!board) {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown board name", args[0]);
     printBoards();
     process.exit(1);
@@ -516,7 +517,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.red("error:"), "cant't create folder", projectName);
+        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
         process.exit(1);
       }
     }
@@ -548,5 +549,5 @@ void loop() {
 
   fs.writeFileSync(path.join(target_folder, `${projectName}.ino`), example);
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  console.log(" -", colors.green('done!'));
+  console.log(" -", colors.bold('done!'));
 }

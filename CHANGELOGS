@@ -52,3 +52,7 @@
 
 - Remove mxchip tweaks.
 
+##### 0.4.5
+
+- Remove console colors
+- fix MBED container

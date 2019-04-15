@@ -66,7 +66,7 @@ exports.buildCommands = function mpBuild(config, runCmd, command, compile_path, 
     // noop
     process.exit(0);
   } else {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown command", command);
     process.exit(1);
   }
@@ -92,7 +92,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.red("error:"), "cant't create folder", projectName);
+        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
         process.exit(1);
       }
     }
@@ -110,5 +110,5 @@ exports.createProject = function createProject(compile_path, runCmd) {
 
   fs.writeFileSync(path.join(target_folder, `${projectName}.py`), "print('hello')");
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  console.log(" -", colors.green('done!'));
+  console.log(" -", colors.bold('done!'));
 };

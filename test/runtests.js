@@ -63,10 +63,10 @@ function runTest(test) {
   try {
     execSync(`git checkout ${test.path} && cd ${test.path} && ${txt}`, {stdio:[0,1,2]});
     totals.success++;
-    console.log(" -", colors.green('pass'), currentTest.name)
+    console.log(" -", colors.bold('pass'), currentTest.name)
   } catch(err) {
     totals.fail++;
-    console.log(" -", colors.red('failed'), currentTest.name)
+    console.log(" -", colors.bold('failed'), currentTest.name)
     console.error(err.message);
     process.exit(1);
   }
@@ -86,9 +86,9 @@ console.log(' -', 'this will take a while...\n');
 var prc = exec('docker pull azureiot/iotz 2>&1', function(error) {
   if (error) {
     if ((error + "").indexOf("Client.Timeout exceeded while awaiting headers") > 0) {
-      console.error(colors.yellow('Restarting Docker may help to solve this issue'));
+      console.error(colors.bold('Restarting Docker may help to solve this issue'));
     } else {
-      console.error(colors.red('have you installed Docker?'));
+      console.error(colors.bold('have you installed Docker?'));
       if ((error + "").indexOf("Service Unavailable") > 0) {
         console.error("You might have a problem with your network connection as well.\n");
       }
@@ -103,7 +103,7 @@ var prc = exec('docker pull azureiot/iotz 2>&1', function(error) {
       clearInterval(globInterval);
       console.log(colors.bold('\nTest run is finished.\n'));
       console.log(" -", colors.red  ('total failed'), totals.fail)
-      console.log(" -", colors.green('total pass'), totals.success)
+      console.log(" -", colors.bold('total pass'), totals.success)
       console.log(" -", colors.bold('total'), totals.success + totals.fail)
     }
   });

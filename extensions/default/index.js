@@ -43,7 +43,7 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
     // noop
     process.exit(0);
   } else {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown command", command);
     process.exit(1);
   }
@@ -69,7 +69,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.red("error:"), "cant't create folder", projectName);
+        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
         process.exit(1);
       }
     }
@@ -115,5 +115,5 @@ clean:
   fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
   fs.writeFileSync(path.join(target_folder, `Makefile`), makefile);
-  console.log(" -", colors.green('done!'));
+  console.log(" -", colors.bold('done!'));
 };

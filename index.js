@@ -120,9 +120,9 @@ args.get = function(command) {
 if (args.getCommand() == 'version' || args.getCommand() == '-v') {
   try {
     var version = JSON.parse(fs.readFileSync(__dirname + '/package.json') + "").version;
-    console.log("version ", colors.green(version));
+    console.log("version ", colors.bold(version));
   } catch(e) {
-    console.log(" -", colors.red("error:"), e.message);
+    console.log(" -", colors.bold("error:"), e.message);
   }
   process.exit(0);
 }
@@ -132,9 +132,9 @@ exec(
   'docker -v', function(err, data, stderr){
     if (err) {
       console.error(
-          ' -', colors.red('error:'),
-          colors.yellow('docker'), 'is required and not found.\n',
-          '          visit', colors.green('https://docs.docker.com/install/'),
+          ' -', colors.bold('error:'),
+          colors.bold('docker'), 'is required and not found.\n',
+          '          visit', colors.bold('https://docs.docker.com/install/'),
           '\n');
       process.exit(1);
     } else {
@@ -151,11 +151,11 @@ function start() {
     exec('docker pull azureiot/iotz:latest', function(err, data, stderr) {
       if (err) {
         console.log(stderr.replace(/\\n/g, '\n'), '\n', data);
-        console.error(' -', colors.red('error:'), 'update has failed. See the output above.');
+        console.error(' -', colors.bold('error:'), 'update has failed. See the output above.');
         process.exit(1);
       } else {
         console.log(data.replace(/\\n/g, '\n'));
-        console.log(colors.green(' - base container update was succesfull'));
+        console.log(colors.bold(' - base container update was succesfull'));
         // update extensions and local package
         require('./extensions/index.js').updateExtensions(compile_path);
       }
@@ -178,11 +178,11 @@ function start() {
     var message = e + "";
     if (message.indexOf("Bad response from Docker engine") > 0 ||
         message.indexOf("docker deamon is not running") > 0) {
-      console.error(" -", colors.red("error:"), "Docker has not started yet?");
+      console.error(" -", colors.bold("error:"), "Docker has not started yet?");
       console.error("   response from Docker: docker deamon is not running");
     } else if (message.indexOf("Client.Timeout exceeded while awaiting headers") > 0) {
       console.error(e.message ? e.message : e);
-      console.error(colors.yellow('Restarting Docker may help to solve this issue'));
+      console.error(colors.bold('Restarting Docker may help to solve this issue'));
     } else {
       console.error(e.message ? e.message : e);
     }

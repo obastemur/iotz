@@ -248,7 +248,7 @@ exports.cleanCommon = function(compile_path, command) {
     execSync(`docker image rm -f ${container_name} 2>&1`);
   } catch(e) { }
   if (command != 'init') {
-    console.log(' -', colors.green('container is deleted'));
+    console.log(' -', colors.bold('container is deleted'));
   }
 };
 
@@ -289,7 +289,7 @@ exports.runCommand = function(args, compile_path) {
       {
         if (isWindows && command == 'init') {
           // TODO: detect this and behave accordingly?
-          console.log(colors.yellow('Please ensure you have shared the current drive on Docker for Windows'));
+          console.log(colors.bold('Please ensure you have shared the current drive on Docker for Windows'));
         }
 
         if (!config) {
@@ -309,7 +309,7 @@ exports.runCommand = function(args, compile_path) {
           ret = extensions.requireExtension(extensions.getToolchain(config.toolchain))
                 .buildCommands(config, runCmd, command, compile_path, getMountPath(config, compile_path));
         } catch(e) {
-          console.error(' - error:', "something bad happened..\n", colors.red(e.message ? e.message : e));
+          console.error(' - error:', "something bad happened..\n", colors.bold(e.message ? e.message : e));
           process.exit(1);
         }
       }
@@ -349,7 +349,7 @@ exports.runCommand = function(args, compile_path) {
             runCmd = extensions.requireExtension(command)
                     .selfCall(config, runCmd, command, compile_path);
           } else {
-            console.error(" - error:", colors.red("unknown command"), command, compile_path);
+            console.error(" - error:", colors.bold("unknown command"), command, compile_path);
             process.exit(1);
           }
         }

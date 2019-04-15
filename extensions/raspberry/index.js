@@ -53,15 +53,15 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
   } else if (command == 'clean') {
     runString = "rm -rf BUILD/";
   } else if (command == 'compile') {
-    console.log(" - compiler tools are available under", colors.green('/tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/'));
+    console.log(" - compiler tools are available under", colors.bold('/tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/'));
     runString = "make --version && cmake --version && /tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-g++ -v";
   } else if (command == 'export') {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
 `export from a raspberry pi project is not supported.
-   Try '${colors.yellow('iotz create raspberry hello-world')}' for a sample hello-world Makefile`);
+   Try '${colors.bold('iotz create raspberry hello-world')}' for a sample hello-world Makefile`);
     process.exit(1);
   } else {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown command", command);
     process.exit(1);
   }
@@ -87,7 +87,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.red("error:"), "cant't create folder", projectName);
+        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
         process.exit(1);
       }
     }
@@ -133,5 +133,5 @@ clean:
   fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
   fs.writeFileSync(path.join(target_folder, `Makefile`), makefile);
-  console.log(" -", colors.green('done!'));
+  console.log(" -", colors.bold('done!'));
 }

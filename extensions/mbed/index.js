@@ -65,6 +65,7 @@ exports.createExtension = function() {
         && rm -rf gcc-arm-none-eabi-6-2017-q2-update/share/doc/ \
         && rm -rf gcc-arm-none-eabi-6-2017-q2-update-linux.tar \
         && mbed config --global GCC_ARM_PATH /tools/gcc-arm-none-eabi-6-2017-q2-update/bin \
+        && pip install fuzzywuzzy
       `,
     callback: null
   }
@@ -119,7 +120,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
           fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
           console.log(' -', 'successfully updated target on iotz.json file');
         } catch (e) {
-          console.error(' -', colors.red('error:'), "couldn't update iotz.json with the target board.");
+          console.error(' -', colors.bold('error:'), "couldn't update iotz.json with the target board.");
           console.error('  ', e.message);
           console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
         }
@@ -141,11 +142,11 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
       for (let lib of config.deps) {
         if (lib) {
           if (!lib.url) {
-            console.error(" -", colors.red("error :"),
+            console.error(" -", colors.bold("error :"),
               "Unknown config ", JSON.stringify(lib, 0, 2));
           } else {
             if (lib.url.indexOf(lib.name) == -1) {
-              console.error(" -", colors.red('error :'), "library name is case sensitive.");
+              console.error(" -", colors.bold('error :'), "library name is case sensitive.");
               console.error("   ", `${lib.name} should match the name in ${lib.url}`);
               process.exit(1);
             }
@@ -180,7 +181,7 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
       runString += `\
  && mbed target -S && \
 echo -e \
-'${colors.yellow('you should define the "target" from the above.')}\
+'${colors.bold('you should define the "target" from the above.')}\
 Please update ${colors.bold('iotz.json')} with "target".'
 `;
     }
@@ -195,7 +196,7 @@ Please update ${colors.bold('iotz.json')} with "target".'
     callback = function(config) {
       var mpath = path.join(process.cwd(), "Makefile");
       if (!fs.existsSync(mpath)) {
-        console.error(" -", colors.red('error'), 'Unable to find Makefile on the current path');
+        console.error(" -", colors.bold('error'), 'Unable to find Makefile on the current path');
         process.exit(1);
       }
       var source = fs.readFileSync(mpath) + "";
@@ -205,11 +206,11 @@ Please update ${colors.bold('iotz.json')} with "target".'
         "CC     = 'arm-none-eabi-gcc' '-fdiagnostics-color=always'");
       fs.writeFileSync(mpath, source);
 
-      console.log(colors.green("Makefile"), "is ready.\nTry ",
+      console.log(colors.bold("Makefile"), "is ready.\nTry ",
         colors.bold('iotz make -j2'));
     }
   } else {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown command", command);
     process.exit(1);
   }
@@ -224,7 +225,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
   var args = (typeof runCmd === 'string') ? runCmd.split(' ') : [];
   var board;
   if (!args.length) {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown board name", args[0]);
     console.log('List of supported devices are available under https://os.mbed.com/platforms/');
     process.exit(1);
@@ -244,7 +245,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.red("error:"), "cant't create folder", projectName);
+        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
         process.exit(1);
       }
     }
@@ -281,5 +282,5 @@ int main() {
 
   fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
   fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  console.log(" -", colors.green('done!'));
+  console.log(" -", colors.bold('done!'));
 }

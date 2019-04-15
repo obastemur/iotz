@@ -111,7 +111,7 @@ exports.buildCommands = function(config, runCmd, command, compile_path, mount_pa
   } else if (command == 'export') {
     // things for `export`
   } else {
-    console.error(" -", colors.red("error :"),
+    console.error(" -", colors.bold("error :"),
               "Unknown command", command);
     process.exit(1);
   }

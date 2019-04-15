@@ -14,7 +14,7 @@ exports.requireExtension = function (name, no_fail) {
   if (typeof name === 'string')
     name = name.replace(/\\/g, "").replace(/\//g, "");
   else {
-    console.error(" - error:", colors.red('extension'), name, "not found");
+    console.error(" - error:", colors.bold('extension'), name, "not found");
     process.exit(1);
   }
 
@@ -28,7 +28,7 @@ exports.requireExtension = function (name, no_fail) {
       return require(name);
     } catch (__) {
       if (!no_fail) {
-        console.error(" - error:", colors.red('extension'), name, "not found");
+        console.error(" - error:", colors.bold('extension'), name, "not found");
         process.exit(1);
       }
     }
@@ -60,7 +60,7 @@ exports.readConfig = function readConfig() {
     var config = fs.readFileSync(path.join(iotzHome, "config.json")) + "";
     return JSON.parse(config);
   } catch(e) {
-    console.log(" -", colors.red('error:'), e);
+    console.log(" -", colors.bold('error:'), e);
   }
 
   return null;
@@ -72,7 +72,7 @@ exports.updateConfig = function updateConfig(config) {
     fs.writeFileSync(path.join(iotzHome, "config.json"), JSON.stringify(config));
     return 0;
   } catch(e) {
-    console.log(" -", colors.red('error:'), e);
+    console.log(" -", colors.bold('error:'), e);
   }
 
   return -1;
@@ -191,7 +191,7 @@ exports.detectProject = function detectProject(compile_path, runCmd, command) {
     var dd = exports.requireExtension(name).detectProject(compile_path, runCmd, command);
     if (dd) {
       if (detected) {
-        console.error(" -", colors.red('error:'), "more than one extensions detected this folder as their type.");
+        console.error(" -", colors.bold('error:'), "more than one extensions detected this folder as their type.");
         console.error(" -", "please define the toolchain and target under iotz.json file manually.");
         return false;
       }
@@ -204,7 +204,7 @@ exports.detectProject = function detectProject(compile_path, runCmd, command) {
 
 exports.createProject = function createProject(compile_path, runCmd) {
   if (typeof runCmd !== "string" || runCmd.length == 0) {
-    console.error(" -", colors.red("error:"), "please specify the type of project you want to create\r\n");
+    console.error(" -", colors.bold("error:"), "please specify the type of project you want to create\r\n");
     console.error("   usage: iotz create <toolchain> <optional target> <optional project name>");
     console.error("   i.e.");
     console.error("   iotz create arduino yun");
