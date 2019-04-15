@@ -1,8 +1,7 @@
 // ----------------------------------------------------------------------------
-//  Copyright (C) Microsoft. All rights reserved.
-//  Licensed under the MIT license.
+//  See LICENSE.md file
 // ----------------------------------------------------------------------------
-"use strict"
+'use strict';
 
 const colors = require('colors/safe');
 const path = require('path');
@@ -12,14 +11,14 @@ exports.detectProject = function(compile_path, runCmd, command) {
   var detected = null;
   if (runCmd == 'micro-python' || runCmd == 'micropython') {
     detected = {
-      "toolchain": "micro-python"
+      'toolchain': 'micro-python'
     };
   }
   return detected;
-}
+};
 
 exports.selfCall = function(config, runCmd, command, compile_path) {
-  return exports.buildCommands(config, runCmd, "compile", compile_path).run;
+  return exports.buildCommands(config, runCmd, 'compile', compile_path).run;
 };
 
 exports.createExtension = function() {
@@ -39,20 +38,20 @@ exports.createExtension = function() {
 };
 
 exports.addFeatures = function(config, runCmd, command, compile_path) {
-  if (command == "upip") {
+  if (command == 'upip') {
     return {
-      run: "RUN micropython -m upip " + (runCmd != -1 ? runCmd : ""),
+      run: 'RUN micropython -m upip ' + (runCmd != -1 ? runCmd : ''),
       callback: null,
       commitChanges: true
-    }
-  } else if (command == "micropython") {
-    return exports.buildCommands(config, runCmd, "compile", compile_path);
+    };
+  } else if (command == 'micropython') {
+    return exports.buildCommands(config, runCmd, 'compile', compile_path);
   }
-}
+};
 
 exports.buildCommands = function mpBuild(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
-  var runString = "";
+  var runString = '';
 
   if (command == 'init') {
     // noop
@@ -61,13 +60,13 @@ exports.buildCommands = function mpBuild(config, runCmd, command, compile_path, 
   } else if (command == 'clean') {
     // noop
   } else if (command == 'compile') {
-    runString = "micropython " + (runCmd != -1 ? runCmd : "")
+    runString = 'micropython ' + (runCmd != -1 ? runCmd : '');
   } else if (command == 'export') {
     // noop
     process.exit(0);
   } else {
-    console.error(" -", colors.bold("error :"),
-              "Unknown command", command);
+    console.error(' -', colors.bold('error :'),
+      'Unknown command', command);
     process.exit(1);
   }
 
@@ -75,7 +74,7 @@ exports.buildCommands = function mpBuild(config, runCmd, command, compile_path, 
     run: runString,
     callback: callback
   };
-}
+};
 
 exports.createProject = function createProject(compile_path, runCmd) {
   var args = typeof runCmd === 'string' ? runCmd.split(' ') : [];
@@ -92,13 +91,13 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
+        console.error(' -', colors.bold('error:'), 'cant\'t create folder', projectName);
         process.exit(1);
       }
     }
   } else {
     target_folder = compile_path;
-    projectName = "sampleApplication"
+    projectName = 'sampleApplication';
   }
 
   var config = `
@@ -108,7 +107,7 @@ exports.createProject = function createProject(compile_path, runCmd) {
 }
 `;
 
-  fs.writeFileSync(path.join(target_folder, `${projectName}.py`), "print('hello')");
-  fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  console.log(" -", colors.bold('done!'));
+  fs.writeFileSync(path.join(target_folder, `${projectName}.py`), 'print(\'hello\')');
+  fs.writeFileSync(path.join(target_folder, 'iotz.json'), config);
+  console.log(' -', colors.bold('done!'));
 };

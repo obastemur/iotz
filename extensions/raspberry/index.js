@@ -1,8 +1,7 @@
 // ----------------------------------------------------------------------------
-//  Copyright (C) Microsoft. All rights reserved.
-//  Licensed under the MIT license.
+//  See LICENSE.md file
 // ----------------------------------------------------------------------------
-"use strict"
+'use strict';
 
 const colors = require('colors/safe');
 const path = require('path');
@@ -11,18 +10,18 @@ const fs = require('fs');
 exports.detectProject = function(compile_path, runCmd, command) {
   var detected = null;
 
-  if (command == "raspberry" || ((typeof runCmd === 'string') && runCmd.split(' ')[0] == 'raspberry')) {
+  if (command == 'raspberry' || ((typeof runCmd === 'string') && runCmd.split(' ')[0] == 'raspberry')) {
     detected = {
-      "toolchain": "raspberry"
+      'toolchain': 'raspberry'
     };
   }
 
   return detected;
-}
+};
 
 exports.selfCall = function(config, runCmd, command, compile_path) {
-  return exports.buildCommands(config, runCmd, "compile", compile_path).run;
-}
+  return exports.buildCommands(config, runCmd, 'compile', compile_path).run;
+};
 
 exports.createExtension = function() {
   return {
@@ -36,33 +35,33 @@ exports.createExtension = function() {
       `,
     callback: null
   };
-}
+};
 
 exports.addFeatures = function(config, runCmd, command, compile_path) {
   // noop
-}
+};
 
 exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
-  var runString = "";
+  var runString = '';
 
   if (command == 'init') {
     // noop
   } else if (command == 'localFolderContainerConstructer') {
     // noop
   } else if (command == 'clean') {
-    runString = "rm -rf BUILD/";
+    runString = 'rm -rf BUILD/';
   } else if (command == 'compile') {
-    console.log(" - compiler tools are available under", colors.bold('/tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/'));
-    runString = "make --version && cmake --version && /tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-g++ -v";
+    console.log(' - compiler tools are available under', colors.bold('/tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/'));
+    runString = 'make --version && cmake --version && /tools/rpitools/arm-bcm2708/arm-rpi-4.9.3-linux-gnueabihf/bin/arm-linux-gnueabihf-g++ -v';
   } else if (command == 'export') {
-    console.error(" -", colors.bold("error :"),
-`export from a raspberry pi project is not supported.
+    console.error(' -', colors.bold('error :'),
+      `export from a raspberry pi project is not supported.
    Try '${colors.bold('iotz create raspberry hello-world')}' for a sample hello-world Makefile`);
     process.exit(1);
   } else {
-    console.error(" -", colors.bold("error :"),
-              "Unknown command", command);
+    console.error(' -', colors.bold('error :'),
+      'Unknown command', command);
     process.exit(1);
   }
 
@@ -70,7 +69,7 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
     run: runString,
     callback: callback
   };
-}
+};
 
 exports.createProject = function createProject(compile_path, runCmd) {
   var args = (typeof runCmd === 'string') ? runCmd.split(' ') : null;
@@ -87,13 +86,13 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
+        console.error(' -', colors.bold('error:'), 'cant\'t create folder', projectName);
         process.exit(1);
       }
     }
   } else {
     target_folder = compile_path;
-    projectName = "sampleApplication"
+    projectName = 'sampleApplication';
   }
 
   var example = `
@@ -131,7 +130,7 @@ clean:
 `;
 
   fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
-  fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  fs.writeFileSync(path.join(target_folder, `Makefile`), makefile);
-  console.log(" -", colors.bold('done!'));
-}
+  fs.writeFileSync(path.join(target_folder, 'iotz.json'), config);
+  fs.writeFileSync(path.join(target_folder, 'Makefile'), makefile);
+  console.log(' -', colors.bold('done!'));
+};

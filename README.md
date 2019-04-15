@@ -1,43 +1,17 @@
 ## iotz - compile things easy
 
-[![Join the chat at https://gitter.im/Microsoft/iotz](https://badges.gitter.im/Microsoft/iotz.svg)](https://gitter.im/Microsoft/iotz?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Licensed under the MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/Azure/iotz/blob/master/LICENSE.md)
+**DISCLAIMER**: I use this project for my day to day stuff and I know few other folks do the same.
+Concerned or have an idea? be vocal and create an issue.
 
-**iotz** is an extension based containerized wrapper for other iot compiler toolchains.
-There are many toolchains with specific needs and way of using. We developed this
-experimental tool to make compiling things easier.
-
--	cross compiling tools are mostly platform specific (and sometimes hard to setup thoroughly)
--	the tools may not be available on user's favorite OS (or may have a platform specific bug(s)/inconsistencies)
--	toolchains or their dependencies sometimes don't play well with each other on the same user host system.
--	there are many platforms for iot toolchain developers to target.
--	reproducing build reliability across systems is not easy.
--	higher entry level for a device framework / tooling
--	advanced users might still need a transparent way to reach actual sub framework
--	some platforms already benefit the pre-built docker containers as a build environment
-
-`iotz`;
--	tries to answer the problems above
--	provides a seamless interface for iot and cross platform toolchains.
--	provides an external extension support, so anyone (big or small) can attach their platform freely
--	doesn't provide any toolchain by itself. (extension can add commands or define the behavior for pre-exist commands)
-
-_It is in an early phase hence both feedback and contributions are appreciated_
-
-**deep down** >
-see [extensions and how things work](extensions/README.md)
-
-**thanks** >
-We appreciate the amazing work that is being done by ARM mbed-cli, Arduino tools,
-Docker, GNU GCC, Raspberry Pi tools, Micropython and many other tools, frameworks and libraries.
-
-### see it in action ?
+### in action
 
 ![ARM mbed demo](contents/demo.gif)
 
 ### requirements
 
-Install [Node.js](https://nodejs.org/en/download/) and [Docker](https://docs.docker.com/install/).
+Install [Node.js](https://nodejs.org/en/download/) 8+ and [Docker](https://docs.docker.com/install/).
+
+!! use Linux containers under Windows and share the C drive from settings.
 
 ### how to install
 
@@ -77,6 +51,8 @@ iotz make
 
 Alternatively, you might download an online Arduino, ARMmbed, Micropython, Raspberry Pi etc.
 sample and build it as we did with the tests / examples under [test/](test/)
+
+see [extensions and how things work](extensions/README.md)
 
 The documentation below, applies to all extensions. However, you may find some extension
 specific details under their README. i.e. [arduino](extensions/arduino/README.md)
@@ -288,19 +264,19 @@ of `iotz init arduino MXCHIP_AZ3166`
 
 #### how your project folder structure should look like?
 
-However the folder structure was for ARMmbed or Arduino or other.. Keep it the same!
+Similar to folder structure for ARMmbed or Arduino or other.. Keep it the same!
 If you are just starting and don't have a particular structure, please visit
 their websites and see the sample projects.
 
-You might also visit `test/` folder and see what we did. Also, check `run.batch`
-for the commands we run for tests.
+You might also visit `test/` folder and see by yourself. Also, see `run.batch`
+for the test commands.
 
 #### how containers are managed ?
 
 `iotz` creates a sub container that is tailored for your project and depend on
 `azureiot/iotz` container.
 
-In order to benefit from docker caching, name approach below is used.
+In order to benefit from docker caching, below naming is used.
 
 `aiot_iotz_` `folder_ino`
 
@@ -314,8 +290,7 @@ Try pruning! -> https://docs.docker.com/config/pruning/
 
 #### unable to find `mbed` or `arduino` or `arm-linux-gnueabihf-g++` ....
 
-Probably you did trigger the base container update on another folder and you just
-need to update on the project folder to reset things up.
+Update might possibly fix it.
 
 Try `iotz update` and / or `iotz clean`
 
@@ -329,34 +304,12 @@ See active list of [features](https://github.com/Azure/iotz/issues?q=is%3Aissue+
 
 ### contributing
 
-Please run the tests under the `test` folder and see if your changes are okay! (Running the tests may take some serious time and amount of your network traffic.)
+Please test the changes and code style (eslint) prior to sending a PR. (Running the tests may take some serious amount of time and your network traffic.)
 
 ```
 cd test && node runtests.js
 ```
 
-This project welcomes contributions and suggestions.  Most contributions require
-you to agree to a Contributor License Agreement (CLA) declaring that you have the
-right to, and actually do, grant us the rights to use your contribution. For details,
-visit https://cla.microsoft.com.
-
-When you submit a pull request, a CLA-bot will automatically determine whether
-you need to provide a CLA and decorate the PR appropriately (e.g., label, comment).
-Simply follow the instructions provided by the bot. You will only need to do this
-once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-### reporting security issues
-
-Security issues and bugs should be reported privately, via email, to the Microsoft
-Security Response Center (MSRC) at [secure@microsoft.com](mailto:secure@microsoft.com).
-You should receive a response within 24 hours. If for some reason you do not,
-please follow up via email to ensure we received your original message. Further
-information, including the [MSRC PGP](https://technet.microsoft.com/en-us/security/dn606155)
-key, can be found in the [Security TechCenter](https://technet.microsoft.com/en-us/security/default).
 
 ### LICENSE
 

@@ -1,20 +1,19 @@
 // ----------------------------------------------------------------------------
-//  Copyright (C) Microsoft. All rights reserved.
-//  Licensed under the MIT license.
+//  See LICENSE.md file
 // ----------------------------------------------------------------------------
-"use strict"
+'use strict';
 
 const colors = require('colors/safe');
 const fs = require('fs');
 const path = require('path');
-const isWindows = process.platform === "win32";
+const isWindows = process.platform === 'win32';
 
 exports.detectProject = function(compile_path, runCmd, command) {
   var detected = null;
   if (fs.existsSync(path.join(compile_path, '.mbed')) || fs.existsSync(path.join(compile_path, 'mbed_app.json')) ||
     fs.existsSync(path.join(compile_path, 'mbed-os.lib'))) {
     detected = {
-      "toolchain": "mbed"
+      'toolchain': 'mbed'
     };
   }
 
@@ -24,9 +23,9 @@ exports.detectProject = function(compile_path, runCmd, command) {
   }
 
   if (!detected || args.length > 1) {
-    if (!detected && (command == "mbed" || args[0] == "mbed")) {
+    if (!detected && (command == 'mbed' || args[0] == 'mbed')) {
       detected = {
-        "toolchain": "mbed"
+        'toolchain': 'mbed'
       };
     }
 
@@ -36,16 +35,16 @@ exports.detectProject = function(compile_path, runCmd, command) {
   }
 
   return detected;
-}
+};
 
 exports.selfCall = function(config, runCmd, command, compile_path) {
   if (runCmd !== -1) {
-    runCmd = command + " " + runCmd;
+    runCmd = command + ' ' + runCmd;
   } else {
     runCmd = command;
   }
   return runCmd;
-}
+};
 
 exports.createExtension = function() {
   return {
@@ -68,28 +67,28 @@ exports.createExtension = function() {
         && pip install fuzzywuzzy
       `,
     callback: null
-  }
-}
+  };
+};
 
 exports.addFeatures = function(config, runCmd, command, compile_path) {
-  if (command == "mbed") {
+  if (command == 'mbed') {
     return {
-      run: "mbed " + (runCmd != -1 ? runCmd : ""),
+      run: 'mbed ' + (runCmd != -1 ? runCmd : ''),
       calllback: null
-    }
+    };
   }
-}
+};
 
 var checkSource = function checkSource(config) {
   var source = '';
-  if (config.hasOwnProperty("mbed_app.json")) {
+  if (config.hasOwnProperty('mbed_app.json')) {
     var basejson = '';
     var mbedjsonFilePath = path.join(process.cwd(), 'iotz-mbed-deps', 'mbed_app.json');
     if (fs.existsSync(mbedjsonFilePath)) {
-      basejson = fs.readFileSync(mbedjsonFilePath) + "";
+      basejson = fs.readFileSync(mbedjsonFilePath) + '';
     }
 
-    var newjson = JSON.stringify(config["mbed_app.json"], 0, 2);
+    var newjson = JSON.stringify(config['mbed_app.json'], 0, 2);
     if (basejson != newjson) {
       // update mbed_app.json
       fs.writeFileSync(mbedjsonFilePath, newjson);
@@ -97,30 +96,29 @@ var checkSource = function checkSource(config) {
     source = '--app-config iotz-mbed-deps/mbed_app.json';
   }
   return source;
-}
+};
 
 exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path, mount_path) {
   var target_board = config.target;
-  var runString = "";
+  var runString = '', source;
   var callback = null;
 
-  if (command == "localFolderContainerConstructer") {
+  if (command == 'localFolderContainerConstructer') {
     // noop
-  } else if (command == "init") {
+  } else if (command == 'init') {
     if (typeof runCmd === 'string' && runCmd.length) {
       // don't let setting target board from multiple places
       var detected = exports.detectProject(compile_path, runCmd, command);
       if (detected && (detected.target || target_board) && target_board != detected.target) {
         if (target_board) {
-          console.error(" -", colors.bold('warning:'), 'updating the target board definition on iotz.json file.');
+          console.error(' -', colors.bold('warning:'), 'updating the target board definition on iotz.json file.');
         }
-        target = detected.target;
         target_board = config.target;
         try {
           fs.writeFileSync(path.join(compile_path, 'iotz.json'), JSON.stringify(config, 0, 2));
           console.log(' -', 'successfully updated target on iotz.json file');
         } catch (e) {
-          console.error(' -', colors.bold('error:'), "couldn't update iotz.json with the target board.");
+          console.error(' -', colors.bold('error:'), 'couldn\'t update iotz.json with the target board.');
           console.error('  ', e.message);
           console.error(' -', `"iotz compile" might fail. please add the \n "target":"${target_board}"\n on iotz.json file`);
         }
@@ -128,13 +126,13 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
         return {
           run: runString,
           callback: function() {
-            console.log("Done!");
+            console.log('Done!');
           }
         };
       }
     }
 
-    var bslash = isWindows ? "" : "\\";
+    var bslash = isWindows ? '' : '\\';
     var libs = ` && mkdir -p iotz-mbed-deps && find . -type f -iname '*.lib' ! -iname 'mbed-os.lib' -exec cat {}\
  \\; | while read line; do cd iotz-mbed-deps && mbed add ${bslash}$line 2>/dev/null || cd .. && cd .. ; done\
  && if [ -d iotz-mbed-deps/mbed-os ]; then rm -rf mbed-os && mv iotz-mbed-deps/mbed-os .; fi`;
@@ -142,12 +140,12 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
       for (let lib of config.deps) {
         if (lib) {
           if (!lib.url) {
-            console.error(" -", colors.bold("error :"),
-              "Unknown config ", JSON.stringify(lib, 0, 2));
+            console.error(' -', colors.bold('error :'),
+              'Unknown config ', JSON.stringify(lib, 0, 2));
           } else {
             if (lib.url.indexOf(lib.name) == -1) {
-              console.error(" -", colors.bold('error :'), "library name is case sensitive.");
-              console.error("   ", `${lib.name} should match the name in ${lib.url}`);
+              console.error(' -', colors.bold('error :'), 'library name is case sensitive.');
+              console.error('   ', `${lib.name} should match the name in ${lib.url}`);
               process.exit(1);
             }
             if (lib.name != 'mbed-os') {
@@ -160,22 +158,22 @@ exports.buildCommands = function mbedBuild(config, runCmd, command, compile_path
       }
     }
 
-    var importMbed = "";
-    if (libs.indexOf("/mbed-os/#") > 0) {
-      importMbed = "--create-only";
+    var importMbed = '';
+    if (libs.indexOf('/mbed-os/#') > 0) {
+      importMbed = '--create-only';
     }
 
     // if project seeks a specific version of MBED, import and use it instead
     libs = `mbed new . ${importMbed} --depth 1 && mbed target ${target_board} && mbed toolchain GCC_ARM` + libs;
-    runString = exports.buildCommands(config, runCmd, 'clean').run + " && " + libs;
+    runString = exports.buildCommands(config, runCmd, 'clean').run + ' && ' + libs;
 
     callback = function(config) {
-      if (config.hasOwnProperty("mbed_app.json")) {
+      if (config.hasOwnProperty('mbed_app.json')) {
         var mbedjsonFilePath = path.join(process.cwd(), 'iotz-mbed-deps', 'mbed_app.json');
-        var newjson = JSON.stringify(config["mbed_app.json"], 0, 2);
+        var newjson = JSON.stringify(config['mbed_app.json'], 0, 2);
         fs.writeFileSync(mbedjsonFilePath, newjson);
       }
-    }
+    };
 
     if (!config.target) {
       runString += `\
@@ -185,33 +183,34 @@ echo -e \
 Please update ${colors.bold('iotz.json')} with "target".'
 `;
     }
-  } else if (command == "clean") {
-    runString = "rm -rf iotz-mbed-deps/ BUILD/ .mbed mbed/ mbed-os.lib mbed-os/ mbed_settings.py*"
+  } else if (command == 'clean') {
+    runString = 'rm -rf iotz-mbed-deps/ BUILD/ .mbed mbed/ mbed-os.lib mbed-os/ mbed_settings.py*';
   } else if (command == 'compile') {
-    var source = checkSource(config);
+    source = checkSource(config);
     runString = `mbed compile ${source}`;
   } else if (command == 'export') {
-    var source = checkSource(config);
+    source = checkSource(config);
     runString = `mbed export --ide make_gcc_arm ${source}`;
     callback = function(config) {
-      var mpath = path.join(process.cwd(), "Makefile");
+      var mpath = path.join(process.cwd(), 'Makefile');
       if (!fs.existsSync(mpath)) {
-        console.error(" -", colors.bold('error'), 'Unable to find Makefile on the current path');
+        console.error(' -', colors.bold('error'), 'Unable to find Makefile on the current path');
         process.exit(1);
       }
-      var source = fs.readFileSync(mpath) + "";
-      source = source.replace("CPP     = 'arm-none-eabi-g++'",
-        "CPP     = 'arm-none-eabi-g++' '-fdiagnostics-color=always'");
-      source = source.replace("C     = 'arm-none-eabi-gcc'",
-        "CC     = 'arm-none-eabi-gcc' '-fdiagnostics-color=always'");
+
+      source = fs.readFileSync(mpath) + '';
+      source = source.replace('CPP     = \'arm-none-eabi-g++\'',
+        'CPP     = \'arm-none-eabi-g++\' \'-fdiagnostics-color=always\'');
+      source = source.replace('C     = \'arm-none-eabi-gcc\'',
+        'CC     = \'arm-none-eabi-gcc\' \'-fdiagnostics-color=always\'');
       fs.writeFileSync(mpath, source);
 
-      console.log(colors.bold("Makefile"), "is ready.\nTry ",
+      console.log(colors.bold('Makefile'), 'is ready.\nTry ',
         colors.bold('iotz make -j2'));
-    }
+    };
   } else {
-    console.error(" -", colors.bold("error :"),
-              "Unknown command", command);
+    console.error(' -', colors.bold('error :'),
+      'Unknown command', command);
     process.exit(1);
   }
 
@@ -219,14 +218,14 @@ Please update ${colors.bold('iotz.json')} with "target".'
     run: runString,
     callback: callback
   };
-} // mbedBuild
+}; // mbedBuild
 
 exports.createProject = function createProject(compile_path, runCmd) {
   var args = (typeof runCmd === 'string') ? runCmd.split(' ') : [];
   var board;
   if (!args.length) {
-    console.error(" -", colors.bold("error :"),
-              "Unknown board name", args[0]);
+    console.error(' -', colors.bold('error :'),
+      'Unknown board name', args[0]);
     console.log('List of supported devices are available under https://os.mbed.com/platforms/');
     process.exit(1);
   } else {
@@ -245,13 +244,13 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
+        console.error(' -', colors.bold('error:'), 'cant\'t create folder', projectName);
         process.exit(1);
       }
     }
   } else {
     target_folder = compile_path;
-    projectName = "sampleApplication"
+    projectName = 'sampleApplication';
   }
 
   var example = `
@@ -281,6 +280,6 @@ int main() {
 `;
 
   fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
-  fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  console.log(" -", colors.bold('done!'));
-}
+  fs.writeFileSync(path.join(target_folder, 'iotz.json'), config);
+  console.log(' -', colors.bold('done!'));
+};

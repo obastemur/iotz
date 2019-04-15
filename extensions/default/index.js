@@ -1,8 +1,7 @@
 // ----------------------------------------------------------------------------
-//  Copyright (C) Microsoft. All rights reserved.
-//  Licensed under the MIT license.
+//  See LICENSE.md file
 // ----------------------------------------------------------------------------
-"use strict"
+'use strict';
 
 const colors = require('colors/safe');
 const path = require('path');
@@ -10,10 +9,10 @@ const fs = require('fs');
 
 exports.detectProject = function(compile_path, runCmd, command) {
   return false;
-}
+};
 
 exports.selfCall = function(config, runCmd, command, compile_path) {
-  return exports.buildCommands(config, runCmd, "compile", compile_path).run;
+  return exports.buildCommands(config, runCmd, 'compile', compile_path).run;
 };
 
 exports.createExtension = function() {
@@ -25,26 +24,26 @@ exports.createExtension = function() {
 
 exports.addFeatures = function(config, runCmd, command, compile_path) {
   // noop
-}
+};
 
 exports.buildCommands = function raspberryBuild(config, runCmd, command, compile_path, mount_path) {
   var callback = null;
-  var runString = "";
+  var runString = '';
 
   if (command == 'init') {
     // noop
   } else if (command == 'localFolderContainerConstructer') {
     // noop
   } else if (command == 'clean') {
-    runString = "make clean"
+    runString = 'make clean';
   } else if (command == 'compile') {
-    runString = "make " + (runCmd != -1 ? runCmd : "")
+    runString = 'make ' + (runCmd != -1 ? runCmd : '');
   } else if (command == 'export') {
     // noop
     process.exit(0);
   } else {
-    console.error(" -", colors.bold("error :"),
-              "Unknown command", command);
+    console.error(' -', colors.bold('error :'),
+      'Unknown command', command);
     process.exit(1);
   }
 
@@ -52,7 +51,7 @@ exports.buildCommands = function raspberryBuild(config, runCmd, command, compile
     run: runString,
     callback: callback
   };
-}
+};
 
 exports.createProject = function createProject(compile_path, runCmd) {
   var args = typeof runCmd === 'string' ? runCmd.split(' ') : [];
@@ -69,13 +68,13 @@ exports.createProject = function createProject(compile_path, runCmd) {
       fs.mkdirSync(target_folder);
     } catch(e) {
       if (!fs.existsSync(target_folder)) {
-        console.error(" -", colors.bold("error:"), "cant't create folder", projectName);
+        console.error(' -', colors.bold('error:'), 'cant\'t create folder', projectName);
         process.exit(1);
       }
     }
   } else {
     target_folder = compile_path;
-    projectName = "sampleApplication"
+    projectName = 'sampleApplication';
   }
 
   var example = `
@@ -113,7 +112,7 @@ clean:
 `;
 
   fs.writeFileSync(path.join(target_folder, `${projectName}.cpp`), example);
-  fs.writeFileSync(path.join(target_folder, `iotz.json`), config);
-  fs.writeFileSync(path.join(target_folder, `Makefile`), makefile);
-  console.log(" -", colors.bold('done!'));
+  fs.writeFileSync(path.join(target_folder, 'iotz.json'), config);
+  fs.writeFileSync(path.join(target_folder, 'Makefile'), makefile);
+  console.log(' -', colors.bold('done!'));
 };

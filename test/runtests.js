@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
 // ----------------------------------------------------------------------------
-//  Copyright (C) Microsoft. All rights reserved.
-//  Licensed under the MIT license.
+//  See LICENSE.md file
 // ----------------------------------------------------------------------------
 
-const fs = require('fs')
-const path = require('path')
+const fs = require('fs');
+const path = require('path');
 const { exec, execSync } = require('child_process');
 const colors = require('colors/safe');
 const rimraf = require('rimraf');
@@ -54,8 +53,8 @@ function runTest(test) {
     return; // this folder is not a test folder;
   }
 
-  var txt = (fs.readFileSync(batchFile) + "");
-  txt = applyChanges(txt)
+  var txt = (fs.readFileSync(batchFile) + '');
+  txt = applyChanges(txt);
 
   console.log(colors.bold('running'), txt);
   rimraf.sync(test.path);
@@ -63,10 +62,10 @@ function runTest(test) {
   try {
     execSync(`git checkout ${test.path} && cd ${test.path} && ${txt}`, {stdio:[0,1,2]});
     totals.success++;
-    console.log(" -", colors.bold('pass'), currentTest.name)
+    console.log(' -', colors.bold('pass'), currentTest.name);
   } catch(err) {
     totals.fail++;
-    console.log(" -", colors.bold('failed'), currentTest.name)
+    console.log(' -', colors.bold('failed'), currentTest.name);
     console.error(err.message);
     process.exit(1);
   }
@@ -85,12 +84,12 @@ function runNextTest() {
 console.log(' -', 'this will take a while...\n');
 var prc = exec('docker pull azureiot/iotz 2>&1', function(error) {
   if (error) {
-    if ((error + "").indexOf("Client.Timeout exceeded while awaiting headers") > 0) {
+    if ((error + '').indexOf('Client.Timeout exceeded while awaiting headers') > 0) {
       console.error(colors.bold('Restarting Docker may help to solve this issue'));
     } else {
       console.error(colors.bold('have you installed Docker?'));
-      if ((error + "").indexOf("Service Unavailable") > 0) {
-        console.error("You might have a problem with your network connection as well.\n");
+      if ((error + '').indexOf('Service Unavailable') > 0) {
+        console.error('You might have a problem with your network connection as well.\n');
       }
     }
     process.exit(1);
@@ -102,9 +101,9 @@ var prc = exec('docker pull azureiot/iotz 2>&1', function(error) {
     if (testFinished) {
       clearInterval(globInterval);
       console.log(colors.bold('\nTest run is finished.\n'));
-      console.log(" -", colors.red  ('total failed'), totals.fail)
-      console.log(" -", colors.bold('total pass'), totals.success)
-      console.log(" -", colors.bold('total'), totals.success + totals.fail)
+      console.log(' -', colors.red  ('total failed'), totals.fail);
+      console.log(' -', colors.bold('total pass'), totals.success);
+      console.log(' -', colors.bold('total'), totals.success + totals.fail);
     }
   });
 });
