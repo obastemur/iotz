@@ -11,7 +11,7 @@ Concerned or have an idea? be vocal and create an issue.
 
 Install [Node.js](https://nodejs.org/en/download/) 8+ and [Docker](https://docs.docker.com/install/).
 
-!! use Linux containers under Windows and share the C drive from settings.
+!! if you are on Windows, use Linux containers and share the C drive from settings.
 
 ### how to install
 
