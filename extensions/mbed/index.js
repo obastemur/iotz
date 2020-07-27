@@ -51,8 +51,8 @@ exports.createExtension = function() {
     run :`
       RUN echo -e " - installing ARM mbed tools"
 
-      RUN apt-get update && apt-get install -y libudev-dev libsystemd-dev libusb-1.0-0-dev && apt clean && pip install mbed-cli \
-        && pip install future && pip install intelhex && pip install setuptools --upgrade \
+      RUN apt-get update && apt-get install -y libudev-dev libsystemd-dev libusb-1.0-0-dev mercurial && apt clean \ 
+        && pip install --upgrade pip && pip install mbed-cli && pip install future && pip install intelhex && pip install setuptools --upgrade \
         && mkdir XXX && cd XXX && echo "#include <mbed.h>\\nint main(){return 0;}" > main.cpp \
         && mbed new . \
         && pip install -r /src/XXX/mbed-os/requirements.txt \
