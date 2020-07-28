@@ -56,3 +56,7 @@
 
 - Remove console colors
 - fix MBED container
+
+##### 0.4.6
+
+- Update pip and mercurial (@jbobotek)
