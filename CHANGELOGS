@@ -60,3 +60,7 @@
 ##### 0.4.6
 
 - Update pip and mercurial (@jbobotek)
+
+##### 0.4.7
+
+- Remove trailing spaces in mbed index.js to improve compatability with linux systems.
